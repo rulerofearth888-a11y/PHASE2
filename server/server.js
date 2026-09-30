@@ -3130,46 +3130,241 @@ app.get('/api/billing/invoices', requireAuth('billing', 'admin'), requireModule(
 // SUPPORT TICKETS
 // ============================================================
 
-app.get('/api/tickets', requireAuth('admin', 'employee'), async (req, res) => {
+// GET /api/tickets — SuperAdmin, Admin, Employee, Farmer
+app.get('/api/tickets', async (req, res) => {
   try {
-    const data = await db.getTickets();
+    const userRole = req.user?.role;
+    const filter = {};
+    if (userRole === 'farmer') {
+      filter.userId = req.user.id;
+      filter.phone = req.user.phone;
+    } else if (req.query.assignedToId) {
+      filter.assignedToId = req.query.assignedToId;
+    }
+    const data = await db.getTickets(filter);
     res.json({ success: true, data });
   } catch (err) {
     sendError(res, err, 'Tickets');
   }
 });
 
+// POST /api/tickets — Create a new ticket linked to previous order
 app.post('/api/tickets', async (req, res) => {
   try {
-    const wait = await rateLimit(`ticket-ip:${clientIp(req)}`, 10, HOUR_MS);
+    const wait = await rateLimit(`ticket-ip:${clientIp(req)}`, 15, HOUR_MS);
     if (wait) return tooManyRequests(res, wait, 'Too many tickets from this connection. Please try again later.');
 
-    const { farmerName, phone, crop, subject, category, priority, description } = req.body || {};
+    const {
+      orderId,
+      userId,
+      farmerName,
+      phone,
+      crop,
+      subject,
+      category,
+      priority,
+      description,
+      orderItems,
+      attachment
+    } = req.body || {};
+
     const cleanSubject = cleanText(subject, 150);
     const cleanDescription = cleanText(description, 2000);
 
     if (!cleanSubject && !cleanDescription) {
-      return res.status(400).json({ success: false, message: 'Please describe your question.' });
+      return res.status(400).json({ success: false, message: 'Please describe your query or problem.' });
     }
 
     const newTicket = {
-      id: newId('TCK'),
-      farmerName: cleanText(farmerName, 80) || 'Farmer',
-      phone: normalizePhone(phone) || '',
+      id: req.body.id || newId('TCK'),
+      orderId: cleanText(orderId, 50) || 'MANUAL-ORDER',
+      userId: userId || req.user?.id || 'USR-GUEST',
+      farmerName: cleanText(farmerName, 80) || req.user?.name || 'Farmer',
+      phone: normalizePhone(phone || req.user?.phone) || '',
       crop: cleanText(crop, 60),
-      subject: cleanSubject || 'General Query',
-      category: cleanText(category, 40) || 'Field Advisory',
-      priority: ['Low', 'Medium', 'High'].includes(priority) ? priority : 'Medium',
+      subject: cleanSubject || 'Order Support Query',
+      category: cleanText(category, 50) || 'Product Quality',
+      priority: ['Low', 'Medium', 'High', 'Urgent'].includes(priority) ? priority : 'Medium',
       status: 'Open',
-      assignedTo: 'Support Desk Agronomist',
+      assignedToId: null,
+      assignedToName: 'Unassigned',
+      assignedRole: null,
+      assignedAt: null,
+      orderItems: Array.isArray(orderItems) ? orderItems : [],
+      attachment: attachment || null,
       createdAt: new Date().toISOString(),
-      replies: [{ from: 'Farmer', text: cleanDescription || cleanSubject, time: 'Just now' }],
+      updatedAt: new Date().toISOString(),
+      resolvedAt: null,
+      replies: [
+        {
+          id: `rep-${Date.now()}`,
+          senderName: cleanText(farmerName, 80) || req.user?.name || 'Farmer',
+          senderRole: 'farmer',
+          text: cleanDescription || cleanSubject,
+          time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
+        }
+      ]
     };
 
     const created = await db.addTicket(newTicket);
     res.json({ success: true, message: 'Support ticket submitted successfully', ticket: created });
   } catch (err) {
     sendError(res, err, 'Create ticket');
+  }
+});
+
+// PUT /api/tickets/:id/assign — Super Admin and Admin assign ticket to Admin or Employee
+app.put('/api/tickets/:id/assign', requireAuth('superadmin', 'admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { assignedToId, assignedToName, assignedRole, assignedBy } = req.body || {};
+
+    const updates = {
+      assignedToId,
+      assignedToName: cleanText(assignedToName, 80),
+      assignedRole: ['admin', 'employee', 'delivery', 'billing'].includes(assignedRole) ? assignedRole : 'employee',
+      assignedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const updated = await db.updateTicket(id, updates);
+    if (!updated) return res.status(404).json({ success: false, message: 'Ticket not found' });
+
+    await db.addTicketReply(id, {
+      id: `rep-${Date.now()}`,
+      senderName: 'System Broadcast',
+      senderRole: 'system',
+      text: `Ticket assigned to ${assignedToName} (${assignedRole?.toUpperCase()}) by ${assignedBy || req.user.name}.`,
+      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
+    });
+
+    res.json({ success: true, message: 'Ticket assigned successfully', data: updated });
+  } catch (err) {
+    sendError(res, err, 'Assign ticket');
+  }
+});
+
+// PUT /api/tickets/:id/status — Update ticket status
+app.put('/api/tickets/:id/status', requireAuth('superadmin', 'admin', 'employee'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, actor } = req.body || {};
+    const updates = {
+      status: cleanText(status, 30),
+      updatedAt: new Date().toISOString()
+    };
+    if (status?.toLowerCase() === 'resolved') {
+      updates.resolvedAt = new Date().toISOString();
+    }
+    const updated = await db.updateTicket(id, updates);
+    if (!updated) return res.status(404).json({ success: false, message: 'Ticket not found' });
+
+    await db.addTicketReply(id, {
+      id: `rep-${Date.now()}`,
+      senderName: 'System Broadcast',
+      senderRole: 'system',
+      text: `Status updated to ${status.toUpperCase()} by ${actor || req.user.name}.`,
+      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
+    });
+
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    sendError(res, err, 'Update status');
+  }
+});
+
+// POST /api/tickets/:id/replies — Add reply to discussion
+app.post('/api/tickets/:id/replies', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { senderName, senderRole, text } = req.body || {};
+    if (!text?.trim()) return res.status(400).json({ success: false, message: 'Reply text cannot be empty' });
+
+    const reply = {
+      id: `rep-${Date.now()}`,
+      senderName: cleanText(senderName, 80) || req.user?.name || 'Staff',
+      senderRole: senderRole || req.user?.role || 'staff',
+      text: cleanText(text, 2000),
+      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = await db.addTicketReply(id, reply);
+    res.json({ success: true, data: updated, reply });
+  } catch (err) {
+    sendError(res, err, 'Add reply');
+  }
+});
+
+// ============================================================
+// AGRONOMY EXPERTS & CALLBACK BOOKINGS
+// ============================================================
+
+// GET /api/agronomy-experts — Public directory of certified agronomy experts
+app.get('/api/agronomy-experts', async (req, res) => {
+  try {
+    const experts = await db.getAgronomyExperts();
+    res.json({ success: true, data: experts });
+  } catch (err) {
+    sendError(res, err, 'Agronomy experts');
+  }
+});
+
+// PUT /api/admin/employees/:id/agronomy-expert — Toggle / designate employee as expert
+app.put('/api/admin/employees/:id/agronomy-expert', requireAuth('superadmin', 'admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isAgronomyExpert, specialization, languages, bio } = req.body || {};
+    await db.setEmployeeAgronomyExpert(id, isAgronomyExpert, { specialization, languages, bio });
+    res.json({ success: true, message: 'Agronomy expert designation updated' });
+  } catch (err) {
+    sendError(res, err, 'Toggle agronomy expert');
+  }
+});
+
+// POST /api/agronomy-bookings — User books consultation callback (must have account)
+app.post('/api/agronomy-bookings', requireAuth('farmer', 'admin', 'employee', 'superadmin', 'delivery', 'billing'), async (req, res) => {
+  try {
+    const { expertId, expertName, crop, acreage, preferredDate, preferredSlot, topic, notes, phone } = req.body || {};
+    const booking = {
+      id: req.body.id || newId('AGR-BK'),
+      expertId: cleanText(expertId, 40),
+      expertName: cleanText(expertName, 80),
+      userId: req.user.id,
+      farmerName: req.user.name || 'Farmer',
+      farmerPhone: normalizePhone(phone || req.user.phone) || '',
+      crop: cleanText(crop, 50) || 'Paddy/Rice',
+      acreage: Number(acreage) || 1,
+      preferredDate: cleanText(preferredDate, 30),
+      preferredSlot: cleanText(preferredSlot, 50),
+      topic: cleanText(topic, 100),
+      notes: cleanText(notes, 1000),
+      status: 'Scheduled',
+      callbackCompleted: false,
+      callbackNotes: null,
+      createdAt: new Date().toISOString()
+    };
+    const created = await db.addAgronomyBooking(booking);
+    res.json({ success: true, message: 'Consultation callback booked successfully', data: created });
+  } catch (err) {
+    sendError(res, err, 'Book agronomy consultation');
+  }
+});
+
+// GET /api/agronomy-bookings — Fetch bookings
+app.get('/api/agronomy-bookings', requireAuth('farmer', 'admin', 'employee', 'superadmin'), async (req, res) => {
+  try {
+    const filter = {};
+    if (req.user.role === 'farmer') {
+      filter.userId = req.user.id;
+    }
+    const data = await db.getAgronomyBookings(filter);
+    res.json({ success: true, data });
+  } catch (err) {
+    sendError(res, err, 'Get agronomy bookings');
   }
 });
 

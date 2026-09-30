@@ -364,6 +364,9 @@ export const NavBar = memo(function NavBar({ t: given }) {
           ))}
 
           <li><Jump {...toBrands}><i className="fa-solid fa-award"></i> Brands</Jump></li>
+          <li><Link to="/agronomy-experts"><i className="fa-solid fa-user-doctor"></i> Agronomy Experts</Link></li>
+          <li><Link to="/soil-test-report"><i className="fa-solid fa-vial-circle-check"></i> Soil Test</Link></li>
+          <li><Link to="/support-tickets"><i className="fa-solid fa-ticket"></i> Support</Link></li>
           <li><Link to="/blog"><i className="fa-solid fa-book-open"></i> Blogs</Link></li>
         </ul>
 

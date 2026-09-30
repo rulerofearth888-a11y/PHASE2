@@ -43,6 +43,7 @@ export const PORTAL_MODULES = {
     { key: 'coupons', label: 'Coupons & Credits', category: 'Marketing', desc: 'Discount voucher generator' },
     { key: 'referrals', label: 'Referrals & Points', category: 'Marketing', desc: 'Farmer loyalty points ledger' },
     { key: 'support-tickets', label: 'Support Tickets', category: 'Support', desc: 'Issue tracking and customer grievances' },
+    { key: 'soil-reports', label: 'Soil Test Reports', category: 'Support', desc: 'Diagnose, prescribe, and assign farmer soil lab reports' },
     { key: 'tickets', label: 'Notifications', category: 'Support', desc: 'System alert broadcast' },
     { key: 'chat', label: 'Chat Records', category: 'Support', desc: 'WhatsApp & web chatbot sessions' },
     { key: 'billing', label: 'Billing POS Access', category: 'Billing', desc: 'Direct access to store billing terminal' }
@@ -51,6 +52,7 @@ export const PORTAL_MODULES = {
     { key: 'tasks', label: 'Daily Operations & Tasks', category: 'Operations', desc: 'Staff task manager' },
     { key: 'inventory', label: 'Stock & Inventory Monitor', category: 'Operations', desc: 'Warehouse stock counts' },
     { key: 'tickets', label: 'Customer Tickets & Queries', category: 'Support', desc: 'Resolve farmer support tickets' },
+    { key: 'soil-reports', label: 'Soil Test Reports', category: 'Support', desc: 'Manage assigned farmer soil reports and write prescriptions' },
     { key: 'chat', label: 'Chat Inquiries', category: 'Support', desc: 'View farmer chat inquiries' }
   ],
   billing: [

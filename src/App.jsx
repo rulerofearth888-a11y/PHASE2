@@ -32,6 +32,9 @@ const OrderStatus = lazy(() => import('./pages/OrderStatus'))
 const Blog = lazy(() => import('./pages/Blog'))
 const BlogDetail = lazy(() => import('./pages/BlogDetail'))
 const InformationPage = lazy(() => import('./pages/InformationPage'))
+const SupportTicketsCustomer = lazy(() => import('./pages/SupportTicketsCustomer'))
+const AgronomyExperts = lazy(() => import('./pages/AgronomyExperts'))
+const SoilTestReport = lazy(() => import('./pages/SoilTestReport'))
 // Staff sign-in and password reset: never needed by a shopper.
 const Login = lazy(() => import('./pages/Login'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
@@ -93,6 +96,11 @@ const SuperAdminUsers = lazy(() => import('./pages/superadmin/Users'))
 const SuperAdminPermissions = lazy(() => import('./pages/superadmin/Permissions'))
 const SuperAdminWorkLog = lazy(() => import('./pages/superadmin/WorkLog'))
 const SuperAdminShopAnalytics = lazy(() => import('./pages/superadmin/ShopAnalytics'))
+const SuperAdminSupportTickets = lazy(() => import('./pages/superadmin/SupportTicketSystem'))
+const SuperAdminSoilReports = lazy(() => import('./pages/superadmin/SoilReportMonitor'))
+
+// Admin & Employee Soil Reports
+const AdminSoilReports = lazy(() => import('./pages/admin/SoilReports'))
 
 // Tickets & Chat (shared between admin/employee)
 const Tickets     = lazy(() => import('./pages/shared/Tickets'))
@@ -106,7 +114,7 @@ function HomePage() {
 }
 
 // The store pages: storefront, shop, blog, product, basket and orders.
-const STORE_PAGES = /^\/(?:$|products|shop|categories|crops|brands|blog|product\/|wishlist|orders|checkout|cart|privacy-policy|terms-of-sale|refund-policy|about-us|contact-us)/
+const STORE_PAGES = /^\/(?:$|products|shop|categories|crops|brands|blog|product\/|wishlist|orders|support-tickets|agronomy-experts|soil-test-report|checkout|cart|privacy-policy|terms-of-sale|refund-policy|about-us|contact-us)/
 
 const useStorePage = () => STORE_PAGES.test(useLocation().pathname)
 
@@ -163,6 +171,9 @@ export default function App() {
           <Route path="/product/:id/ingredients" element={<IngredientDetail />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/orders" element={<OrderStatus />} />
+          <Route path="/support-tickets" element={<SupportTicketsCustomer />} />
+          <Route path="/agronomy-experts" element={<AgronomyExperts />} />
+          <Route path="/soil-test-report" element={<SoilTestReport />} />
           <Route path="/products" element={<AllProducts />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/crops" element={<StoreSection type="crops" />} />
@@ -180,6 +191,8 @@ export default function App() {
         <Route path="/superadmin" element={<PrivateRoute allowedRoles={['superadmin']} signIn={<Login />}><SuperAdminLayout /></PrivateRoute>}>
           <Route index element={<SuperAdminDashboard />} />
           <Route path="analytics" element={<SuperAdminShopAnalytics />} />
+          <Route path="support-tickets" element={<SuperAdminSupportTickets />} />
+          <Route path="soil-reports" element={<SuperAdminSoilReports />} />
           <Route path="stores" element={<SuperAdminStores />} />
           <Route path="users" element={<SuperAdminUsers />} />
           <Route path="permissions" element={<SuperAdminPermissions />} />
@@ -199,6 +212,7 @@ export default function App() {
           <Route path="analytics"  element={<AdminAnalytics />} />
           <Route path="employees"  element={<Employees />} />
           <Route path="support-tickets" element={<SupportTickets />} />
+          <Route path="soil-reports" element={<AdminSoilReports />} />
           <Route path="tickets"    element={<Tickets />} />
           <Route path="chat"       element={<ChatRecords />} />
           <Route path="blogs"      element={<AdminBlogs />} />
@@ -212,6 +226,7 @@ export default function App() {
           <Route index element={<EmployeeDashboard />} />
           <Route path="profile" element={<EmployeeProfile />} />
           <Route path="tickets" element={<Tickets />} />
+          <Route path="soil-reports" element={<AdminSoilReports />} />
         </Route>
 
         {/* Delivery Routes */}

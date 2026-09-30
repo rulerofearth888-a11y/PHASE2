@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import { Menu, LayoutDashboard, Store, Users, ShieldCheck, Activity, ShieldAlert, Sparkles, BarChart3, ChevronRight } from 'lucide-react'
+import { Menu, LayoutDashboard, Store, Users, ShieldCheck, Activity, ShieldAlert, Sparkles, BarChart3, ChevronRight, Ticket, FlaskConical } from 'lucide-react'
 import '../pages/superadmin/superadmin.css'
 
 const SUPERADMIN_NAV = [
@@ -10,6 +10,8 @@ const SUPERADMIN_NAV = [
     links: [
       { to: '/superadmin', end: true, icon: <LayoutDashboard size={16} />, label: 'Control Center' },
       { to: '/superadmin/analytics', icon: <BarChart3 size={16} />, label: 'All Shops Analytics' },
+      { to: '/superadmin/support-tickets', icon: <Ticket size={16} />, label: 'Support Ticket System' },
+      { to: '/superadmin/soil-reports', icon: <FlaskConical size={16} />, label: 'Soil Test Reports' },
       { to: '/superadmin/stores', icon: <Store size={16} />, label: 'Store Locations' },
     ]
   },

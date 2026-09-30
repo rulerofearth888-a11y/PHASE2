@@ -1,64 +1,185 @@
-import { useState } from 'react'
-import { MessageSquare, Clock, User, AlertCircle, CheckCircle, Hourglass, X } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { MessageSquare, Clock, User, AlertCircle, CheckCircle, Hourglass, X, UserCheck, Send, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
+import axios from 'axios'
+import { ticketService } from '../../services/ticketService'
+import { useAuth } from '../../context/AuthContext'
 
-const MOCK_TICKETS = [
-  { id: 'TKT-001', title: 'Product quality issue - CottonGuard 20 EC batch', description: 'Received defective batch. Product shows signs of contamination.', reporter: 'Ramesh Kumar', reporterMobile: '9876543210', status: 'resolved', priority: 'high', createdDate: '2024-08-28', resolvedDate: '2024-09-01', category: 'Product Quality' },
-  { id: 'TKT-002', title: 'Delivery delay for order #12543', description: 'Package not delivered within promised timeframe', reporter: 'Priya Sharma', reporterMobile: '9567890123', status: 'pending', priority: 'medium', createdDate: '2024-09-01', resolvedDate: null, category: 'Delivery' },
-  { id: 'TKT-003', title: 'Payment processing error', description: 'Transaction charged twice for same order', reporter: 'Arun Kumar', reporterMobile: '9678901234', status: 'in-progress', priority: 'high', createdDate: '2024-09-01', resolvedDate: null, category: 'Billing' },
-  { id: 'TKT-004', title: 'Account login issue', description: 'Unable to login with registered mobile number', reporter: 'Muthuvel K', reporterMobile: '9234567890', status: 'resolved', priority: 'low', createdDate: '2024-08-30', resolvedDate: '2024-08-31', category: 'Technical' },
-  { id: 'TKT-005', title: 'Advisory content not updating', description: 'Weather advisory for my region not refreshing', reporter: 'Rameshwar Patel', reporterMobile: '9876543210', status: 'pending', priority: 'low', createdDate: '2024-09-02', resolvedDate: null, category: 'Advisory' },
+const DEFAULT_EMPLOYEES = [
+  { id: 'USR-0003', name: 'Dr. K. Senthil Kumar', designation: 'Senior Agronomist' },
+  { id: 'u6', name: 'Dr. Priya Sharma', designation: 'Agronomist & Soil Chemist' },
+  { id: 'u7', name: 'Arun Kumar', designation: 'Horticulture Specialist' },
+  { id: 'u3', name: 'Muthuvel K', designation: 'Quality Control Lead' }
 ]
 
 export default function SupportTickets() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS)
+  const { user } = useAuth()
+  const [tickets, setTickets] = useState([])
+  const [employees, setEmployees] = useState(DEFAULT_EMPLOYEES)
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  // Assignment & reply
+  const [assigneeId, setAssigneeId] = useState('')
+  const [replyText, setReplyText] = useState('')
+  const [submittingReply, setSubmittingReply] = useState(false)
+
+  // Load employees
+  const loadEmployees = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/admin/staff-profiles').catch(() => null)
+      if (res?.data?.data && Array.isArray(res.data.data)) {
+        const emps = res.data.data
+          .filter(u => u.role === 'employee')
+          .map(u => ({
+            id: u.id || u._id,
+            name: u.name,
+            designation: u.profile?.designation || 'Operations Staff'
+          }))
+        if (emps.length) setEmployees(emps)
+      }
+    } catch {}
+  }, [])
+
+  // Load tickets
+  const loadTickets = useCallback(async () => {
+    setLoading(true)
+    try {
+      const list = await ticketService.getTickets({ role: 'admin' })
+      setTickets(list)
+      if (list.length > 0 && !selectedTicket) {
+        setSelectedTicket(list[0])
+      } else if (selectedTicket) {
+        const refreshed = list.find(t => t.id === selectedTicket.id)
+        if (refreshed) setSelectedTicket(refreshed)
+      }
+    } catch {
+      toast.error('Failed to load tickets')
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedTicket])
+
+  useEffect(() => {
+    loadEmployees()
+    loadTickets()
+
+    const onUpdate = () => loadTickets()
+    window.addEventListener('sathyam:tickets-updated', onUpdate)
+    return () => window.removeEventListener('sathyam:tickets-updated', onUpdate)
+  }, [loadEmployees, loadTickets])
 
   const filtered = tickets.filter(t => {
-    const statusMatch = filterStatus === 'all' || t.status === filterStatus
-    const priorityMatch = filterPriority === 'all' || t.priority === filterPriority
-    const searchMatch = search === '' || 
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.id.includes(search) ||
-      t.reporter.toLowerCase().includes(search.toLowerCase())
+    const status = (t.status || 'open').toLowerCase()
+    const priority = (t.priority || 'medium').toLowerCase()
+
+    const statusMatch =
+      filterStatus === 'all' ||
+      (filterStatus === 'resolved' && (status === 'resolved' || status === 'closed')) ||
+      (filterStatus === 'in-progress' && status === 'in progress') ||
+      (filterStatus === 'pending' && (status === 'pending' || status === 'open')) ||
+      (filterStatus === 'rejected' && status === 'rejected')
+
+    const priorityMatch = filterPriority === 'all' || priority === filterPriority
+
+    const q = search.toLowerCase()
+    const searchMatch =
+      search === '' ||
+      t.subject?.toLowerCase().includes(q) ||
+      t.id.toLowerCase().includes(q) ||
+      (t.orderId && t.orderId.toLowerCase().includes(q)) ||
+      (t.farmerName && t.farmerName.toLowerCase().includes(q))
+
     return statusMatch && priorityMatch && searchMatch
   })
 
   const getStatusColor = (status) => {
+    const s = (status || 'pending').toLowerCase()
     const colors = {
       'resolved': { bg: 'rgba(93, 193, 149, 0.12)', color: '#2d9a66', icon: CheckCircle },
+      'closed': { bg: 'rgba(93, 193, 149, 0.12)', color: '#2d9a66', icon: CheckCircle },
       'pending': { bg: 'rgba(245, 200, 107, 0.12)', color: '#c8942e', icon: Clock },
-      'in-progress': { bg: 'rgba(94, 99, 255, 0.12)', color: '#3f46d1', icon: Hourglass },
+      'open': { bg: 'rgba(245, 200, 107, 0.12)', color: '#c8942e', icon: Clock },
+      'in progress': { bg: 'rgba(94, 99, 255, 0.12)', color: '#3f46d1', icon: Hourglass },
       'rejected': { bg: 'rgba(239, 68, 68, 0.12)', color: '#ef6d6d', icon: X },
     }
-    return colors[status] || colors['pending']
+    return colors[s] || colors['pending']
   }
 
   const getPriorityColor = (priority) => {
+    const p = (priority || 'medium').toLowerCase()
     const colors = {
+      'urgent': '#ef4444',
       'high': '#ef6d6d',
       'medium': '#f5c86b',
       'low': '#52c6c1',
     }
-    return colors[priority]
+    return colors[p] || '#f5c86b'
   }
 
-  const handleStatusUpdate = (ticketId, newStatus) => {
-    setTickets(tickets.map(t =>
-      t.id === ticketId
-        ? { ...t, status: newStatus, resolvedDate: newStatus === 'resolved' ? new Date().toLocaleDateString('en-IN') : t.resolvedDate }
-        : t
-    ))
-    setSelectedTicket(selectedTicket?.id === ticketId ? { ...selectedTicket, status: newStatus, resolvedDate: newStatus === 'resolved' ? new Date().toLocaleDateString('en-IN') : selectedTicket.resolvedDate } : selectedTicket)
+  const handleStatusUpdate = async (ticketId, newStatus) => {
+    try {
+      const updated = await ticketService.updateTicketStatus(ticketId, newStatus, user?.name || 'Admin')
+      toast.success(`Ticket marked as ${newStatus}`)
+      setSelectedTicket(updated)
+      await loadTickets()
+    } catch {
+      toast.error('Failed to update status')
+    }
+  }
+
+  // Admin assign ticket to employee
+  const handleAssignToEmployee = async () => {
+    if (!selectedTicket || !assigneeId) return
+    const emp = employees.find(e => e.id === assigneeId)
+    if (!emp) return
+
+    try {
+      const updated = await ticketService.assignTicket(selectedTicket.id, {
+        assignedToId: emp.id,
+        assignedToName: emp.name,
+        assignedRole: 'employee',
+        assignedBy: user?.name || 'Store Admin'
+      })
+      toast.success(`Assigned ticket to ${emp.name}`)
+      setSelectedTicket(updated)
+      setAssigneeId('')
+      await loadTickets()
+    } catch {
+      toast.error('Could not assign employee')
+    }
+  }
+
+  // Admin add reply
+  const handleAddReply = async (e) => {
+    e.preventDefault()
+    if (!replyText.trim() || !selectedTicket) return
+
+    setSubmittingReply(true)
+    try {
+      const updated = await ticketService.addReply(selectedTicket.id, {
+        senderName: user?.name || 'Store Admin',
+        senderRole: 'admin',
+        text: replyText.trim()
+      })
+      setReplyText('')
+      setSelectedTicket(updated)
+      toast.success('Reply recorded')
+    } catch {
+      toast.error('Failed to post reply')
+    } finally {
+      setSubmittingReply(false)
+    }
   }
 
   const stats = [
     { label: 'Total Tickets', value: tickets.length, icon: '🎫', color: 'blue' },
-    { label: 'Resolved', value: tickets.filter(t => t.status === 'resolved').length, icon: '✅', color: 'green' },
-    { label: 'In Progress', value: tickets.filter(t => t.status === 'in-progress').length, icon: '⏳', color: 'yellow' },
-    { label: 'Pending', value: tickets.filter(t => t.status === 'pending').length, icon: '⏰', color: 'orange' },
+    { label: 'Resolved', value: tickets.filter(t => (t.status || '').toLowerCase() === 'resolved').length, icon: '✅', color: 'green' },
+    { label: 'In Progress', value: tickets.filter(t => (t.status || '').toLowerCase() === 'in progress').length, icon: '⏳', color: 'yellow' },
+    { label: 'Unassigned', value: tickets.filter(t => !t.assignedToId || t.assignedToName === 'Unassigned').length, icon: '⚠️', color: 'orange' },
   ]
 
   return (
@@ -66,8 +187,8 @@ export default function SupportTickets() {
       <div className="page-header">
         <div>
           <div className="eyebrow">Support Center</div>
-          <h1>🎫 Support Tickets</h1>
-          <p>Track all customer issues, complaints, and support requests with real-time status updates</p>
+          <h1>🎫 Support Tickets &amp; Order Disputes</h1>
+          <p>Monitor grievances raised from customer orders, reassign to agronomists, and track real-time resolution</p>
         </div>
       </div>
 
@@ -86,7 +207,7 @@ export default function SupportTickets() {
       <div className="filter-bar">
         <input
           type="text"
-          placeholder="Search by ticket ID, title, or reporter..."
+          placeholder="Search by ticket ID, order ID, farmer name..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="form-input"
@@ -97,12 +218,13 @@ export default function SupportTickets() {
           <option value="all">All Status</option>
           <option value="resolved">Resolved</option>
           <option value="in-progress">In Progress</option>
-          <option value="pending">Pending</option>
+          <option value="pending">Pending / Open</option>
           <option value="rejected">Rejected</option>
         </select>
 
         <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="filter-select">
           <option value="all">All Priority</option>
+          <option value="urgent">Urgent</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
@@ -110,7 +232,7 @@ export default function SupportTickets() {
       </div>
 
       {/* Tickets Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedTicket ? '1fr 400px' : '1fr', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: selectedTicket ? '1fr 440px' : '1fr', gap: '20px', alignItems: 'start' }}>
         <div>
           {filtered.length === 0 ? (
             <div className="empty-state">
@@ -122,6 +244,7 @@ export default function SupportTickets() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {filtered.map(ticket => {
                 const statusInfo = getStatusColor(ticket.status)
+                const isSelected = selectedTicket?.id === ticket.id
                 return (
                   <div
                     key={ticket.id}
@@ -129,33 +252,43 @@ export default function SupportTickets() {
                     onClick={() => setSelectedTicket(ticket)}
                     style={{
                       cursor: 'pointer',
-                      borderLeft: selectedTicket?.id === ticket.id ? '4px solid var(--brand-500)' : '4px solid transparent',
-                      background: selectedTicket?.id === ticket.id ? 'rgba(94,99,255,0.05)' : 'rgba(255,255,255,0.8)',
+                      borderLeft: isSelected ? '4px solid var(--brand-500)' : '4px solid transparent',
+                      background: isSelected ? 'rgba(94,99,255,0.05)' : 'rgba(255,255,255,0.8)',
                       padding: '16px 20px',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow = 'var(--shadow-sm)'}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--brand-600)', marginBottom: '6px' }}>
-                          {ticket.id}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '6px' }}>
+                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--brand-600)' }}>
+                            {ticket.id}
+                          </span>
+                          {ticket.orderId && (
+                            <span style={{ fontSize: '0.72rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>
+                              Order: {ticket.orderId}
+                            </span>
+                          )}
                         </div>
                         <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                          {ticket.title}
+                          {ticket.subject || ticket.title}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: '1.4' }}>
                           {ticket.description}
                         </div>
-                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', fontSize: '0.8rem' }}>
-                          <span style={{ color: 'var(--text-muted)' }}>👤 {ticket.reporter}</span>
-                          <span style={{ color: 'var(--text-muted)' }}>📅 {ticket.createdDate}</span>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', fontSize: '0.78rem', alignItems: 'center' }}>
+                          <span style={{ color: 'var(--text-muted)' }}>👤 {ticket.farmerName || ticket.reporter}</span>
+                          <span style={{ color: 'var(--text-muted)' }}>📅 {new Date(ticket.createdAt || ticket.createdDate).toLocaleDateString('en-IN')}</span>
                           <span style={{ background: statusInfo.bg, color: statusInfo.color, padding: '2px 8px', borderRadius: 'var(--radius-full)', fontWeight: 600 }}>
-                            {ticket.status.toUpperCase()}
+                            {(ticket.status || 'PENDING').toUpperCase()}
                           </span>
                           <span style={{ background: `${getPriorityColor(ticket.priority)}20`, color: getPriorityColor(ticket.priority), padding: '2px 8px', borderRadius: 'var(--radius-full)', fontWeight: 600 }}>
-                            {ticket.priority.toUpperCase()}
+                            {(ticket.priority || 'MEDIUM').toUpperCase()}
                           </span>
+                          {ticket.assignedToName && ticket.assignedToName !== 'Unassigned' && (
+                            <span style={{ color: '#0284c7', fontWeight: 600 }}>
+                              👨‍🌾 Assigned: {ticket.assignedToName}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -168,92 +301,132 @@ export default function SupportTickets() {
 
         {/* Ticket Details Panel */}
         {selectedTicket && (
-          <div className="card" style={{ position: 'sticky', top: '100px' }}>
+          <div className="card" style={{ position: 'sticky', top: '100px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
             <div className="card-header" style={{ flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '12px' }}>
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Ticket Details
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--brand-600)' }}>
+                  {selectedTicket.id}
+                </span>
+                {selectedTicket.orderId && (
+                  <span style={{ fontSize: '0.75rem', background: '#f1f5f9', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
+                    Order: {selectedTicket.orderId}
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, marginTop: 4 }}>
+                {selectedTicket.subject || selectedTicket.title}
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Ticket ID */}
-              <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  Ticket ID
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Category & Reporter */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '0.85rem' }}>
+                <div>
+                  <span className="muted" style={{ display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>Reporter</span>
+                  <strong>{selectedTicket.farmerName || selectedTicket.reporter}</strong>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>📱 {selectedTicket.phone || selectedTicket.reporterMobile}</div>
                 </div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--brand-600)' }}>
-                  {selectedTicket.id}
-                </div>
-              </div>
-
-              {/* Category */}
-              <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  Category
-                </div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {selectedTicket.category}
+                <div>
+                  <span className="muted" style={{ display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>Category</span>
+                  <strong>{selectedTicket.category}</strong>
                 </div>
               </div>
 
-              {/* Reporter */}
-              <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Reporter
+              {/* ASSIGN TO EMPLOYEE (Admin Action) */}
+              <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <UserCheck size={14} /> Assign / Delegate to Employee
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
-                    <User size={14} /> {selectedTicket.reporter}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    📱 {selectedTicket.reporterMobile}
-                  </div>
+                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 8 }}>
+                  Currently Assigned: <strong>{selectedTicket.assignedToName || 'Unassigned'}</strong>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <select
+                    value={assigneeId}
+                    onChange={e => setAssigneeId(e.target.value)}
+                    style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#fff' }}
+                  >
+                    <option value="">-- Choose Employee --</option>
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.name} ({emp.designation})
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAssignToEmployee}
+                    disabled={!assigneeId}
+                    style={{ background: '#16a34a', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Assign
+                  </button>
                 </div>
               </div>
 
-              {/* Status Update */}
-              <div style={{ paddingTop: '8px', borderTop: '1px solid var(--surface-border-subtle)' }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+              {/* Status Update Buttons */}
+              <div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Update Status
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {['pending', 'in-progress', 'resolved', 'rejected'].map(status => {
-                    const info = getStatusColor(status)
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                  {['Pending', 'In Progress', 'Resolved', 'Rejected'].map(status => {
+                    const isCur = (selectedTicket.status || '').toLowerCase() === status.toLowerCase()
                     return (
                       <button
                         key={status}
                         onClick={() => handleStatusUpdate(selectedTicket.id, status)}
                         style={{
-                          background: selectedTicket.status === status ? info.bg : 'rgba(255,255,255,0.5)',
-                          border: `1.5px solid ${selectedTicket.status === status ? info.color : 'var(--surface-border-subtle)'}`,
-                          color: selectedTicket.status === status ? info.color : 'var(--text-muted)',
-                          padding: '8px 12px',
-                          borderRadius: 'var(--radius-md)',
-                          fontSize: '0.8rem',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
+                          background: isCur ? 'var(--brand-500)' : '#fff',
+                          border: `1.5px solid ${isCur ? 'var(--brand-500)' : '#e2e8f0'}`,
+                          color: isCur ? '#fff' : '#64748b',
+                          padding: '6px 4px',
+                          borderRadius: '6px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
                         }}
                       >
-                        {status.toUpperCase()}
+                        {status}
                       </button>
                     )
                   })}
                 </div>
               </div>
 
-              {/* Dates */}
-              <div style={{ paddingTop: '8px', borderTop: '1px solid var(--surface-border-subtle)', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
-                <div>
-                  <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>📅 Created:</span> {selectedTicket.createdDate}
+              {/* Discussion Thread */}
+              <div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Message Thread
                 </div>
-                {selectedTicket.resolvedDate && (
-                  <div>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>✅ Resolved:</span> {selectedTicket.resolvedDate}
-                  </div>
-                )}
+                <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, background: '#fafafa', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                  {selectedTicket.replies?.map((rep, idx) => (
+                    <div key={rep.id || idx} style={{ fontSize: '0.8rem', background: '#fff', padding: '8px 10px', borderRadius: 6, border: '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#94a3b8', marginBottom: 2 }}>
+                        <strong>{rep.senderName}</strong>
+                        <span>{rep.time}</span>
+                      </div>
+                      <div style={{ color: '#1e293b' }}>{rep.text}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <form onSubmit={handleAddReply} style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                  <input
+                    type="text"
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    placeholder="Reply as Admin..."
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={submittingReply || !replyText.trim()}
+                    style={{ background: 'var(--brand-600)', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}
+                  >
+                    Send
+                  </button>
+                </form>
               </div>
             </div>
           </div>

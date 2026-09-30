@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useAuth } from '../context/AuthContext'
+import ServicesBottomNav from '../components/common/ServicesBottomNav'
 
 // Order status for the signed-in customer; the server only ever returns their
 // own orders. Replaces public/order-status.html, which now redirects here.
@@ -58,6 +59,27 @@ function OrderCard({ order }) {
           <i className="fa-solid fa-key" aria-hidden="true"></i> Delivery OTP (share only with the delivery agent): <strong>{order.otp}</strong>
         </div>
       )}
+      <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Link
+          to={`/support-tickets?orderId=${encodeURIComponent(order.id)}`}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            color: '#16a34a',
+            background: 'rgba(22, 163, 74, 0.08)',
+            border: '1px solid rgba(22, 163, 74, 0.25)',
+            padding: '6px 14px',
+            borderRadius: 6,
+            textDecoration: 'none',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <i className="fa-solid fa-ticket" aria-hidden="true"></i> Raise Support Ticket
+        </Link>
+      </div>
     </div>
   )
 }
@@ -115,9 +137,32 @@ export default function OrderStatus() {
 
   return (
     <div className="sb-orders-page">
-      <h1>Order status</h1>
-      <p className="muted">{intro}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 14 }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Order status</h1>
+          <p className="muted" style={{ margin: '4px 0 0' }}>{intro}</p>
+        </div>
+        <Link
+          to="/support-tickets"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'linear-gradient(135deg, #16a34a, #059669)',
+            color: '#fff',
+            padding: '8px 16px',
+            borderRadius: 8,
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            boxShadow: '0 2px 8px rgba(22, 163, 74, 0.2)'
+          }}
+        >
+          <i className="fa-solid fa-headset" aria-hidden="true"></i> Support Tickets Desk
+        </Link>
+      </div>
       <section className="status-card" aria-live="polite">{body}</section>
+      <ServicesBottomNav />
     </div>
   )
 }

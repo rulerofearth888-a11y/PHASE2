@@ -398,6 +398,15 @@ export default function MobileBottomNav() {
           <TransitionLink to="/orders" className="mms-tile" onClick={closeMenu}>
             <span className="mms-tile-icon" style={{ '--tile': '#2563eb' }}><i className="fa-solid fa-truck-fast"></i></span>Track Order
           </TransitionLink>
+          <TransitionLink to="/agronomy-experts" className="mms-tile" onClick={closeMenu}>
+            <span className="mms-tile-icon" style={{ '--tile': '#059669' }}><i className="fa-solid fa-user-doctor"></i></span>Agronomy Experts
+          </TransitionLink>
+          <TransitionLink to="/soil-test-report" className="mms-tile" onClick={closeMenu}>
+            <span className="mms-tile-icon" style={{ '--tile': '#0284c7' }}><i className="fa-solid fa-vial-circle-check"></i></span>Soil Test Report
+          </TransitionLink>
+          <TransitionLink to="/support-tickets" className="mms-tile" onClick={closeMenu}>
+            <span className="mms-tile-icon" style={{ '--tile': '#ea580c' }}><i className="fa-solid fa-ticket"></i></span>Support Tickets
+          </TransitionLink>
           <a href="https://wa.me/918778613372?text=Hello%20Sathyam%20Bio%20Expert%2C%20I%20need%20crop%20advice" target="_blank" rel="noopener noreferrer" className="mms-tile" onClick={closeMenu}>
             <span className="mms-tile-icon" style={{ '--tile': '#16a34a' }}><i className="fa-brands fa-whatsapp"></i></span>WhatsApp Expert
           </a>

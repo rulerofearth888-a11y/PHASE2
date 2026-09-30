@@ -174,6 +174,8 @@ const UploadMeta = mongoose.models.UploadMeta || mongoose.model('UploadMeta', up
 
 const storeSchema = new mongoose.Schema({ _id: String }, permissive);
 export const Store = mongoose.models.Store || mongoose.model('Store', storeSchema);
+const agronomyBookingSchema = new mongoose.Schema({ _id: String }, permissive);
+export const AgronomyBooking = mongoose.models.AgronomyBooking || mongoose.model('AgronomyBooking', agronomyBookingSchema);
 
 const activityLogSchema = new mongoose.Schema({ _id: String }, permissive);
 export const ActivityLog = mongoose.models.ActivityLog || mongoose.model('ActivityLog', activityLogSchema);
@@ -2245,11 +2247,37 @@ class DatabaseManager {
         return tasks.map(serialize);
   }
 
-  async getTickets() {
+  async getTickets(filter = {}) {
         await connectDB();
-        const tickets = (await Ticket.find({}).lean()).map(serialize);
+        const query = {};
+        if (filter.phone) query.phone = filter.phone;
+        if (filter.userId) query.userId = filter.userId;
+        if (filter.assignedToId) query.assignedToId = filter.assignedToId;
+        const tickets = (await Ticket.find(query).lean()).map(serialize);
         tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         return tickets;
+  }
+
+  async getTicketById(id) {
+        await connectDB();
+        const ticket = await Ticket.findById(id).lean();
+        return ticket ? serialize(ticket) : null;
+  }
+
+  async updateTicket(id, updates) {
+        await connectDB();
+        const updated = await Ticket.findByIdAndUpdate(id, { $set: updates }, { new: true, lean: true });
+        return updated ? serialize(updated) : null;
+  }
+
+  async addTicketReply(id, reply) {
+        await connectDB();
+        const updated = await Ticket.findByIdAndUpdate(
+          id,
+          { $push: { replies: reply }, $set: { updatedAt: new Date().toISOString() } },
+          { new: true, lean: true }
+        );
+        return updated ? serialize(updated) : null;
   }
 
   async addTicket(ticket) {
@@ -2257,6 +2285,35 @@ class DatabaseManager {
         const doc = { ...ticket, _id: ticket.id };
         const created = await Ticket.create(doc);
         return serialize(created.toObject());
+  }
+
+  async getAgronomyExperts() {
+        await connectDB();
+        const staff = await this.listStaffProfiles();
+        return staff.filter(s => s.isAgronomyExpert || s.profile?.isAgronomyExpert);
+  }
+
+  async setEmployeeAgronomyExpert(userId, isExpert, details = {}) {
+        await connectDB();
+        await User.findByIdAndUpdate(userId, { $set: { isAgronomyExpert: Boolean(isExpert), ...details } });
+        await StaffProfile.findByIdAndUpdate(userId, { $set: { isAgronomyExpert: Boolean(isExpert), ...details } }, { upsert: true });
+        return true;
+  }
+
+  async addAgronomyBooking(booking) {
+        await connectDB();
+        const doc = { ...booking, _id: booking.id };
+        const created = await AgronomyBooking.create(doc);
+        return serialize(created.toObject());
+  }
+
+  async getAgronomyBookings(filter = {}) {
+        await connectDB();
+        const query = {};
+        if (filter.userId) query.userId = filter.userId;
+        if (filter.expertId) query.expertId = filter.expertId;
+        const list = await AgronomyBooking.find(query).lean();
+        return list.map(serialize);
   }
 
   async getChatRecords() {

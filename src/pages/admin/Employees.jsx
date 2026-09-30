@@ -1,7 +1,8 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { Search, Clock, Mail, Phone, Building2, Calendar, ChevronRight, User, Loader, Shield, Banknote, MapPin, BookOpen, HeartPulse } from 'lucide-react'
+import { Search, Clock, Mail, Phone, Building2, Calendar, ChevronRight, User, Loader, Shield, Banknote, MapPin, BookOpen, HeartPulse, Sprout, Sparkles, CheckCircle2 } from 'lucide-react'
+import { agronomyService } from '../../services/agronomyService'
 
 function ProfileDetail({ label, value }) {
   if (!value) return null
@@ -23,9 +24,14 @@ function SectionHeading({ icon: Icon, label, color }) {
 
 export default function Employees() {
   const [employees, setEmployees] = useState([])
+  const [agronomyExperts, setAgronomyExperts] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selectedEmployee, setSelectedEmployee] = useState(null)
+
+  const loadExperts = () => {
+    agronomyService.getExperts().then(res => setAgronomyExperts(res || []))
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -36,7 +42,13 @@ export default function Employees() {
       })
       .catch(() => toast.error('Could not load employee profiles'))
       .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+
+    loadExperts()
+    window.addEventListener('sathyam:experts-updated', loadExperts)
+    return () => {
+      cancelled = true
+      window.removeEventListener('sathyam:experts-updated', loadExperts)
+    }
   }, [])
 
   const filtered = employees.filter(e => {
@@ -50,6 +62,26 @@ export default function Employees() {
       (e.profile?.department || '').toLowerCase().includes(q)
     )
   })
+
+  const isExpert = (empId) => agronomyExperts.some(e => (e.employeeId === empId || e.id === empId) && e.isAgronomyExpert)
+
+  const handleToggleAgronomyExpert = async (emp) => {
+    const currentlyExpert = isExpert(emp.id)
+    try {
+      await agronomyService.toggleEmployeeAgronomyExpert(emp, !currentlyExpert, {
+        specialization: emp.profile?.designation || emp.profile?.department || 'Field Agronomy & Crop Advisory',
+        languages: emp.profile?.languages ? [emp.profile.languages] : ['Tamil', 'English']
+      })
+      toast.success(
+        currentlyExpert
+          ? `Removed ${emp.name} from Agronomy Experts directory`
+          : `🎉 ${emp.name} is now designated as an Agronomy Expert!`
+      )
+      loadExperts()
+    } catch {
+      toast.error('Failed to update Agronomy Expert status')
+    }
+  }
 
   const sel = selectedEmployee
   const p = sel?.profile || {}
@@ -129,6 +161,11 @@ export default function Employees() {
                           <div>
                             <span className={`badge ${emp.status === 'active' ? 'badge-green' : 'badge-gray'}`}>{emp.status || 'active'}</span>
                             <span className="badge badge-blue" style={{ marginLeft: 4, textTransform: 'capitalize' }}>{emp.role}</span>
+                            {isExpert(emp.id) && (
+                              <span style={{ marginLeft: 4, background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                                <Sprout size={11} /> Agronomy Expert
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -161,6 +198,53 @@ export default function Employees() {
                     {p.designation && <span>{p.designation}</span>}
                   </div>
                 </div>
+              </div>
+
+              {/* AGRONOMY EXPERT ASSIGNMENT BOX */}
+              <div style={{ background: isExpert(sel.id) ? 'linear-gradient(135deg, #f0fdf4, #ecfdf5)' : '#f8fafc', border: `1px solid ${isExpert(sel.id) ? '#a7f3d0' : '#e2e8f0'}`, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: '0.82rem', color: isExpert(sel.id) ? '#047857' : '#475569' }}>
+                    <Sprout size={16} /> AGRONOMY EXPERT ROLE
+                  </div>
+                  {isExpert(sel.id) ? (
+                    <span style={{ background: '#16a34a', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: 12 }}>
+                      Active on Storefront
+                    </span>
+                  ) : (
+                    <span style={{ background: '#e2e8f0', color: '#64748b', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 12 }}>
+                      Standard Employee
+                    </span>
+                  )}
+                </div>
+
+                <p style={{ margin: '0 0 10px', fontSize: '0.78rem', color: '#64748b', lineHeight: 1.4 }}>
+                  {isExpert(sel.id)
+                    ? 'This employee is certified as an Agronomy Expert. Farmers can book 1-on-1 consultation sessions and callbacks with them in the Agronomy Experts section.'
+                    : 'Designate this employee as an Agronomy Expert so registered farmers can book consultations and request advisory callbacks with them.'}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => handleToggleAgronomyExpert(sel)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    borderRadius: 6,
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    background: isExpert(sel.id) ? '#fee2e2' : 'linear-gradient(135deg, #047857, #065f46)',
+                    color: isExpert(sel.id) ? '#b91c1c' : '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    boxShadow: isExpert(sel.id) ? 'none' : '0 2px 8px rgba(4, 120, 87, 0.2)'
+                  }}
+                >
+                  {isExpert(sel.id) ? 'Remove Agronomy Expert Role' : '🌟 Assign as Agronomy Expert'}
+                </button>
               </div>
 
               {/* Account info */}
