@@ -6,62 +6,41 @@ import { CROP_CHOICES } from '../../shared/profileFieldRules'
 import { advisoryCropOptions } from '../../utils/catalogUtils'
 import CropSelect from './CropSelect'
 
-const DEFAULT_TESTIMONIALS = [
-  {
-    quote: '"Sathyam Agro Mart BlastShield 75 WP completely saved my 5-acre paddy crop from neck blast after heavy rain. High quality product!"',
-    photo: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=200&q=80',
-    name:  'K. Venkateswarlu',
-    place: 'Paddy Farmer, Guntur (AP)',
-  },
-  {
-    quote: '"FlyKill Ultra controlled whitefly infestation in my cotton crop within 48 hours. Fast delivery and COD service."',
-    photo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=80',
-    name:  'Ramesh Patil',
-    place: 'Cotton Grower, Yavatmal (MH)',
-  },
-  {
-    quote: '"RootVigor Gold organic biostimulant increased white root mass and fruit size in my tomato farm by 30%."',
-    photo: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=200&q=80',
-    name:  'Subramaniam B.',
-    place: 'Horticulture Farmer, Salem (TN)',
-  },
-]
-
+// Only testimonials an admin has entered in the CMS are shown - no built-in
+// quotes, so nothing appears that a real customer did not say.
 export const Testimonials = memo(function Testimonials({ cms }) {
-  const sectionTitle    = cmsText(cms, 'testimonialsTitle',    'Trusted by 15,000+ Indian Farmers')
-  const sectionSubtitle = cmsText(cms, 'testimonialsSubtitle', 'Real results from paddy, cotton, tomato, and fruit growers')
+  const sectionTitle    = cmsText(cms, 'testimonialsTitle',    '')
+  const sectionSubtitle = cmsText(cms, 'testimonialsSubtitle', '')
 
-  // Merge CMS overrides over the default testimonials
-  const testimonials = DEFAULT_TESTIMONIALS.map((item, i) => {
-    const n = i + 1
-    return {
-      quote: cmsText(cms, `testimonial${n}Quote`, item.quote),
-      photo: cmsText(cms, `testimonial${n}Photo`, item.photo),
-      name:  cmsText(cms, `testimonial${n}Name`,  item.name),
-      place: cmsText(cms, `testimonial${n}Place`, item.place),
-    }
-  })
+  const testimonials = [1, 2, 3].map(n => ({
+    quote: cmsText(cms, `testimonial${n}Quote`, ''),
+    photo: cmsText(cms, `testimonial${n}Photo`, ''),
+    name:  cmsText(cms, `testimonial${n}Name`,  ''),
+    place: cmsText(cms, `testimonial${n}Place`, ''),
+  })).filter(item => item.quote)
+
+  if (!sectionTitle || !testimonials.length) return null
 
   return (
     <section className="section" style={{ background: '#ffffff', padding: '50px 0' }}>
       <div className="container">
         <div className="section-header text-center">
           <h2 className="section-title">{sectionTitle}</h2>
-          <p className="section-subtitle">{sectionSubtitle}</p>
+          {sectionSubtitle && <p className="section-subtitle">{sectionSubtitle}</p>}
         </div>
         <div className="testimonials-grid">
-          {testimonials.map(item => (
-            <div key={item.name} style={{ background: '#FAF9F6', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
+          {testimonials.map((item, index) => (
+            <div key={index} style={{ background: '#FAF9F6', border: '1px solid var(--border-light)', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ color: 'var(--accent-amber)', marginBottom: '8px' }}>★★★★★</div>
               <p style={{ fontSize: '0.88rem', fontStyle: 'italic', color: 'var(--text-main)', lineHeight: 1.5 }}>{item.quote}</p>
               <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <img
+                {item.photo && <img
                   src={item.photo}
                   alt="Farmer"
                   style={{ width: '46px', height: '46px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }}
                   loading="lazy"
                   decoding="async"
-                />
+                />}
                 <div>
                   <strong style={{ fontSize: '0.9rem', display: 'block', color: 'var(--primary-dark)' }}>{item.name}</strong>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{item.place}</span>

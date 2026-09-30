@@ -8,15 +8,14 @@ import { useCms, cmsTickerLines } from '../../context/CmsContext'
 // TickerBar), not a CSS-hidden copy of it, but it now reads the same shared
 // CmsContext instance as everything else (see src/context/CmsContext.jsx),
 // so it can never drift out of sync with the desktop ticker - see
-// tickerItemsFor there for the same admin-override-replaces-all-six-promos
+// tickerItemsFor there for the same admin-override-replaces-the-built-in-lines
 // behaviour.
+// Shown only when the admin has not set ticker lines in the CMS (banner).
+// Keep these to plain facts - no offers, awards or product claims.
 const ITEMS = [
-  ['fa-solid fa-fire', '#fbbf24', <>FLAT 15% OFF on first order — Use code <strong>FARM15</strong></>],
-  ['fa-solid fa-truck-fast', '#34d399', 'Free express delivery on orders above ₹999 across all 28 states'],
-  ['fa-solid fa-leaf', '#6ee7b7', 'BlastShield 75 WP — #1 Selling Paddy Fungicide this Kharif Season'],
-  ['fa-brands fa-whatsapp', '#25d366', 'WhatsApp us at +91 87786 13372 for instant crop advisory in your language'],
-  ['fa-solid fa-award', '#fbbf24', 'Sathyam Agro Mart — Winner of ICAR Best AgriTech 2025 Award'],
-  ['fa-solid fa-phone-volume', '#34d399', <>Missed Call To Order: <strong>+91 87786 13372</strong> — 24 hrs, 7 days</>],
+  ['fa-solid fa-leaf', '#6ee7b7', 'Grow More. Protect Better. Farm Smarter.'],
+  ['fa-brands fa-whatsapp', '#25d366', 'WhatsApp us at +91 87786 13372 for crop advisory in your language'],
+  ['fa-solid fa-phone-volume', '#34d399', <>Call to order: <strong>+91 87786 13372</strong></>],
 ]
 
 const renderItems = (items, copy, fromCms) => items.map(([icon, color, text], index) => (
