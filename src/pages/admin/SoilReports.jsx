@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import {
@@ -37,15 +37,17 @@ export default function AdminSoilReports() {
   // Check if current staff user has permission or is admin/employee
   const hasFullAccess = user?.role === 'superadmin' || user?.role === 'admin' || (user?.permissions && user.permissions.includes('*'))
 
+  // Read the selection through a ref so loadReports stays stable; depending
+  // on selectedReport re-ran the load effect after every refresh, forever.
+  const selectedRef = useRef(null)
+  useEffect(() => { selectedRef.current = selectedReport }, [selectedReport])
+
   const loadReports = useCallback(async () => {
     setLoading(true)
     try {
-      const list = soilTestService.getReports({
-        role: user?.role || 'employee',
-        staffId: user?.id || user?._id || 'u3',
-        hasAllAccess: hasFullAccess
-      })
+      const list = await soilTestService.getReports()
       setReports(list)
+      const selectedReport = selectedRef.current
       if (list.length > 0 && !selectedReport) {
         setSelectedReport(list[0])
         setNotes(list[0].agronomistNotes || '')
@@ -63,7 +65,7 @@ export default function AdminSoilReports() {
     } finally {
       setLoading(false)
     }
-  }, [user, hasFullAccess, selectedReport])
+  }, [])
 
   useEffect(() => {
     loadReports()
@@ -78,21 +80,23 @@ export default function AdminSoilReports() {
     setStatus(r.status)
   }
 
-  const handleSavePrescription = (e) => {
+  const handleSavePrescription = async (e) => {
     e.preventDefault()
     if (!selectedReport) return
 
     setSaving(true)
-    setTimeout(() => {
-      soilTestService.updateReportStatus({
+    try {
+      await soilTestService.updateReportStatus({
         reportId: selectedReport.id,
         status: status,
         agronomistNotes: notes
       })
-      setSaving(false)
       toast.success('Diagnosis & prescription saved successfully!')
-      loadReports()
-    }, 500)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not save the prescription')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const filtered = reports.filter(r => {

@@ -69,35 +69,8 @@ export default function SupportTicketsCustomer() {
   // Load orders for the customer
   const loadOrders = useCallback(async () => {
     try {
-      const res = await axios.get('/api/orders').catch(() => null)
-      if (res?.data?.data && Array.isArray(res.data.data)) {
-        setOrders(res.data.data)
-      } else {
-        // Fallback demo orders for testing previous order support
-        setOrders([
-          {
-            id: 'SAM-ORD-8821',
-            status: 'Delivered',
-            createdAt: '2026-08-30',
-            total: 2773,
-            items: [{ name: 'Sathyam Agro Mart BlastShield 75 WP', qty: 2 }]
-          },
-          {
-            id: 'SAM-ORD-8822',
-            status: 'Dispatched',
-            createdAt: '2026-08-30',
-            total: 2973,
-            items: [{ name: 'Sathyam Agro Mart FlyKill Ultra', qty: 3 }]
-          },
-          {
-            id: 'SAM-ORD-8819',
-            status: 'Delivered',
-            createdAt: '2026-08-28',
-            total: 990,
-            items: [{ name: 'Sathyam Agro Mart RootVigor Gold', qty: 1 }]
-          }
-        ])
-      }
+      const res = await axios.get('/api/orders')
+      setOrders(Array.isArray(res?.data?.data) ? res.data.data : [])
     } catch {
       // Ignored
     }
@@ -160,18 +133,15 @@ export default function SupportTicketsCustomer() {
     try {
       const chosenOrder = orders.find(o => o.id === newTicket.orderId)
       const created = await ticketService.createTicket({
-        orderId: newTicket.orderId || 'MANUAL-ORDER',
-        userId: user?.id || user?._id || 'USR-GUEST',
-        farmerName: user?.name || 'Valued Farmer',
-        phone: user?.phone || user?.mobile || '9876543210',
-        email: user?.email || '',
+        orderId: newTicket.orderId || '',
+        farmerName: user?.name || '',
+        phone: user?.phone || '',
         crop: newTicket.crop,
         category: newTicket.category,
         priority: newTicket.priority,
         subject: newTicket.subject,
         description: newTicket.description,
-        orderItems: chosenOrder?.items || [],
-        attachment: newTicket.attachment
+        orderItems: chosenOrder?.items || []
       })
 
       toast.success(`Support Ticket ${created.id} raised successfully!`, {

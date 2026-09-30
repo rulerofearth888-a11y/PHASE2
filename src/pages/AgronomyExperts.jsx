@@ -329,6 +329,14 @@ export default function AgronomyExperts() {
             </select>
           </div>
 
+          {!loading && filteredExperts.length === 0 && (
+            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#64748b', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 12 }}>
+              {experts.length === 0
+                ? 'Our agronomy experts will be listed here soon.'
+                : 'No experts match your search.'}
+            </div>
+          )}
+
           {/* Experts Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 24 }}>
             {filteredExperts.map(expert => (
@@ -350,11 +358,20 @@ export default function AgronomyExperts() {
                   {/* Top Profile Header */}
                   <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
                     <div style={{ position: 'relative' }}>
-                      <img
-                        src={expert.avatar}
-                        alt={expert.name}
-                        style={{ width: 68, height: 68, borderRadius: '50%', objectFit: 'cover', border: '3px solid #d1fae5' }}
-                      />
+                      {expert.avatar ? (
+                        <img
+                          src={expert.avatar}
+                          alt={expert.name}
+                          style={{ width: 68, height: 68, borderRadius: '50%', objectFit: 'cover', border: '3px solid #d1fae5' }}
+                        />
+                      ) : (
+                        <div
+                          aria-hidden="true"
+                          style={{ width: 68, height: 68, borderRadius: '50%', border: '3px solid #d1fae5', background: '#ecfdf5', color: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.4rem' }}
+                        >
+                          {(expert.name || '?').trim().charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       <div
                         title="Verified Agronomy Expert"
                         style={{
@@ -384,12 +401,16 @@ export default function AgronomyExperts() {
                         {expert.qualification}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#d97706', fontWeight: 700 }}>
-                          <Star size={13} fill="#f59e0b" color="#f59e0b" /> {expert.rating}
-                        </span>
-                        <span style={{ color: '#94a3b8' }}>({expert.reviewsCount} reviews)</span>
-                        <span style={{ color: '#cbd5e1' }}>•</span>
-                        <span style={{ color: '#64748b' }}>{expert.experienceYears}+ Yrs Exp</span>
+                        {expert.rating ? (
+                          <>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#d97706', fontWeight: 700 }}>
+                              <Star size={13} fill="#f59e0b" color="#f59e0b" /> {expert.rating}
+                            </span>
+                            <span style={{ color: '#94a3b8' }}>({expert.reviewsCount} reviews)</span>
+                          </>
+                        ) : null}
+                        {expert.rating && expert.experienceYears ? <span style={{ color: '#cbd5e1' }}>•</span> : null}
+                        {expert.experienceYears ? <span style={{ color: '#64748b' }}>{expert.experienceYears}+ Yrs Exp</span> : null}
                       </div>
                     </div>
                   </div>

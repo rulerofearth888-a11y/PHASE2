@@ -1,4 +1,13 @@
-const STORAGE_KEY = 'sathyam_soil_reports_v1'
+import axios from 'axios'
+
+function unwrap(res, fallbackMessage) {
+  if (!res?.data?.success) throw new Error(res?.data?.message || fallbackMessage)
+  return res.data.data
+}
+
+function notifyUpdated(detail) {
+  window.dispatchEvent(new CustomEvent('sathyam:soil-reports-updated', { detail }))
+}
 
 export const SAMPLE_SOIL_PRESETS = [
   {
@@ -329,137 +338,6 @@ export const CROP_SUITABILITY_RULES = [
     npkDemand: { n: 'Very High', p: 'Medium', k: 'Extreme' },
     criticalMicro: ['Potassium', 'Boron', 'Magnesium'],
     description: 'Massive nutrient and water consumer. Demands high organic carbon and potash mobilization for heavy bunches.'
-  }
-]
-
-// Default pre-seeded reports for demonstration and immediate testing
-const DEFAULT_SOIL_REPORTS = [
-  {
-    id: 'STR-1041',
-    farmerName: 'K. Ranganathan',
-    phone: '9842155670',
-    userId: 'USR-1002',
-    village: 'Valavanthankottai',
-    district: 'Thanjavur, Tamil Nadu',
-    createdAt: '2026-08-28T09:30:00.000Z',
-    status: 'Prescription Issued',
-    soilType: 'Clay Loam',
-    crop: 'Paddy/Rice',
-    areaAcres: 4,
-    ph: 8.3,
-    ec: 1.4,
-    oc: 0.38,
-    nitrogen: 210,
-    phosphorus: 12.5,
-    potassium: 195,
-    zinc: 'Deficient',
-    boron: 'Sufficient',
-    iron: 'Sufficient',
-    sulphur: 'Deficient',
-    score: 62,
-    grade: 'Grade C (Moderate Fertility - Deficiencies Present)',
-    assignedToId: 'USR-0003',
-    assignedToName: 'Dr. K. Senthil Kumar',
-    assignedRole: 'employee',
-    assignedDesignation: 'Senior Agronomist (Plant Pathology)',
-    assignedAt: '2026-08-29T10:00:00.000Z',
-    agronomistNotes: 'Cauvery delta alkaline clay. Highly responsive to Gypsum basal treatment @ 300kg/acre. Zinc foliar spray mandatory at 25 DAT to prevent Khaira disease. Paddy CR-1009 or BPT-5204 highly recommended.',
-    suggestedProducts: ['sb-03', 'sb-08', 'sb-04']
-  },
-  {
-    id: 'STR-1042',
-    farmerName: 'Balwinder Singh',
-    phone: '9815044321',
-    userId: 'USR-1008',
-    village: 'Samana',
-    district: 'Patiala, Punjab',
-    createdAt: '2026-08-30T11:15:00.000Z',
-    status: 'Under Agronomist Analysis',
-    soilType: 'Alluvial Soil',
-    crop: 'Wheat',
-    areaAcres: 6,
-    ph: 7.6,
-    ec: 0.7,
-    oc: 0.52,
-    nitrogen: 240,
-    phosphorus: 9.5,
-    potassium: 220,
-    zinc: 'Deficient',
-    boron: 'Deficient',
-    iron: 'Sufficient',
-    sulphur: 'Deficient',
-    score: 72,
-    grade: 'Grade B (Good Fertility - Minor Adjustments Needed)',
-    assignedToId: 'u6',
-    assignedToName: 'Dr. Priya Sharma',
-    assignedRole: 'employee',
-    assignedDesignation: 'Agronomist & Soil Chemist',
-    assignedAt: '2026-08-30T14:30:00.000Z',
-    agronomistNotes: 'Alluvial loam in good physical condition. Phosphorus is slightly below threshold. Prescribed PhosphoSolv PSB + Bio-Nitrogen to cut chemical DAP/urea expenditure by 25%.',
-    suggestedProducts: ['sb-06', 'sb-05', 'sb-08']
-  },
-  {
-    id: 'STR-1043',
-    farmerName: 'Venkat Rao',
-    phone: '9440188992',
-    userId: 'USR-1009',
-    village: 'Adilabad Rural',
-    district: 'Adilabad, Telangana',
-    createdAt: '2026-09-01T15:45:00.000Z',
-    status: 'Pending Review',
-    soilType: 'Black Cotton Soil',
-    crop: 'Cotton',
-    areaAcres: 5,
-    ph: 8.0,
-    ec: 1.1,
-    oc: 0.41,
-    nitrogen: 190,
-    phosphorus: 8.4,
-    potassium: 260,
-    zinc: 'Deficient',
-    boron: 'Deficient',
-    iron: 'Sufficient',
-    sulphur: 'Deficient',
-    score: 65,
-    grade: 'Grade C (Moderate Fertility - Deficiencies Present)',
-    assignedToId: null,
-    assignedToName: null,
-    assignedRole: null,
-    assignedAt: null,
-    agronomistNotes: '',
-    suggestedProducts: ['sb-04', 'sb-08', 'sb-09']
-  },
-  {
-    id: 'STR-1044',
-    farmerName: 'Mallikarjun Hegde',
-    phone: '9740233112',
-    userId: 'USR-1010',
-    village: 'Sirsi',
-    district: 'Uttara Kannada, Karnataka',
-    createdAt: '2026-09-02T10:20:00.000Z',
-    status: 'Pending Review',
-    soilType: 'Red Sandy Loam',
-    crop: 'Tomato & Solanaceous Vegetables',
-    areaAcres: 2.5,
-    ph: 5.6,
-    ec: 0.5,
-    oc: 0.74,
-    nitrogen: 310,
-    phosphorus: 7.2,
-    potassium: 140,
-    zinc: 'Sufficient',
-    boron: 'Deficient',
-    iron: 'Sufficient',
-    sulphur: 'Sufficient',
-    score: 68,
-    grade: 'Grade C (Moderate Fertility - Deficiencies Present)',
-    assignedToId: 'USR-0002',
-    assignedToName: 'Store Admin - Coimbatore HQ',
-    assignedRole: 'admin',
-    assignedDesignation: 'General Store Admin',
-    assignedAt: '2026-09-02T11:00:00.000Z',
-    agronomistNotes: 'Acidic red loam. Applied Dolomite lime 300kg/acre recommended before bed making.',
-    suggestedProducts: ['sb-06', 'sb-09']
   }
 ]
 
@@ -877,118 +755,37 @@ export const soilTestService = {
     }
   },
 
-  // Save/Submit soil report record for tracking by Super Admin & Staff
-  submitReport(reportData, user) {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      const existing = raw ? JSON.parse(raw) : DEFAULT_SOIL_REPORTS
-
-      const id = `STR-${Math.floor(1000 + Math.random() * 9000)}`
-      const newReport = {
-        id,
-        userId: user?.id || user?._id || 'USR-GUEST',
-        farmerName: user?.name || reportData.farmerName || 'Farmer Partner',
-        phone: user?.phone || user?.mobile || reportData.phone || '9876543210',
-        village: user?.village || reportData.village || 'Local Farm',
-        district: user?.district || reportData.district || 'India',
-        createdAt: new Date().toISOString(),
-        status: 'Pending Review',
-        assignedToId: null,
-        assignedToName: null,
-        assignedRole: null,
-        assignedDesignation: null,
-        assignedAt: null,
-        agronomistNotes: '',
-        ...reportData
-      }
-
-      const updated = [newReport, ...existing]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      window.dispatchEvent(new CustomEvent('sathyam:soil-reports-updated', { detail: newReport }))
-      return newReport
-    } catch {
-      return null
-    }
+  // Save a soil report for review by the agronomy team (requires sign-in).
+  // The server ties it to the signed-in account.
+  async submitReport(reportData) {
+    const { analysis, ...values } = reportData || {}
+    const res = await axios.post('/api/soil-reports', { ...values, analysis: analysis || null })
+    const report = unwrap(res, 'Could not submit the soil report')
+    notifyUpdated({ reportId: report.id })
+    return report
   },
 
-  // Retrieve reports with role-based filtering
-  getReports(query = {}) {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      let list = raw ? JSON.parse(raw) : DEFAULT_SOIL_REPORTS
-
-      // If user is a customer, return only their reports
-      if (query.role === 'farmer' && query.userId) {
-        list = list.filter(r => r.userId === query.userId || (query.phone && r.phone === query.phone))
-      }
-
-      // If user is an employee, return reports assigned to them (or all if permitted)
-      if (query.role === 'employee' && query.staffId && !query.hasAllAccess) {
-        list = list.filter(r => r.assignedToId === query.staffId)
-      }
-
-      return list
-    } catch {
-      return DEFAULT_SOIL_REPORTS
-    }
+  // Reports visible to the signed-in account: farmers their own, staff the
+  // ones assigned to them, admins all. The server does the filtering.
+  async getReports() {
+    const res = await axios.get('/api/soil-reports')
+    const list = unwrap(res, 'Failed to load soil reports')
+    return Array.isArray(list) ? list : []
   },
 
-  // Super Admin: Assign/delegate a report to an Employee or Admin
-  assignReport({ reportId, staffId, staffName, staffRole, staffDesignation, assignedBy = 'Super Admin', notes = '' }) {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      const list = raw ? JSON.parse(raw) : DEFAULT_SOIL_REPORTS
-
-      const updated = list.map(item => {
-        if (item.id === reportId) {
-          return {
-            ...item,
-            assignedToId: staffId,
-            assignedToName: staffName,
-            assignedRole: staffRole,
-            assignedDesignation: staffDesignation,
-            assignedBy,
-            assignedAt: new Date().toISOString(),
-            status: item.status === 'Pending Review' ? 'Under Agronomist Analysis' : item.status,
-            agronomistNotes: notes ? (item.agronomistNotes ? `${item.agronomistNotes}\n[${new Date().toLocaleDateString('en-IN')}] ${notes}` : notes) : item.agronomistNotes
-          }
-        }
-        return item
-      })
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      window.dispatchEvent(new CustomEvent('sathyam:soil-reports-updated', { detail: { reportId } }))
-      return true
-    } catch {
-      return false
-    }
+  // Admin / Super Admin assign a report to a staff member
+  async assignReport({ reportId, staffId, staffDesignation, notes = '' }) {
+    const res = await axios.put(`/api/soil-reports/${encodeURIComponent(reportId)}/assign`, { staffId, staffDesignation, notes })
+    const report = unwrap(res, 'Could not assign the report')
+    notifyUpdated({ reportId })
+    return report
   },
 
-  // Update report status or agronomist prescription notes
-  updateReportStatus({ reportId, status, agronomistNotes, suggestedProducts }) {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      const list = raw ? JSON.parse(raw) : DEFAULT_SOIL_REPORTS
-
-      const updated = list.map(item => {
-        if (item.id === reportId) {
-          return {
-            ...item,
-            status: status || item.status,
-            agronomistNotes: agronomistNotes !== undefined ? agronomistNotes : item.agronomistNotes,
-            suggestedProducts: suggestedProducts || item.suggestedProducts,
-            updatedAt: new Date().toISOString(),
-            resolvedAt: status === 'Prescription Issued' || status === 'Completed' ? new Date().toISOString() : item.resolvedAt
-          }
-        }
-        return item
-      })
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-      window.dispatchEvent(new CustomEvent('sathyam:soil-reports-updated', { detail: { reportId } }))
-      return true
-    } catch {
-      return false
-    }
+  // Update report status and/or the agronomist's prescription notes
+  async updateReportStatus({ reportId, status, agronomistNotes, suggestedProducts }) {
+    const res = await axios.put(`/api/soil-reports/${encodeURIComponent(reportId)}/status`, { status, agronomistNotes, suggestedProducts })
+    const report = unwrap(res, 'Could not update the report')
+    notifyUpdated({ reportId })
+    return report
   }
 }

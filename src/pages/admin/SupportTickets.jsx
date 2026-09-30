@@ -1,21 +1,14 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { MessageSquare, Clock, User, AlertCircle, CheckCircle, Hourglass, X, UserCheck, Send, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import axios from 'axios'
 import { ticketService } from '../../services/ticketService'
 import { useAuth } from '../../context/AuthContext'
 
-const DEFAULT_EMPLOYEES = [
-  { id: 'USR-0003', name: 'Dr. K. Senthil Kumar', designation: 'Senior Agronomist' },
-  { id: 'u6', name: 'Dr. Priya Sharma', designation: 'Agronomist & Soil Chemist' },
-  { id: 'u7', name: 'Arun Kumar', designation: 'Horticulture Specialist' },
-  { id: 'u3', name: 'Muthuvel K', designation: 'Quality Control Lead' }
-]
-
 export default function SupportTickets() {
   const { user } = useAuth()
   const [tickets, setTickets] = useState([])
-  const [employees, setEmployees] = useState(DEFAULT_EMPLOYEES)
+  const [employees, setEmployees] = useState([])
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
@@ -39,17 +32,23 @@ export default function SupportTickets() {
             name: u.name,
             designation: u.profile?.designation || 'Operations Staff'
           }))
-        if (emps.length) setEmployees(emps)
+        setEmployees(emps)
       }
     } catch {}
   }, [])
 
   // Load tickets
+  // Read the selection through a ref so loadTickets stays stable; depending
+  // on selectedTicket re-ran the load effect after every refresh, forever.
+  const selectedRef = useRef(null)
+  useEffect(() => { selectedRef.current = selectedTicket }, [selectedTicket])
+
   const loadTickets = useCallback(async () => {
     setLoading(true)
     try {
-      const list = await ticketService.getTickets({ role: 'admin' })
+      const list = await ticketService.getTickets()
       setTickets(list)
+      const selectedTicket = selectedRef.current
       if (list.length > 0 && !selectedTicket) {
         setSelectedTicket(list[0])
       } else if (selectedTicket) {
@@ -61,7 +60,7 @@ export default function SupportTickets() {
     } finally {
       setLoading(false)
     }
-  }, [selectedTicket])
+  }, [])
 
   useEffect(() => {
     loadEmployees()

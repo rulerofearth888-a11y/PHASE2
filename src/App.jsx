@@ -171,7 +171,7 @@ export default function App() {
           <Route path="/product/:id/ingredients" element={<IngredientDetail />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/orders" element={<OrderStatus />} />
-          <Route path="/support-tickets" element={<SupportTicketsCustomer />} />
+          <Route path="/support-tickets" element={<PrivateRoute><SupportTicketsCustomer /></PrivateRoute>} />
           <Route path="/agronomy-experts" element={<AgronomyExperts />} />
           <Route path="/soil-test-report" element={<SoilTestReport />} />
           <Route path="/products" element={<AllProducts />} />

@@ -93,13 +93,13 @@ export default function SoilTestReport() {
   })
 
   // Load user submitted reports
-  const loadSubmissions = useCallback(() => {
-    const list = soilTestService.getReports({
-      role: user?.role || 'farmer',
-      userId: user?.id || user?._id,
-      phone: user?.phone || user?.mobile
-    })
-    setSubmittedReports(list)
+  const loadSubmissions = useCallback(async () => {
+    if (!user) { setSubmittedReports([]); return }
+    try {
+      setSubmittedReports(await soilTestService.getReports())
+    } catch {
+      setSubmittedReports([])
+    }
   }, [user])
 
   useEffect(() => {
@@ -197,16 +197,20 @@ export default function SoilTestReport() {
     setShowSubmitModal(true)
   }
 
-  const handleSubmitReport = (e) => {
+  const handleSubmitReport = async (e) => {
     e.preventDefault()
+    if (!user) {
+      toast.error('Please sign in to submit your soil report for expert review')
+      return
+    }
     if (!submitFormData.farmerName.trim() || !submitFormData.phone.trim()) {
       toast.error('Please enter your Name and Mobile Number')
       return
     }
 
     setSubmitting(true)
-    setTimeout(() => {
-      const record = soilTestService.submitReport({
+    try {
+      const record = await soilTestService.submitReport({
         ...submitFormData,
         ...soilData,
         crop: targetCrop,
@@ -214,17 +218,20 @@ export default function SoilTestReport() {
         grade: result.grade,
         uploadedFileName: uploadedFile ? uploadedFile.name : null,
         suggestedProducts: result.recommendedProducts?.map(p => p.id) || []
-      }, user)
+      })
 
-      setSubmitting(false)
       setShowSubmitModal(false)
       loadSubmissions()
       setActiveTab('my-submissions')
 
       toast.success(`Soil report submitted! Tracking Code: ${record.id}`, {
-        description: 'Super Admin and our Agronomists have been notified to review your report.'
+        description: 'Our agronomy team will review your report.'
       })
-    }, 800)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err.message || 'Could not submit the soil report')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handlePrint = () => {

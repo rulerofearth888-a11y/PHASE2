@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { toast } from 'sonner'
@@ -28,20 +28,10 @@ import {
 import { soilTestService } from '../../services/soilTestService'
 import { useAuth } from '../../context/AuthContext'
 
-// Default staff if API is unreachable
-const DEFAULT_STAFF = [
-  { id: 'USR-0002', name: 'Store Admin - Coimbatore HQ', role: 'admin', designation: 'General Store Admin' },
-  { id: 'USR-0004', name: 'Branch Admin - Madurai', role: 'admin', designation: 'Regional Admin' },
-  { id: 'USR-0003', name: 'Dr. K. Senthil Kumar', role: 'employee', designation: 'Senior Agronomist (Plant Pathology)' },
-  { id: 'u6', name: 'Dr. Priya Sharma', role: 'employee', designation: 'Agronomist & Soil Chemist' },
-  { id: 'u7', name: 'Arun Kumar', role: 'employee', designation: 'Horticulture & Fertigation Specialist' },
-  { id: 'u3', name: 'Muthuvel K', role: 'employee', designation: 'Quality Control Lead' }
-]
-
 export default function SoilReportMonitor() {
   const { user } = useAuth()
   const [reports, setReports] = useState([])
-  const [staffList, setStaffList] = useState(DEFAULT_STAFF)
+  const [staffList, setStaffList] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedReport, setSelectedReport] = useState(null)
 
@@ -78,11 +68,17 @@ export default function SoilReportMonitor() {
   }, [])
 
   // Load soil reports
+  // Read the selection through a ref so loadReports stays stable; depending
+  // on selectedReport re-ran the load effect after every refresh, forever.
+  const selectedRef = useRef(null)
+  useEffect(() => { selectedRef.current = selectedReport }, [selectedReport])
+
   const loadReports = useCallback(async () => {
     setLoading(true)
     try {
-      const list = soilTestService.getReports({ role: 'superadmin' })
+      const list = await soilTestService.getReports()
       setReports(list)
+      const selectedReport = selectedRef.current
       if (list.length > 0 && !selectedReport) {
         setSelectedReport(list[0])
         setEditNotes(list[0].agronomistNotes || '')
@@ -100,7 +96,7 @@ export default function SoilReportMonitor() {
     } finally {
       setLoading(false)
     }
-  }, [selectedReport])
+  }, [])
 
   useEffect(() => {
     loadStaff()
@@ -126,7 +122,7 @@ export default function SoilReportMonitor() {
     setShowAssignModal(true)
   }
 
-  const handleConfirmAssignment = (e) => {
+  const handleConfirmAssignment = async (e) => {
     e.preventDefault()
     if (!selectedStaffId) {
       toast.error('Please select an employee or admin to assign')
@@ -137,42 +133,43 @@ export default function SoilReportMonitor() {
     if (!staffMember) return
 
     setAssigning(true)
-    setTimeout(() => {
-      soilTestService.assignReport({
+    try {
+      await soilTestService.assignReport({
         reportId: selectedReport.id,
         staffId: staffMember.id,
-        staffName: staffMember.name,
-        staffRole: staffMember.role,
         staffDesignation: staffMember.designation,
-        assignedBy: user?.name || 'Super Admin',
         notes: assignNotes
       })
 
-      setAssigning(false)
       setShowAssignModal(false)
       toast.success(`Soil report ${selectedReport.id} assigned to ${staffMember.name}!`, {
         description: `Designation: ${staffMember.designation}. They now have access to inspect and manage this report.`
       })
-      loadReports()
-    }, 600)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not assign the report')
+    } finally {
+      setAssigning(false)
+    }
   }
 
   // Handle Save Status & Notes
-  const handleSavePrescription = (e) => {
+  const handleSavePrescription = async (e) => {
     e.preventDefault()
     if (!selectedReport) return
 
     setUpdating(true)
-    setTimeout(() => {
-      soilTestService.updateReportStatus({
+    try {
+      await soilTestService.updateReportStatus({
         reportId: selectedReport.id,
         status: editStatus,
         agronomistNotes: editNotes
       })
-      setUpdating(false)
       toast.success('Soil report status & prescription notes updated!')
-      loadReports()
-    }, 500)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not update the report')
+    } finally {
+      setUpdating(false)
+    }
   }
 
   // Filtered reports

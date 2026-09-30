@@ -3130,44 +3130,62 @@ app.get('/api/billing/invoices', requireAuth('billing', 'admin'), requireModule(
 // SUPPORT TICKETS
 // ============================================================
 
-// GET /api/tickets — SuperAdmin, Admin, Employee, Farmer
-app.get('/api/tickets', async (req, res) => {
+const TICKET_STATUSES = ['Open', 'In Progress', 'Pending', 'Resolved', 'Closed', 'Rejected'];
+const TICKET_STAFF_ROLES = ['admin', 'employee', 'delivery', 'billing'];
+// Admins hold 'support-tickets', employees 'tickets' (superadminRoutes PORTAL_MODULES).
+const ticketModule = requireModule(['support-tickets', 'tickets'], { roles: ['admin', 'employee'] });
+
+function stampTime(date = new Date()) {
+  return date.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function makeReply(senderName, senderRole, text) {
+  const now = new Date();
+  return { id: newId('REP'), senderName, senderRole, text, time: stampTime(now), createdAt: now.toISOString() };
+}
+
+// A farmer owns a ticket filed from their account, or (older, signed-out
+// tickets) one filed with their phone number.
+function ownsRecord(user, record) {
+  if (!user || !record) return false;
+  if (record.userId && record.userId === user.id) return true;
+  const phone = normalizePhone(user.phone);
+  return Boolean(phone && record.phone && normalizePhone(record.phone) === phone);
+}
+
+// Admins see every ticket; employees see tickets assigned to them plus the
+// unassigned queue; delivery/billing staff only tickets assigned to them;
+// farmers only their own.
+function canSeeTicket(user, ticket) {
+  if (user.role === 'superadmin' || user.role === 'admin') return true;
+  if (user.role === 'employee') return !ticket.assignedToId || ticket.assignedToId === user.id;
+  if (TICKET_STAFF_ROLES.includes(user.role)) return ticket.assignedToId === user.id;
+  return ownsRecord(user, ticket);
+}
+
+async function findStaff(id) {
+  const staff = id ? await db.getUserById(String(id)) : null;
+  return staff && TICKET_STAFF_ROLES.includes(staff.role) ? staff : null;
+}
+
+app.get('/api/tickets', requireAuth(), ticketModule, async (req, res) => {
   try {
-    const userRole = req.user?.role;
-    const filter = {};
-    if (userRole === 'farmer') {
-      filter.userId = req.user.id;
-      filter.phone = req.user.phone;
-    } else if (req.query.assignedToId) {
-      filter.assignedToId = req.query.assignedToId;
-    }
-    const data = await db.getTickets(filter);
-    res.json({ success: true, data });
+    const all = await db.getTickets();
+    res.json({ success: true, data: all.filter(t => canSeeTicket(req.user, t)) });
   } catch (err) {
     sendError(res, err, 'Tickets');
   }
 });
 
-// POST /api/tickets — Create a new ticket linked to previous order
+// Open to signed-out visitors (storefront help form); a signed-in farmer's
+// ticket is tied to their account. Identity never comes from the body.
 app.post('/api/tickets', async (req, res) => {
   try {
-    const wait = await rateLimit(`ticket-ip:${clientIp(req)}`, 15, HOUR_MS);
+    const wait = await rateLimit(`ticket-ip:${clientIp(req)}`, 10, HOUR_MS);
     if (wait) return tooManyRequests(res, wait, 'Too many tickets from this connection. Please try again later.');
 
-    const {
-      orderId,
-      userId,
-      farmerName,
-      phone,
-      crop,
-      subject,
-      category,
-      priority,
-      description,
-      orderItems,
-      attachment
-    } = req.body || {};
-
+    const user = await getAuthenticatedUser(req);
+    const { orderId, farmerName, phone, crop, subject, category, priority, description, orderItems } = req.body || {};
     const cleanSubject = cleanText(subject, 150);
     const cleanDescription = cleanText(description, 2000);
 
@@ -3175,125 +3193,93 @@ app.post('/api/tickets', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please describe your query or problem.' });
     }
 
+    const name = cleanText(farmerName, 80) || user?.name || 'Farmer';
+    const now = new Date().toISOString();
     const newTicket = {
-      id: req.body.id || newId('TCK'),
-      orderId: cleanText(orderId, 50) || 'MANUAL-ORDER',
-      userId: userId || req.user?.id || 'USR-GUEST',
-      farmerName: cleanText(farmerName, 80) || req.user?.name || 'Farmer',
-      phone: normalizePhone(phone || req.user?.phone) || '',
+      id: newId('TCK'),
+      orderId: cleanText(orderId, 50) || null,
+      userId: user?.id || null,
+      farmerName: name,
+      phone: normalizePhone(phone) || normalizePhone(user?.phone) || '',
       crop: cleanText(crop, 60),
-      subject: cleanSubject || 'Order Support Query',
-      category: cleanText(category, 50) || 'Product Quality',
+      subject: cleanSubject || 'Support Query',
+      category: cleanText(category, 50) || 'General',
       priority: ['Low', 'Medium', 'High', 'Urgent'].includes(priority) ? priority : 'Medium',
       status: 'Open',
       assignedToId: null,
       assignedToName: 'Unassigned',
       assignedRole: null,
       assignedAt: null,
-      orderItems: Array.isArray(orderItems) ? orderItems : [],
-      attachment: attachment || null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      orderItems: Array.isArray(orderItems)
+        ? orderItems.slice(0, 50).map(item => ({ name: cleanText(item?.name, 120), qty: Number(item?.qty ?? item?.quantity) || 0 }))
+        : [],
+      attachment: null,
+      createdAt: now,
+      updatedAt: now,
       resolvedAt: null,
-      replies: [
-        {
-          id: `rep-${Date.now()}`,
-          senderName: cleanText(farmerName, 80) || req.user?.name || 'Farmer',
-          senderRole: 'farmer',
-          text: cleanDescription || cleanSubject,
-          time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
-          createdAt: new Date().toISOString()
-        }
-      ]
+      replies: [makeReply(name, 'farmer', cleanDescription || cleanSubject)],
     };
 
     const created = await db.addTicket(newTicket);
-    res.json({ success: true, message: 'Support ticket submitted successfully', ticket: created });
+    res.json({ success: true, message: 'Support ticket submitted successfully', ticket: created, data: created });
   } catch (err) {
     sendError(res, err, 'Create ticket');
   }
 });
 
-// PUT /api/tickets/:id/assign — Super Admin and Admin assign ticket to Admin or Employee
-app.put('/api/tickets/:id/assign', requireAuth('superadmin', 'admin'), async (req, res) => {
+app.put('/api/tickets/:id/assign', requireAuth('admin'), ticketModule, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { assignedToId, assignedToName, assignedRole, assignedBy } = req.body || {};
+    const ticket = await db.getTicketById(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found' });
+    const staff = await findStaff(req.body?.assignedToId);
+    if (!staff) return res.status(400).json({ success: false, message: 'Choose a staff member to assign.' });
 
-    const updates = {
-      assignedToId,
-      assignedToName: cleanText(assignedToName, 80),
-      assignedRole: ['admin', 'employee', 'delivery', 'billing'].includes(assignedRole) ? assignedRole : 'employee',
+    await db.updateTicket(ticket.id, {
+      assignedToId: staff.id,
+      assignedToName: staff.name,
+      assignedRole: staff.role,
       assignedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    const updated = await db.updateTicket(id, updates);
-    if (!updated) return res.status(404).json({ success: false, message: 'Ticket not found' });
-
-    await db.addTicketReply(id, {
-      id: `rep-${Date.now()}`,
-      senderName: 'System Broadcast',
-      senderRole: 'system',
-      text: `Ticket assigned to ${assignedToName} (${assignedRole?.toUpperCase()}) by ${assignedBy || req.user.name}.`,
-      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
-      createdAt: new Date().toISOString()
+      status: ticket.status === 'Open' ? 'In Progress' : ticket.status,
+      updatedAt: new Date().toISOString(),
     });
-
+    const updated = await db.addTicketReply(ticket.id, makeReply('System', 'system',
+      `Ticket assigned to ${staff.name} (${staff.role.toUpperCase()}) by ${req.user.name}.`));
     res.json({ success: true, message: 'Ticket assigned successfully', data: updated });
   } catch (err) {
     sendError(res, err, 'Assign ticket');
   }
 });
 
-// PUT /api/tickets/:id/status — Update ticket status
-app.put('/api/tickets/:id/status', requireAuth('superadmin', 'admin', 'employee'), async (req, res) => {
+app.put('/api/tickets/:id/status', requireAuth('admin', 'employee'), ticketModule, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { status, actor } = req.body || {};
-    const updates = {
-      status: cleanText(status, 30),
-      updatedAt: new Date().toISOString()
-    };
-    if (status?.toLowerCase() === 'resolved') {
-      updates.resolvedAt = new Date().toISOString();
-    }
-    const updated = await db.updateTicket(id, updates);
-    if (!updated) return res.status(404).json({ success: false, message: 'Ticket not found' });
+    const ticket = await db.getTicketById(req.params.id);
+    if (!ticket || !canSeeTicket(req.user, ticket)) return res.status(404).json({ success: false, message: 'Ticket not found' });
+    const status = TICKET_STATUSES.find(s => s.toLowerCase() === String(req.body?.status || '').toLowerCase());
+    if (!status) return res.status(400).json({ success: false, message: 'Unknown ticket status.' });
 
-    await db.addTicketReply(id, {
-      id: `rep-${Date.now()}`,
-      senderName: 'System Broadcast',
-      senderRole: 'system',
-      text: `Status updated to ${status.toUpperCase()} by ${actor || req.user.name}.`,
-      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
-      createdAt: new Date().toISOString()
-    });
-
+    const now = new Date().toISOString();
+    await db.updateTicket(ticket.id, { status, updatedAt: now, resolvedAt: status === 'Resolved' ? now : ticket.resolvedAt || null });
+    const updated = await db.addTicketReply(ticket.id, makeReply('System', 'system', `Status changed to ${status.toUpperCase()} by ${req.user.name}.`));
     res.json({ success: true, data: updated });
   } catch (err) {
     sendError(res, err, 'Update status');
   }
 });
 
-// POST /api/tickets/:id/replies — Add reply to discussion
-app.post('/api/tickets/:id/replies', async (req, res) => {
+app.post('/api/tickets/:id/replies', requireAuth(), ticketModule, async (req, res) => {
   try {
-    const { id } = req.params;
-    const { senderName, senderRole, text } = req.body || {};
-    if (!text?.trim()) return res.status(400).json({ success: false, message: 'Reply text cannot be empty' });
+    const text = cleanText(req.body?.text, 2000);
+    if (!text) return res.status(400).json({ success: false, message: 'Reply text cannot be empty' });
+    const ticket = await db.getTicketById(req.params.id);
+    if (!ticket || !canSeeTicket(req.user, ticket)) return res.status(404).json({ success: false, message: 'Ticket not found' });
 
-    const reply = {
-      id: `rep-${Date.now()}`,
-      senderName: cleanText(senderName, 80) || req.user?.name || 'Staff',
-      senderRole: senderRole || req.user?.role || 'staff',
-      text: cleanText(text, 2000),
-      time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
-      createdAt: new Date().toISOString()
-    };
-
-    const updated = await db.addTicketReply(id, reply);
-    res.json({ success: true, data: updated, reply });
+    const role = req.user.role === 'farmer' ? 'farmer' : req.user.role;
+    const updated = await db.addTicketReply(ticket.id, makeReply(req.user.name || 'User', role, text));
+    if (role !== 'farmer' && ticket.status === 'Open') {
+      await db.updateTicket(ticket.id, { status: 'In Progress' });
+      updated.status = 'In Progress';
+    }
+    res.json({ success: true, data: updated });
   } catch (err) {
     sendError(res, err, 'Add reply');
   }
@@ -3303,49 +3289,93 @@ app.post('/api/tickets/:id/replies', async (req, res) => {
 // AGRONOMY EXPERTS & CALLBACK BOOKINGS
 // ============================================================
 
-// GET /api/agronomy-experts — Public directory of certified agronomy experts
+const DEFAULT_EXPERT_SLOTS = ['10:00 AM - 12:00 PM', '02:00 PM - 04:00 PM', '04:00 PM - 06:00 PM'];
+
+function cleanList(value, maxItems, maxLen) {
+  const list = Array.isArray(value) ? value : String(value || '').split(',');
+  return list.map(item => cleanText(item, maxLen)).filter(Boolean).slice(0, maxItems);
+}
+
+// Public card for the storefront. Staff profiles also hold KYC and bank
+// details, so only these fields may leave the server.
+function publicExpert(staff) {
+  const p = staff.profile || {};
+  const pick = key => staff[key] ?? p[key];
+  return {
+    id: staff.id,
+    employeeId: staff.id,
+    name: staff.name,
+    avatar: p.profilePhoto || staff.profilePhoto || null,
+    qualification: pick('qualification') || '',
+    specialization: pick('specialization') || '',
+    experienceYears: Number(pick('experienceYears')) || null,
+    languages: cleanList(pick('languages'), 10, 30),
+    cropsExpertise: cleanList(pick('cropsExpertise'), 20, 40),
+    availableDays: pick('availableDays') || 'Monday - Saturday',
+    availableSlots: cleanList(pick('availableSlots'), 10, 40).length ? cleanList(pick('availableSlots'), 10, 40) : DEFAULT_EXPERT_SLOTS,
+    bio: pick('bio') || '',
+    isAgronomyExpert: true,
+    active: true,
+  };
+}
+
 app.get('/api/agronomy-experts', async (req, res) => {
   try {
     const experts = await db.getAgronomyExperts();
-    res.json({ success: true, data: experts });
+    res.json({ success: true, data: experts.filter(s => !s.status || s.status === 'active').map(publicExpert) });
   } catch (err) {
     sendError(res, err, 'Agronomy experts');
   }
 });
 
-// PUT /api/admin/employees/:id/agronomy-expert — Toggle / designate employee as expert
-app.put('/api/admin/employees/:id/agronomy-expert', requireAuth('superadmin', 'admin'), async (req, res) => {
+app.put('/api/admin/employees/:id/agronomy-expert', requireAuth('admin'), requireModule('employees'), async (req, res) => {
   try {
-    const { id } = req.params;
-    const { isAgronomyExpert, specialization, languages, bio } = req.body || {};
-    await db.setEmployeeAgronomyExpert(id, isAgronomyExpert, { specialization, languages, bio });
+    const staff = await findStaff(req.params.id);
+    if (!staff) return res.status(404).json({ success: false, message: 'Staff member not found' });
+    const b = req.body || {};
+    const details = {};
+    if (b.specialization !== undefined) details.specialization = cleanText(b.specialization, 120);
+    if (b.qualification !== undefined) details.qualification = cleanText(b.qualification, 120);
+    if (b.bio !== undefined) details.bio = cleanText(b.bio, 1000);
+    if (b.experienceYears !== undefined) details.experienceYears = Math.max(0, Math.min(60, Number(b.experienceYears) || 0));
+    if (b.languages !== undefined) details.languages = cleanList(b.languages, 10, 30);
+    if (b.cropsExpertise !== undefined) details.cropsExpertise = cleanList(b.cropsExpertise, 20, 40);
+    await db.setEmployeeAgronomyExpert(staff.id, Boolean(b.isAgronomyExpert), details);
     res.json({ success: true, message: 'Agronomy expert designation updated' });
   } catch (err) {
     sendError(res, err, 'Toggle agronomy expert');
   }
 });
 
-// POST /api/agronomy-bookings — User books consultation callback (must have account)
-app.post('/api/agronomy-bookings', requireAuth('farmer', 'admin', 'employee', 'superadmin', 'delivery', 'billing'), async (req, res) => {
+// Only a signed-in account can book, and the booking is tied to it.
+app.post('/api/agronomy-bookings', requireAuth(), async (req, res) => {
   try {
-    const { expertId, expertName, crop, acreage, preferredDate, preferredSlot, topic, notes, phone } = req.body || {};
+    const wait = await rateLimit(`agro-booking:${req.user.id}`, 10, HOUR_MS);
+    if (wait) return tooManyRequests(res, wait, 'Too many bookings. Please try again later.');
+
+    const { expertId, crop, acreage, preferredDate, preferredSlot, topic, notes, phone } = req.body || {};
+    const expert = (await db.getAgronomyExperts()).find(e => e.id === expertId);
+    if (!expert) return res.status(400).json({ success: false, message: 'Please choose an available expert.' });
+    const farmerPhone = normalizePhone(phone) || normalizePhone(req.user.phone);
+    if (!farmerPhone) return res.status(400).json({ success: false, message: 'Please enter a valid 10-digit phone number.' });
+
     const booking = {
-      id: req.body.id || newId('AGR-BK'),
-      expertId: cleanText(expertId, 40),
-      expertName: cleanText(expertName, 80),
+      id: newId('AGR'),
+      expertId: expert.id,
+      expertName: expert.name,
       userId: req.user.id,
       farmerName: req.user.name || 'Farmer',
-      farmerPhone: normalizePhone(phone || req.user.phone) || '',
-      crop: cleanText(crop, 50) || 'Paddy/Rice',
-      acreage: Number(acreage) || 1,
+      farmerPhone,
+      crop: cleanText(crop, 50) || 'General Crops',
+      acreage: Math.max(0, Math.min(10000, Number(acreage) || 1)),
       preferredDate: cleanText(preferredDate, 30),
       preferredSlot: cleanText(preferredSlot, 50),
-      topic: cleanText(topic, 100),
+      topic: cleanText(topic, 100) || 'General Agronomy Advisory',
       notes: cleanText(notes, 1000),
       status: 'Scheduled',
       callbackCompleted: false,
       callbackNotes: null,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     const created = await db.addAgronomyBooking(booking);
     res.json({ success: true, message: 'Consultation callback booked successfully', data: created });
@@ -3354,17 +3384,166 @@ app.post('/api/agronomy-bookings', requireAuth('farmer', 'admin', 'employee', 's
   }
 });
 
-// GET /api/agronomy-bookings — Fetch bookings
-app.get('/api/agronomy-bookings', requireAuth('farmer', 'admin', 'employee', 'superadmin'), async (req, res) => {
+// Admins see all bookings, an expert sees bookings made with them, and
+// everyone else sees their own.
+app.get('/api/agronomy-bookings', requireAuth(), async (req, res) => {
   try {
-    const filter = {};
-    if (req.user.role === 'farmer') {
-      filter.userId = req.user.id;
-    }
+    const role = req.user.role;
+    const filter = role === 'admin' || role === 'superadmin' ? {}
+      : TICKET_STAFF_ROLES.includes(role) ? { expertId: req.user.id }
+      : { userId: req.user.id };
     const data = await db.getAgronomyBookings(filter);
+    data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     res.json({ success: true, data });
   } catch (err) {
     sendError(res, err, 'Get agronomy bookings');
+  }
+});
+
+app.put('/api/agronomy-bookings/:id/complete', requireAuth('admin', 'employee'), async (req, res) => {
+  try {
+    const booking = await db.getAgronomyBookingById(req.params.id);
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
+    if (!booking || (!isAdmin && booking.expertId !== req.user.id)) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    const updated = await db.updateAgronomyBooking(booking.id, {
+      status: 'Completed',
+      callbackCompleted: true,
+      callbackNotes: cleanText(req.body?.callbackNotes, 2000),
+      completedAt: new Date().toISOString(),
+      completedBy: req.user.name,
+    });
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    sendError(res, err, 'Complete agronomy booking');
+  }
+});
+
+// ============================================================
+// SOIL TEST REPORTS
+// ============================================================
+
+const SOIL_STATUSES = ['Pending Review', 'Under Agronomist Analysis', 'Prescription Issued', 'Completed', 'Rejected'];
+// Admins hold 'soil-reports' as a module key; so do employees.
+const soilModule = requireModule('soil-reports', { roles: ['admin', 'employee'] });
+
+function canSeeSoilReport(user, report) {
+  if (user.role === 'superadmin' || user.role === 'admin') return true;
+  if (TICKET_STAFF_ROLES.includes(user.role)) return report.assignedToId === user.id;
+  return report.userId === user.id;
+}
+
+// Numbers and short labels only: a report is the farmer's lab values plus the
+// analysis the page computed from them.
+function cleanSoilValues(src = {}) {
+  const num = v => (v === '' || v === null || v === undefined || !Number.isFinite(Number(v)) ? null : Number(v));
+  return {
+    soilType: cleanText(src.soilType, 40),
+    crop: cleanText(src.crop, 50),
+    areaAcres: num(src.areaAcres),
+    ph: num(src.ph), ec: num(src.ec), oc: num(src.oc),
+    nitrogen: num(src.nitrogen), phosphorus: num(src.phosphorus), potassium: num(src.potassium),
+    zinc: cleanText(src.zinc, 20), boron: cleanText(src.boron, 20), iron: cleanText(src.iron, 20), sulphur: cleanText(src.sulphur, 20),
+    labName: cleanText(src.labName, 100),
+    sampleDate: cleanText(src.sampleDate, 30),
+    village: cleanText(src.village, 80),
+    district: cleanText(src.district, 80),
+    remarks: cleanText(src.remarks, 1000),
+    score: num(src.score),
+    grade: cleanText(src.grade, 20),
+    uploadedFileName: cleanText(src.uploadedFileName, 120) || null,
+    suggestedProducts: cleanList(src.suggestedProducts, 20, 120),
+  };
+}
+
+app.post('/api/soil-reports', requireAuth(), async (req, res) => {
+  try {
+    const wait = await rateLimit(`soil-report:${req.user.id}`, 20, HOUR_MS);
+    if (wait) return tooManyRequests(res, wait, 'Too many reports. Please try again later.');
+
+    const body = req.body || {};
+    // The analysis is display data computed in the browser; keep it bounded.
+    const analysis = body.analysis && typeof body.analysis === 'object' ? body.analysis : null;
+    if (analysis && JSON.stringify(analysis).length > 50000) {
+      return res.status(413).json({ success: false, message: 'Report is too large.' });
+    }
+    const report = {
+      id: newId('STR'),
+      ...cleanSoilValues(body),
+      analysis,
+      userId: req.user.id,
+      farmerName: cleanText(body.farmerName, 80) || req.user.name || 'Farmer',
+      phone: normalizePhone(body.phone) || normalizePhone(req.user.phone) || '',
+      status: 'Pending Review',
+      assignedToId: null,
+      assignedToName: null,
+      assignedRole: null,
+      assignedDesignation: null,
+      assignedAt: null,
+      agronomistNotes: '',
+      createdAt: new Date().toISOString(),
+    };
+    const created = await db.addSoilReport(report);
+    res.json({ success: true, data: created });
+  } catch (err) {
+    sendError(res, err, 'Save soil report');
+  }
+});
+
+app.get('/api/soil-reports', requireAuth(), soilModule, async (req, res) => {
+  try {
+    const all = await db.getSoilReports();
+    res.json({ success: true, data: all.filter(r => canSeeSoilReport(req.user, r)) });
+  } catch (err) {
+    sendError(res, err, 'Soil reports');
+  }
+});
+
+app.put('/api/soil-reports/:id/assign', requireAuth('admin'), soilModule, async (req, res) => {
+  try {
+    const report = await db.getSoilReportById(req.params.id);
+    if (!report) return res.status(404).json({ success: false, message: 'Report not found' });
+    const staff = await findStaff(req.body?.staffId);
+    if (!staff) return res.status(400).json({ success: false, message: 'Choose a staff member to assign.' });
+
+    const note = cleanText(req.body?.notes, 1000);
+    const updated = await db.updateSoilReport(report.id, {
+      assignedToId: staff.id,
+      assignedToName: staff.name,
+      assignedRole: staff.role,
+      assignedDesignation: cleanText(req.body?.staffDesignation, 80) || null,
+      assignedBy: req.user.name,
+      assignedAt: new Date().toISOString(),
+      status: report.status === 'Pending Review' ? 'Under Agronomist Analysis' : report.status,
+      agronomistNotes: note
+        ? (report.agronomistNotes ? `${report.agronomistNotes}\n[${new Date().toLocaleDateString('en-IN')}] ${note}` : note)
+        : report.agronomistNotes,
+    });
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    sendError(res, err, 'Assign soil report');
+  }
+});
+
+app.put('/api/soil-reports/:id/status', requireAuth('admin', 'employee'), soilModule, async (req, res) => {
+  try {
+    const report = await db.getSoilReportById(req.params.id);
+    if (!report || !canSeeSoilReport(req.user, report)) return res.status(404).json({ success: false, message: 'Report not found' });
+    const b = req.body || {};
+    const updates = { updatedAt: new Date().toISOString() };
+    if (b.status !== undefined) {
+      const status = SOIL_STATUSES.find(s => s === b.status);
+      if (!status) return res.status(400).json({ success: false, message: 'Unknown report status.' });
+      updates.status = status;
+      if (status === 'Prescription Issued' || status === 'Completed') updates.resolvedAt = updates.updatedAt;
+    }
+    if (b.agronomistNotes !== undefined) updates.agronomistNotes = cleanText(b.agronomistNotes, 4000);
+    if (Array.isArray(b.suggestedProducts)) updates.suggestedProducts = cleanList(b.suggestedProducts, 20, 120);
+    const updated = await db.updateSoilReport(report.id, updates);
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    sendError(res, err, 'Update soil report');
   }
 });
 

@@ -176,6 +176,8 @@ const storeSchema = new mongoose.Schema({ _id: String }, permissive);
 export const Store = mongoose.models.Store || mongoose.model('Store', storeSchema);
 const agronomyBookingSchema = new mongoose.Schema({ _id: String }, permissive);
 export const AgronomyBooking = mongoose.models.AgronomyBooking || mongoose.model('AgronomyBooking', agronomyBookingSchema);
+const soilReportSchema = new mongoose.Schema({ _id: String }, permissive);
+export const SoilReport = mongoose.models.SoilReport || mongoose.model('SoilReport', soilReportSchema);
 
 const activityLogSchema = new mongoose.Schema({ _id: String }, permissive);
 export const ActivityLog = mongoose.models.ActivityLog || mongoose.model('ActivityLog', activityLogSchema);
@@ -2260,20 +2262,20 @@ class DatabaseManager {
 
   async getTicketById(id) {
         await connectDB();
-        const ticket = await Ticket.findById(id).lean();
+        const ticket = await Ticket.findById(String(id)).lean();
         return ticket ? serialize(ticket) : null;
   }
 
   async updateTicket(id, updates) {
         await connectDB();
-        const updated = await Ticket.findByIdAndUpdate(id, { $set: updates }, { new: true, lean: true });
+        const updated = await Ticket.findByIdAndUpdate(String(id), { $set: updates }, { new: true, lean: true });
         return updated ? serialize(updated) : null;
   }
 
   async addTicketReply(id, reply) {
         await connectDB();
         const updated = await Ticket.findByIdAndUpdate(
-          id,
+          String(id),
           { $push: { replies: reply }, $set: { updatedAt: new Date().toISOString() } },
           { new: true, lean: true }
         );
@@ -2314,6 +2316,43 @@ class DatabaseManager {
         if (filter.expertId) query.expertId = filter.expertId;
         const list = await AgronomyBooking.find(query).lean();
         return list.map(serialize);
+  }
+
+  async getAgronomyBookingById(id) {
+        await connectDB();
+        const booking = await AgronomyBooking.findById(String(id)).lean();
+        return booking ? serialize(booking) : null;
+  }
+
+  async updateAgronomyBooking(id, updates) {
+        await connectDB();
+        const updated = await AgronomyBooking.findByIdAndUpdate(String(id), { $set: updates }, { new: true, lean: true });
+        return updated ? serialize(updated) : null;
+  }
+
+  async addSoilReport(report) {
+        await connectDB();
+        const created = await SoilReport.create({ ...report, _id: report.id });
+        return serialize(created.toObject());
+  }
+
+  async getSoilReports() {
+        await connectDB();
+        const list = (await SoilReport.find({}).lean()).map(serialize);
+        list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return list;
+  }
+
+  async getSoilReportById(id) {
+        await connectDB();
+        const report = await SoilReport.findById(String(id)).lean();
+        return report ? serialize(report) : null;
+  }
+
+  async updateSoilReport(id, updates) {
+        await connectDB();
+        const updated = await SoilReport.findByIdAndUpdate(String(id), { $set: updates }, { new: true, lean: true });
+        return updated ? serialize(updated) : null;
   }
 
   async getChatRecords() {

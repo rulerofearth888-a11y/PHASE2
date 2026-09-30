@@ -30,7 +30,7 @@ export default function Employees() {
   const [selectedEmployee, setSelectedEmployee] = useState(null)
 
   const loadExperts = () => {
-    agronomyService.getExperts().then(res => setAgronomyExperts(res || []))
+    agronomyService.getExperts().then(res => setAgronomyExperts(res || [])).catch(() => setAgronomyExperts([]))
   }
 
   useEffect(() => {

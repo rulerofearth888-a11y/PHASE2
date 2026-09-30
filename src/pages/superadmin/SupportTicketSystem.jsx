@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import {
@@ -25,20 +25,10 @@ import {
 import { ticketService } from '../../services/ticketService'
 import { useAuth } from '../../context/AuthContext'
 
-// Fallback staff list if API is unreachable
-const DEFAULT_STAFF = [
-  { id: 'USR-0002', name: 'Store Admin - Coimbatore HQ', role: 'admin', designation: 'General Store Admin' },
-  { id: 'USR-0004', name: 'Branch Admin - Madurai', role: 'admin', designation: 'Regional Admin' },
-  { id: 'USR-0003', name: 'Dr. K. Senthil Kumar', role: 'employee', designation: 'Senior Agronomist (Plant Pathology)' },
-  { id: 'u6', name: 'Dr. Priya Sharma', role: 'employee', designation: 'Agronomist & Soil Chemist' },
-  { id: 'u7', name: 'Arun Kumar', role: 'employee', designation: 'Horticulture & Fertigation Specialist' },
-  { id: 'u3', name: 'Muthuvel K', role: 'employee', designation: 'Quality Control Lead' }
-]
-
 export default function SupportTicketSystem() {
   const { user } = useAuth()
   const [tickets, setTickets] = useState([])
-  const [staffList, setStaffList] = useState(DEFAULT_STAFF)
+  const [staffList, setStaffList] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState(null)
 
@@ -74,11 +64,17 @@ export default function SupportTicketSystem() {
   }, [])
 
   // Load tickets
+  // Read the selection through a ref so loadTickets stays stable; depending
+  // on selectedTicket re-ran the load effect after every refresh, forever.
+  const selectedRef = useRef(null)
+  useEffect(() => { selectedRef.current = selectedTicket }, [selectedTicket])
+
   const loadTickets = useCallback(async () => {
     setLoading(true)
     try {
-      const list = await ticketService.getTickets({ role: 'superadmin' })
+      const list = await ticketService.getTickets()
       setTickets(list)
+      const selectedTicket = selectedRef.current
       if (list.length > 0 && !selectedTicket) {
         setSelectedTicket(list[0])
       } else if (selectedTicket) {
@@ -90,7 +86,7 @@ export default function SupportTicketSystem() {
     } finally {
       setLoading(false)
     }
-  }, [selectedTicket])
+  }, [])
 
   useEffect(() => {
     loadStaff()
