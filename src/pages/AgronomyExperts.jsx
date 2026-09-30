@@ -204,7 +204,7 @@ export default function AgronomyExperts() {
           </h1>
 
           <p style={{ fontSize: '1.05rem', color: '#d1fae5', margin: '0 0 24px', lineHeight: 1.6 }}>
-            Have crop diseases, pest outbreaks, or soil nutrition doubts? Schedule a personalized callback with Sathyam Bio's certified agronomists. Free for registered farmers.
+            Have crop diseases, pest outbreaks, or soil nutrition doubts? Schedule a personalized callback with Sathyam Agro Mart's certified agronomists. Free for registered farmers.
           </p>
 
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -338,7 +338,7 @@ export default function AgronomyExperts() {
           )}
 
           {/* Experts Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(360px, 100%), 1fr))', gap: 24 }}>
             {filteredExperts.map(expert => (
               <div
                 key={expert.id}

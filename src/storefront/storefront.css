@@ -13769,3 +13769,9 @@ body.poster-open .sb-portal .call-fab {
     animation-name: sbCallLabelFade;
   }
 }
+
+/* Phase 2 pages (soil test report, support tickets): their two-column layout
+   reads --p2-split from an inline style; phones stack it into one column. */
+@media (max-width: 768px) {
+  .p2-split { --p2-split: minmax(0, 1fr); }
+}

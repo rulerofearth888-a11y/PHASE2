@@ -320,7 +320,7 @@ export default function SupportTicketsCustomer() {
       </div>
 
       {/* Main Grid: Ticket List + Selected Ticket Thread */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 420px) 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="p2-split" style={{ display: 'grid', gridTemplateColumns: 'var(--p2-split, minmax(320px, 420px) 1fr)', gap: 24, alignItems: 'start' }}>
         {/* Left Column: Tickets Queue */}
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           {/* Filters & Search */}
@@ -746,7 +746,7 @@ export default function SupportTicketsCustomer() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Broken seal on BlastShield bottle / Delivery delayed"
+                  placeholder="e.g. Broken seal on bottle / Delivery delayed"
                   value={newTicket.subject}
                   onChange={e => setNewTicket(p => ({ ...p, subject: e.target.value }))}
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}

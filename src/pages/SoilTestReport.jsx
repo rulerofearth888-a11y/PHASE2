@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { toast } from 'sonner'
 import {
   Upload,
@@ -29,7 +30,6 @@ import {
   X
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useCheckoutActions } from '../hooks/useCheckout'
 import { soilTestService, SAMPLE_SOIL_PRESETS, CROP_SUITABILITY_RULES } from '../services/soilTestService'
 import ServicesBottomNav from '../components/common/ServicesBottomNav'
 
@@ -46,8 +46,7 @@ const ALL_CROPS = CROP_SUITABILITY_RULES.map(c => c.name)
 
 export default function SoilTestReport() {
   const { user } = useAuth()
-  const { addToCart } = useCheckoutActions()
-  const navigate = useNavigate()
+    const navigate = useNavigate()
   const fileInputRef = useRef(null)
 
   // Upload state
@@ -169,21 +168,29 @@ export default function SoilTestReport() {
     toast.success('Soil health analysis & recommendations updated')
   }
 
-  // Handle Add Product to Cart
-  const handleAddProduct = (product) => {
-    try {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        selectedPack: product.packSize,
-        image: product.image
-      })
-      toast.success(`Added ${product.name} to cart!`)
-    } catch {
-      toast.info(`Selected ${product.name} for purchase`)
+  // Recommended products are real catalogue items; photo, price and label
+  // dose come from the live catalogue, and buying happens on the product page
+  // (real packs and prices).
+  const [catalog, setCatalog] = useState(() => new Map())
+  useEffect(() => {
+    let cancelled = false
+    axios.get('/api/products')
+      .then(res => { if (!cancelled && Array.isArray(res?.data?.data)) setCatalog(new Map(res.data.data.map(p => [String(p.id), p]))) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+  const liveProduct = (prod) => {
+    const live = catalog.get(String(prod.id))
+    return {
+      ...prod,
+      name: live?.name || prod.name,
+      image: live?.image || live?.images?.[0] || null,
+      price: Number(live?.price) > 0 ? Number(live.price) : null,
+      dosage: live?.dosage || ''
     }
   }
+  const handleViewProduct = (product) => navigate(`/product/${encodeURIComponent(product.id)}`)
+
 
   // Handle Submit Report to Agronomist / Super Admin
   const handleOpenSubmitModal = () => {
@@ -339,7 +346,7 @@ export default function SoilTestReport() {
       </div>
 
       {/* Two Column Layout: Parameters & Upload on Left, Output & Analysis on Right */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 380px) 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="p2-split" style={{ display: 'grid', gridTemplateColumns: 'var(--p2-split, minmax(320px, 380px) 1fr)', gap: 24, alignItems: 'start' }}>
         
         {/* LEFT COLUMN: Input form & file upload */}
         <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
@@ -907,16 +914,16 @@ export default function SoilTestReport() {
                       {step.product && (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <img src={step.product.image} alt={step.product.name} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                            {liveProduct(step.product).image && <img src={liveProduct(step.product).image} alt={liveProduct(step.product).name} style={{ width: 32, height: 32, objectFit: 'contain' }} />}
                             <div>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>{step.product.name}</div>
-                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Dosage: {step.product.dose}</div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>{liveProduct(step.product).name}</div>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Dosage: {liveProduct(step.product).dosage || 'as per product label'}</div>
                             </div>
                           </div>
 
                           <button
                             type="button"
-                            onClick={() => handleAddProduct(step.product)}
+                            onClick={() => handleViewProduct(step.product)}
                             style={{
                               background: '#059669',
                               color: '#fff',
@@ -931,7 +938,7 @@ export default function SoilTestReport() {
                               gap: 4
                             }}
                           >
-                            <ShoppingCart size={13} /> Buy Amendment (₹{step.product.price})
+                            <ShoppingCart size={13} /> View product{liveProduct(step.product).price ? ` (from ₹${liveProduct(step.product).price})` : ''}
                           </button>
                         </div>
                       )}
@@ -954,7 +961,7 @@ export default function SoilTestReport() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
-                  {result.specificEvaluation?.suggestedProducts?.map(prod => (
+                  {result.specificEvaluation?.suggestedProducts?.map(liveProduct).map(prod => (
                     <div
                       key={prod.id}
                       style={{
@@ -970,7 +977,7 @@ export default function SoilTestReport() {
                     >
                       <div>
                         <div style={{ height: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 8, marginBottom: 12 }}>
-                          <img src={prod.image} alt={prod.name} style={{ maxHeight: 90, objectFit: 'contain' }} />
+                          {prod.image && <img src={prod.image} alt={prod.name} style={{ maxHeight: 90, objectFit: 'contain' }} />}
                         </div>
                         <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase' }}>
                           {prod.category}
@@ -979,7 +986,7 @@ export default function SoilTestReport() {
                           {prod.name}
                         </h4>
                         <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 8 }}>
-                          Pack: {prod.packSize} · Dose: {prod.dose}
+                          Dose: {prod.dosage || 'as per product label'}
                         </div>
                         <p style={{ margin: 0, fontSize: '0.78rem', color: '#475569', lineHeight: 1.4, marginBottom: 12 }}>
                           {prod.benefit}
@@ -988,7 +995,7 @@ export default function SoilTestReport() {
 
                       <button
                         type="button"
-                        onClick={() => handleAddProduct(prod)}
+                        onClick={() => handleViewProduct(prod)}
                         style={{
                           width: '100%',
                           background: 'linear-gradient(135deg, #059669, #047857)',
@@ -1005,7 +1012,7 @@ export default function SoilTestReport() {
                           gap: 6
                         }}
                       >
-                        <ShoppingCart size={15} /> Add to Cart (₹{prod.price})
+                        <ShoppingCart size={15} /> View product{prod.price ? ` (from ₹${prod.price})` : ''}
                       </button>
                     </div>
                   ))}
