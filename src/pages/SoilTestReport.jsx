@@ -51,7 +51,6 @@ export default function SoilTestReport() {
 
   // Upload state
   const [uploadedFile, setUploadedFile] = useState(null)
-  const [scanning, setScanning] = useState(false)
 
   // Active view tab: 'analysis' | 'crop-suitability' | 'target-crop' | 'my-submissions'
   const [activeTab, setActiveTab] = useState('crop-suitability')
@@ -125,39 +124,21 @@ export default function SoilTestReport() {
     toast.success(`Loaded preset: ${preset.name}`)
   }
 
-  // Handle file upload
+  // Attach the farmer's soil card. The file is not read here: the farmer
+  // types the values from the card below, and staff see the file name with
+  // the submitted report.
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('That file is over 10MB. Please choose a smaller photo or PDF.')
+      e.target.value = ''
+      return
+    }
     setUploadedFile(file)
-    setScanning(true)
-
-    // Simulate smart parsing of Soil Health Card / Lab Test
-    setTimeout(() => {
-      setScanning(false)
-      const parsedValues = {
-        soilType: 'Black Cotton Soil',
-        crop: targetCrop,
-        areaAcres: 4,
-        ph: 8.1,
-        ec: 1.15,
-        oc: 0.46,
-        nitrogen: 230,
-        phosphorus: 12.8,
-        potassium: 210,
-        zinc: 'Deficient',
-        boron: 'Deficient',
-        iron: 'Sufficient',
-        sulphur: 'Deficient'
-      }
-      setSoilData(parsedValues)
-      const analyzed = soilTestService.analyzeSoil(parsedValues)
-      setResult(analyzed)
-      toast.success('Soil report parsed & crop suitability generated!', {
-        description: `Successfully analyzed laboratory parameters from ${file.name}.`
-      })
-    }, 1200)
+    toast.success(`Attached ${file.name}`, {
+      description: 'Now type the values from your soil card into the form below.'
+    })
   }
 
   // Handle Manual Form Calculation
@@ -357,7 +338,7 @@ export default function SoilTestReport() {
               Upload Soil Test File
             </h3>
             <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#64748b' }}>
-              Upload PDF or Photo of your Govt Soil Health Card or Private Lab Report.
+              Attach a PDF or photo of your Govt Soil Health Card or lab report, then type its values below.
             </p>
 
             <input
@@ -376,13 +357,13 @@ export default function SoilTestReport() {
                 padding: '20px 16px',
                 textAlign: 'center',
                 cursor: 'pointer',
-                background: scanning ? '#f0fdf4' : '#f8fafc',
+                background: uploadedFile ? '#f0fdf4' : '#f8fafc',
                 transition: 'all 0.2s ease'
               }}
             >
-              <Upload size={32} color={scanning ? '#059669' : '#64748b'} style={{ margin: '0 auto 8px' }} />
+              <Upload size={32} color={uploadedFile ? '#059669' : '#64748b'} style={{ margin: '0 auto 8px' }} />
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#1e293b' }}>
-                {scanning ? 'Scanning & Parsing Soil Report...' : (uploadedFile ? uploadedFile.name : 'Click to Upload Soil Test Card')}
+                {uploadedFile ? `Attached: ${uploadedFile.name}` : 'Click to Attach Soil Test Card'}
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: 3 }}>
                 Supports PDF, JPG, PNG (Max 10MB)

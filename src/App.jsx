@@ -101,6 +101,7 @@ const SuperAdminSoilReports = lazy(() => import('./pages/superadmin/SoilReportMo
 
 // Admin & Employee Soil Reports
 const AdminSoilReports = lazy(() => import('./pages/admin/SoilReports'))
+const AgronomyBookings = lazy(() => import('./pages/admin/AgronomyBookings'))
 
 // Tickets & Chat (shared between admin/employee)
 const Tickets     = lazy(() => import('./pages/shared/Tickets'))
@@ -213,6 +214,7 @@ export default function App() {
           <Route path="employees"  element={<Employees />} />
           <Route path="support-tickets" element={<SupportTickets />} />
           <Route path="soil-reports" element={<AdminSoilReports />} />
+          <Route path="agronomy-bookings" element={<AgronomyBookings />} />
           <Route path="tickets"    element={<Tickets />} />
           <Route path="chat"       element={<ChatRecords />} />
           <Route path="blogs"      element={<AdminBlogs />} />
@@ -227,6 +229,7 @@ export default function App() {
           <Route path="profile" element={<EmployeeProfile />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="soil-reports" element={<AdminSoilReports />} />
+          <Route path="agronomy-bookings" element={<AgronomyBookings />} />
         </Route>
 
         {/* Delivery Routes */}

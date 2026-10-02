@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
-import { Bell, Menu, Search, LayoutDashboard, Boxes, Send, ContactRound, Square, CheckSquare, PieChart, UserRound, Factory, FlaskConical } from 'lucide-react'
+import { Bell, Menu, Search, LayoutDashboard, Boxes, Send, ContactRound, Square, CheckSquare, PieChart, UserRound, Factory, FlaskConical, Sprout } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const EMP_NAV = [
@@ -12,6 +12,7 @@ const EMP_NAV = [
     { to: '/employee',                 icon: <ContactRound size={16} />, label: 'Customer CRM' },
     { to: '/employee/tickets',         icon: <Square size={16} />, label: 'Support Tickets', badge: 'new' },
     { to: '/employee/soil-reports',    icon: <FlaskConical size={16} />, label: 'Soil Test Reports', badge: 'new' },
+    { to: '/employee/agronomy-bookings', icon: <Sprout size={16} />, label: 'Agronomy Bookings' },
   ]},
   { title: 'My Account', links: [
     { to: '/employee',                 icon: <CheckSquare size={16} />, label: 'Tasks & Approvals' },

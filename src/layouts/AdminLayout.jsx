@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
-import { Menu, BarChart3, LineChart, Pencil, Leaf, BookOpen, Video, UserRound, FileText, Package, Mail, ClipboardList, Users, Ticket, Gift, Bell, MessageCircle, ShieldCheck, MapPin, FlaskConical } from 'lucide-react'
+import { Menu, BarChart3, LineChart, Pencil, Leaf, BookOpen, Video, UserRound, FileText, Package, Mail, ClipboardList, Users, Ticket, Gift, Bell, MessageCircle, ShieldCheck, MapPin, FlaskConical, Sprout } from 'lucide-react'
 
 const ADMIN_NAV = [
   {
@@ -44,6 +44,7 @@ const ADMIN_NAV = [
     links: [
       { to: '/admin/support-tickets', icon: <Ticket size={16} />, label: 'Support Tickets', moduleKey: 'support-tickets' },
       { to: '/admin/soil-reports', icon: <FlaskConical size={16} />, label: 'Soil Test Reports', moduleKey: 'soil-reports' },
+      { to: '/admin/agronomy-bookings', icon: <Sprout size={16} />, label: 'Agronomy Bookings', moduleKey: 'employees' },
       { to: '/admin/tickets', icon: <Bell size={16} />, label: 'Notifications', moduleKey: 'tickets' },
       { to: '/admin/chat',    icon: <MessageCircle size={16} />, label: 'Chat Records', moduleKey: 'chat' },
     ]
