@@ -469,7 +469,7 @@ export default function AdminVideos() {
                 <label className="form-label">Video Title *</label>
                 <input
                   className="form-control"
-                  placeholder="e.g. BlastShield Field Application Guide &amp; Dosage"
+                  placeholder="e.g. Field application guide &amp; dosage"
                   value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 />

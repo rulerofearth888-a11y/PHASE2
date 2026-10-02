@@ -977,7 +977,7 @@ export default function AdminProducts() {
                     <input
                       id="pformName"
                       required
-                      placeholder="e.g. Sathyam Agro Mart BlastShield 75 WP"
+                      placeholder="Product name as printed on the pack"
                       value={form.name}
                       onChange={e => setForm({ ...form, name: e.target.value })}
                       aria-invalid={sameNamed ? 'true' : undefined}

@@ -18,21 +18,25 @@ const QUICK_CHATS = [
 ]
 const SMALL_BUTTON = { padding: '4px 10px', fontSize: '0.75rem', marginTop: '6px' }
 
-// Canned answers to common crop questions.
-function replyTo(text, addToCart) {
+// Canned answers to common crop questions. Products are never named here:
+// a remedy button appears only when a live catalogue product is tagged for
+// that problem (findRemedyProduct), and doses come from its label, not us.
+function replyTo(text, addToCart, findRemedyProduct) {
   const lower = text.toLowerCase()
-  const cartButton = (productId, label) => (
-    <button className="btn btn-primary" style={SMALL_BUTTON} onClick={() => addToCart(productId)}><i className="fa-solid fa-cart-plus"></i> {label}</button>
-  )
+  const remedyButton = keyword => {
+    const product = findRemedyProduct(keyword)
+    if (!product) return null
+    return <button className="btn btn-primary" style={SMALL_BUTTON} onClick={() => addToCart(product.id)}><i className="fa-solid fa-cart-plus"></i> Add {product.name} to Cart</button>
+  }
   const whatsAppButton = label => (
     <a className="btn btn-gold" style={SMALL_BUTTON} href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-whatsapp"></i> {label}</a>
   )
 
   if (lower.includes('blast') || lower.includes('paddy')) {
-    return <>🌾 <strong>Paddy Blast Defense:</strong> We recommend <strong>Sathyam Agro Mart BlastShield 75 WP</strong> (₹680) or <strong>Pseudomonas 1% WP</strong>.<br />{cartButton('sb-01', 'Add BlastShield to Cart')}</>
+    return <>🌾 <strong>Paddy Blast:</strong> Filter the products above by Paddy and Blast, or ask our agronomist which suits your field.<br />{remedyButton('blast') || whatsAppButton('Ask an Agronomist')}</>
   }
   if (lower.includes('whitefly') || lower.includes('cotton')) {
-    return <>🐛 <strong>Cotton Whitefly Defense:</strong> Use <strong>Sathyam Agro Mart FlyKill Ultra</strong> (₹840) or <strong>NeemGuard 10000 PPM</strong> (₹580). Spray early morning.<br />{cartButton('sb-02', 'Add FlyKill Ultra to Cart')}</>
+    return <>🐛 <strong>Cotton Whitefly:</strong> Filter the products above by Cotton and Whitefly, or ask our agronomist which suits your field.<br />{remedyButton('whitefly') || whatsAppButton('Ask an Agronomist')}</>
   }
   if (lower.includes('soil')) {
     return <>🌱 <strong>Soil Health:</strong> Send your soil test report to our agronomists on WhatsApp for N-P-K nutrient recommendations.<br />{whatsAppButton('Send it on WhatsApp')}</>
@@ -41,13 +45,13 @@ function replyTo(text, addToCart) {
     return <>📞 <strong>Senior Agronomist Consultation:</strong> Call <strong>+91 87786 13372</strong> or chat with an agronomist on WhatsApp.<br />{whatsAppButton('Chat with an Agronomist')}</>
   }
   if (lower.includes('weed') || lower.includes('herbicide')) {
-    return <>🌿 <strong>Weed Control:</strong> Use <strong>WeedClear 24-D</strong> (₹340) for broadleaf weeds or <strong>GrassOut 10 EC</strong> (₹480) for grass weeds.<br />{cartButton('sb-26', 'Add WeedClear to Cart')}</>
+    return <>🌿 <strong>Weed Control:</strong> Ask our agronomist which weed control suits your crop.<br />{remedyButton('weed') || whatsAppButton('Ask an Agronomist')}</>
   }
-  return <>🌿 <strong>Sathyam Agro Mart Crop Assistant:</strong> We offer 35+ bio-certified pesticides and crop nutrients for Paddy, Cotton, Tomato, Wheat, Sugarcane, and Grapes. Filter products by crop or disease above!</>
+  return <>🌿 <strong>Sathyam Agro Mart Crop Assistant:</strong> Filter our products by crop or disease above, or ask an agronomist on WhatsApp.<br />{whatsAppButton('Ask an Agronomist')}</>
 }
 
 function ChatbotReal({ t }) {
-  const { addToCart } = useStore()
+  const { addToCart, findRemedyProduct } = useStore()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [draft, setDraft] = useState('')
@@ -68,7 +72,7 @@ function ChatbotReal({ t }) {
   const send = text => {
     const add = (sender, content) => setMessages(current => [...current, { id: nextId.current++, sender, content }])
     add('user', text)
-    timers.current.push(setTimeout(() => add('bot', replyTo(text, addToCart)), 500))
+    timers.current.push(setTimeout(() => add('bot', replyTo(text, addToCart, findRemedyProduct)), 500))
   }
 
   const sendDraft = () => {

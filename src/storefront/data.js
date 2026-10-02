@@ -50,7 +50,8 @@ export const PESTICIDES = []
 
 // `keyword` is matched against a live product's `diseases` tags
 // (PhotoScannerModal.jsx -> findRemedyProduct) to recommend a real, in-stock
-// product — it is not itself a product id.
+// product — it is not itself a product id. No product names or doses are
+// stored here: the remedy shown is the live product's own name.
 export const SAMPLE_DISEASE_DIAGNOSES = [
   {
     keyword: 'blast',
@@ -58,7 +59,6 @@ export const SAMPLE_DISEASE_DIAGNOSES = [
     cropDetected: 'Paddy / Rice',
     confidence: '98.2%',
     symptoms: 'Spindle-shaped lesions with greyish center and dark brown margin on leaves.',
-    recommendedProduct: 'Sathyam Agro Mart BlastShield 75 WP (120g/acre)',
   },
   {
     keyword: 'whitefly',
@@ -66,7 +66,6 @@ export const SAMPLE_DISEASE_DIAGNOSES = [
     cropDetected: 'Cotton / Tomato',
     confidence: '94.7%',
     symptoms: 'Yellowing of leaves, sticky honeydew secretion with black sooty mold.',
-    recommendedProduct: 'Sathyam Agro Mart FlyKill Ultra (250g/acre)',
   },
   {
     keyword: 'blight',
@@ -74,7 +73,6 @@ export const SAMPLE_DISEASE_DIAGNOSES = [
     cropDetected: 'Tomato / Potato',
     confidence: '96.4%',
     symptoms: 'Dark brown concentric rings on lower leaves.',
-    recommendedProduct: 'Sathyam Agro Mart BlightStop Pro (500g/acre)',
   },
 ]
 

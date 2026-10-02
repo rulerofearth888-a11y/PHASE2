@@ -34,6 +34,7 @@ function PhotoScannerModalReal({ state, t }) {
   }
 
   const diag = SAMPLE_DISEASE_DIAGNOSES[0]
+  const remedy = findRemedyProduct(diag.keyword)
 
   // This diagnosis is a fixed demo result (no real image analysis runs on the
   // uploaded photo) — but the remedy it offers must be a product that is
@@ -72,7 +73,7 @@ function PhotoScannerModalReal({ state, t }) {
             <h3 style={{ margin: '8px 0 4px 0', fontSize: '1.05rem', color: 'var(--primary-dark)' }}>{diag.diseaseName}</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: '8px' }}>{diag.symptoms}</p>
             <div style={{ background: '#F1F7F3', padding: '8px', borderRadius: '6px', fontSize: '0.82rem', marginBottom: '10px' }}>
-              <strong>Remedy:</strong> {diag.recommendedProduct}
+              <strong>Remedy:</strong> {remedy ? remedy.name : 'Ask our agronomist for a remedy that suits your field.'}
             </div>
             <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleAddRemedy}>
               <i className="fa-solid fa-cart-plus"></i> Add Remedy to Cart
