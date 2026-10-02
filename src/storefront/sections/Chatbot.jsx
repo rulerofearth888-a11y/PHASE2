@@ -1,14 +1,10 @@
-import { memo, useState } from 'react'
-import ComingSoon from '../../components/ComingSoon'
-
-// AI Chat Bot is Phase 3 work — not part of this presentation build. The
-// trigger button stays visible; opening it shows Coming Soon instead of the
-// real canned-answer assistant, kept below commented out, to restore later.
-
-/*
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useStore } from '../StoreContext'
 import { WHATSAPP_EXPERT_URL } from '../data'
+
+// Crop Assistant: canned answers matched on keywords (no AI model behind it).
+// Product buttons only ever offer a live catalogue product.
 
 const QUICK_CHATS = [
   ['What is the best pesticide for Paddy Blast?', '🌾 Paddy Blast Remedy'],
@@ -28,6 +24,9 @@ function replyTo(text, addToCart, findRemedyProduct) {
     if (!product) return null
     return <button className="btn btn-primary" style={SMALL_BUTTON} onClick={() => addToCart(product.id)}><i className="fa-solid fa-cart-plus"></i> Add {product.name} to Cart</button>
   }
+  const pageButton = (to, label) => (
+    <Link className="btn btn-primary" style={SMALL_BUTTON} to={to}>{label}</Link>
+  )
   const whatsAppButton = label => (
     <a className="btn btn-gold" style={SMALL_BUTTON} href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-whatsapp"></i> {label}</a>
   )
@@ -39,10 +38,10 @@ function replyTo(text, addToCart, findRemedyProduct) {
     return <>🐛 <strong>Cotton Whitefly:</strong> Filter the products above by Cotton and Whitefly, or ask our agronomist which suits your field.<br />{remedyButton('whitefly') || whatsAppButton('Ask an Agronomist')}</>
   }
   if (lower.includes('soil')) {
-    return <>🌱 <strong>Soil Health:</strong> Send your soil test report to our agronomists on WhatsApp for N-P-K nutrient recommendations.<br />{whatsAppButton('Send it on WhatsApp')}</>
+    return <>🌱 <strong>Soil Health:</strong> Enter the values from your soil test card for nutrient advice and products from our catalogue, reviewed by our agronomists.<br />{pageButton('/soil-test-report', 'Check my soil report')} {whatsAppButton('Ask on WhatsApp')}</>
   }
   if (lower.includes('agronomist') || lower.includes('speak') || lower.includes('doctor')) {
-    return <>📞 <strong>Senior Agronomist Consultation:</strong> Call <strong>+91 87786 13372</strong> or chat with an agronomist on WhatsApp.<br />{whatsAppButton('Chat with an Agronomist')}</>
+    return <>📞 <strong>Senior Agronomist Consultation:</strong> Book a free callback from one of our agronomy experts, call <strong>+91 87786 13372</strong>, or chat on WhatsApp.<br />{pageButton('/agronomy-experts', 'Book a callback')} {whatsAppButton('Chat on WhatsApp')}</>
   }
   if (lower.includes('weed') || lower.includes('herbicide')) {
     return <>🌿 <strong>Weed Control:</strong> Ask our agronomist which weed control suits your crop.<br />{remedyButton('weed') || whatsAppButton('Ask an Agronomist')}</>
@@ -50,7 +49,7 @@ function replyTo(text, addToCart, findRemedyProduct) {
   return <>🌿 <strong>Sathyam Agro Mart Crop Assistant:</strong> Filter our products by crop or disease above, or ask an agronomist on WhatsApp.<br />{whatsAppButton('Ask an Agronomist')}</>
 }
 
-function ChatbotReal({ t }) {
+export default memo(function Chatbot({ t }) {
   const { addToCart, findRemedyProduct } = useStore()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([])
@@ -122,30 +121,6 @@ function ChatbotReal({ t }) {
             onKeyDown={event => { if (event.key === 'Enter') sendDraft() }}
           />
           <button id="chatbotSendBtn" onClick={sendDraft} aria-label="Send"><i className="fa-solid fa-paper-plane"></i></button>
-        </div>
-      </div>
-    </>
-  )
-}
-*/
-
-export default memo(function Chatbot() {
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <div className="chatbot-trigger-btn" id="chatbotTriggerBtn" onClick={() => setOpen(current => !current)} role="button" tabIndex={0} aria-label="Chat assistant">
-        <i className={open ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'}></i>
-      </div>
-      <div className={`chatbot-window${open ? ' active' : ''}`} id="chatbotWindow">
-        <div className="chatbot-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-robot"></i>
-            <span style={{ fontWeight: 700 }}>Crop Assistant</span>
-          </div>
-          <button id="chatbotCloseBtn" onClick={() => setOpen(false)} style={{ background: 'transparent', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} aria-label="Close chat">&times;</button>
-        </div>
-        <div className="chatbot-messages" id="chatbotMessages">
-          <ComingSoon title="Chat assistant — coming soon" message="Our AI crop assistant will be here to help soon." />
         </div>
       </div>
     </>
