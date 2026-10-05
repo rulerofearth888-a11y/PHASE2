@@ -12871,3 +12871,122 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
   .p2-hero { margin-top: 28px; }
   .sb-blog-hero { margin-top: 16px; }
 }
+
+/* ---- Farmer services (components/common/ServicesBottomNav.jsx) ----
+   The main farmer tools as full feature cards: icon, whole name, what it
+   does, and an "Open" link; the page you are on says "You are here".
+   Desktop 5 across, tablet 3, phones 2 (the fifth card full width). */
+.farmer-services {
+  margin: 40px 0 20px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+}
+.farmer-services-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.farmer-services-head p {
+  margin: 4px 0 18px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.farmer-services-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+.farmer-service {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 100%;
+  padding: 18px 16px 16px;
+  border: 1.5px solid #e8edf2;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #0f172a;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+.farmer-service:hover,
+.farmer-service:focus-visible {
+  border-color: var(--svc);
+  background: var(--svc-bg);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+  outline: none;
+}
+.farmer-service.is-active {
+  border-color: var(--svc);
+  background: var(--svc-bg);
+}
+.farmer-service-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+  border-radius: 14px;
+  background: var(--svc-bg);
+  color: var(--svc);
+}
+.farmer-service.is-active .farmer-service-icon {
+  background: #ffffff;
+}
+.farmer-service-title {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+.farmer-service-desc {
+  flex: 1;
+  color: #5b6474;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.farmer-service-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--svc);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.farmer-service-here {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--svc);
+  color: #ffffff;
+  font-size: 0.75rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .farmer-service { transition: none; }
+  .farmer-service:hover { transform: none; }
+}
+@media (max-width: 1024px) {
+  .farmer-services-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .farmer-services { margin-top: 28px; padding: 18px 14px; border-radius: 16px; }
+  .farmer-services-head h2 { font-size: 1.1rem; }
+  .farmer-services-head p { margin-bottom: 14px; font-size: 0.84rem; }
+  .farmer-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .farmer-service { padding: 14px 12px; }
+  .farmer-service:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .farmer-service-icon { width: 40px; height: 40px; border-radius: 12px; }
+  .farmer-service-title { font-size: 0.95rem; }
+  .farmer-service-desc { font-size: 0.8rem; }
+}
+html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-title {
+  line-height: var(--script-leading, 1.4);
+}

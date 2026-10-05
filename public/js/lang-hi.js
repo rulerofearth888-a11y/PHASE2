@@ -1715,7 +1715,9 @@ window.SB_LANG_HI = {
     'Quick answers, any time': 'कभी भी झटपट जवाब',
     // 2026-10 update: new store pages and features.
     'View all': 'सभी देखें',
-    'Show less': 'कम दिखाएँ'
+    'Show less': 'कम दिखाएँ',
+    // 2026-10 update: new store pages and features.
+    'You are here': 'आप यहाँ हैं'
   },
 
   patterns: [

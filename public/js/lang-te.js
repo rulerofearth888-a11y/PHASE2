@@ -1715,7 +1715,9 @@ window.SB_LANG_TE = {
     'Quick answers, any time': 'ఎప్పుడైనా త్వరిత సమాధానాలు',
     // 2026-10 update: new store pages and features.
     'View all': 'అన్నీ చూడండి',
-    'Show less': 'తక్కువ చూపించు'
+    'Show less': 'తక్కువ చూపించు',
+    // 2026-10 update: new store pages and features.
+    'You are here': 'మీరు ఇక్కడ ఉన్నారు'
   },
 
   patterns: [

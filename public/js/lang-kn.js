@@ -1715,7 +1715,9 @@ window.SB_LANG_KN = {
     'Quick answers, any time': 'ಯಾವಾಗ ಬೇಕಾದರೂ ತ್ವರಿತ ಉತ್ತರ',
     // 2026-10 update: new store pages and features.
     'View all': 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ',
-    'Show less': 'ಕಡಿಮೆ ತೋರಿಸಿ'
+    'Show less': 'ಕಡಿಮೆ ತೋರಿಸಿ',
+    // 2026-10 update: new store pages and features.
+    'You are here': 'ನೀವು ಇಲ್ಲಿದ್ದೀರಿ'
   },
 
   patterns: [

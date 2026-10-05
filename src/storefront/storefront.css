@@ -3949,17 +3949,17 @@ body.sb-home-active {
     gap: 10px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-card {
-    height: 120px !important;
-    min-height: 120px !important;
-    border-radius: 14px !important;
+    height: 176px !important;
+    min-height: 176px !important;
+    border-radius: 20px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-overlay {
-    padding: 10px 12px !important;
+    padding: 14px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-tag {
-    font-size: 0.58rem !important;
-    padding: 2px 6px !important;
-    margin-bottom: 3px !important;
+    font-size: 0.56rem !important;
+    padding: 4px 9px !important;
+    margin-bottom: 7px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-title {
     font-size: var(--cat-title-size, 0.92rem) !important;
@@ -3967,7 +3967,7 @@ body.sb-home-active {
     margin-bottom: 0 !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-desc {
-    display: none !important;
+    display: -webkit-box !important;
   }
 
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-grid-4 {
@@ -3987,20 +3987,20 @@ body.sb-home-active {
     scroll-snap-align: start;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-card {
-    height: 105px !important;
-    min-height: 105px !important;
-    border-radius: 14px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    border-radius: 20px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-overlay {
-    padding: 10px 12px !important;
+    padding: 10px 44px 10px 8px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-tag {
-    font-size: 0.58rem !important;
-    padding: 2px 6px !important;
-    margin-bottom: 2px !important;
+    font-size: 0.56rem !important;
+    padding: 0 !important;
+    margin-bottom: 0 !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-title {
-    font-size: 0.88rem !important;
+    font-size: 0.98rem !important;
   }
 
   /* Products Grid: App-style 2-Column Layout */
@@ -4043,8 +4043,9 @@ body.sb-home-active {
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
   }
+  /* Shown, one line, as on desktop (PRODUCT CARD 2026). */
   :is(body.sb-home-active .sb-home, .sb-portal) .product-tagline {
-    display: none !important;
+    display: block !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .rating-row {
     font-size: 0.72rem !important;
@@ -12224,10 +12225,10 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
   padding: 0;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   border-radius: 999px;
-  background: linear-gradient(135deg, #0F7A4F, #0A5C3B);
+  background: linear-gradient(135deg, #A8711F, #6B4412);
   color: #ffffff;
   font: 700 0.95rem/1 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
-  box-shadow: 0 8px 22px rgba(10, 92, 59, 0.32);
+  box-shadow: 0 8px 22px rgba(107, 68, 18, 0.35);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -12237,10 +12238,10 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
   color: #ffffff;
 }
 .sb-portal .help-fab .help-fab-button:hover {
-  background: #0A5C3B;
+  background: #5C3A0E;
 }
 .sb-portal .help-fab .help-fab-button:focus-visible {
-  outline: 3px solid rgba(15, 122, 79, 0.45);
+  outline: 3px solid rgba(139, 94, 26, 0.55);
   outline-offset: 3px;
 }
 /* Phones: icon only (the label is still read out). */
@@ -13260,6 +13261,132 @@ body.poster-open .sb-portal .call-fab {
 }
 
 /* ==========================================================================
+   SHOP BY CATEGORY / CROP on phones (<=768px): the desktop 2026 card language
+   (see the two >=1025px blocks above) in the phone rows. Categories: photo
+   card, the desktop gradient, frosted tag, 2-line description, glass arrow
+   chip. Crops: white framed card, photo inset, the crop name in ink, the
+   problem it solves as a green dotted label, mint arrow chip.
+   ========================================================================== */
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-card.cat-card {
+    border: 0;
+    box-shadow: 0 1px 2px rgba(20, 35, 28, 0.06), 0 14px 28px -18px rgba(6, 64, 43, 0.5);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card .bento-overlay {
+    background: linear-gradient(180deg, rgba(4, 28, 19, 0.3) 0%, rgba(4, 28, 19, 0) 24%, rgba(4, 28, 19, 0) 34%, rgba(4, 28, 19, 0.62) 64%, rgba(4, 28, 19, 0.92) 100%);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card .bento-tag {
+    align-self: flex-start;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card .bento-desc {
+    margin: 4px 0 0;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.82);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card::after,
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card::after {
+    content: "\f061";
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font: 900 0.75rem/1 "Font Awesome 6 Free";
+    transform: rotate(-45deg);
+    pointer-events: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card::after {
+    top: 12px;
+    right: 12px;
+    color: #ffffff;
+    background: rgba(4, 28, 19, 0.32);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-card.crop-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 6px;
+    border: 1px solid rgba(11, 122, 75, 0.10);
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(20, 35, 28, 0.04), 0 10px 24px -16px rgba(20, 35, 28, 0.2);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card .bento-bg-img {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: 112px;
+    border-radius: 15px;
+    object-fit: cover;
+    transform: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card .bento-overlay {
+    position: relative;
+    inset: auto;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+    background: none;
+    color: var(--text-main, #14231C);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card .bento-title {
+    margin: 0;
+    color: var(--text-main, #14231C);
+    letter-spacing: -0.01em;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card .bento-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    max-width: 100%;
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    white-space: normal;
+    overflow: visible;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card .bento-tag::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px rgba(11, 122, 75, 0.15);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .crop-card::after {
+    right: 12px;
+    bottom: 14px;
+    color: var(--primary);
+    background: #EEF7F1;
+    box-shadow: inset 0 0 0 1px rgba(11, 122, 75, 0.12);
+  }
+}
+
+/* ==========================================================================
    PRODUCT CARD 2026 (>=1025px) - one card language for every product card:
    Catalog.jsx ProductCard (home catalogue + Trending) and AllProducts.jsx
    .agro-product-card (/products carousels and grid).
@@ -13288,7 +13415,9 @@ body.poster-open .sb-portal .call-fab {
   color: #16A46A;
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
-@media (min-width: 1025px) {
+/* Phones share the desktop card (the client asked for one card everywhere);
+   tablet keeps its own. */
+@media (min-width: 1025px), (max-width: 768px) {
   /* ---- shared shell: edge-to-edge photo on top, a hairline ring, no frame ---- */
   :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card,
   .all-products-page .agro-product-card {
@@ -13626,6 +13755,8 @@ body.poster-open .sb-portal .call-fab {
     box-shadow: inset 0 0 0 1px var(--primary, #0B7A4B);
   }
 
+}
+@media (min-width: 1025px) {
   /* ---- catalogue filter panel ---- */
   :is(body.sb-home-active .sb-home, .sb-portal) #catalog .catalog-sidebar {
     padding: 24px 22px;
@@ -13770,12 +13901,9 @@ body.poster-open .sb-portal .call-fab {
 }
 
 /* ==========================================================================
-   PHONES 2026 (<=768px) - the desktop 2026 card language, sized for a thumb.
-   Product cards: framed mint image well, pill discount tag, pill CTA, mint
-   selected pack; the grey "No verified reviews yet" line (the only rating row
-   with an inline colour) is dropped to save a line per card.
-   The important-flagged radius/tag/button values in the phone product-card
-   block above were edited in place for this.
+   PHONES 2026 (<=768px). Product cards on phones now use the desktop card
+   itself (PRODUCT CARD 2026 applies to phones too); the phone-only card rules
+   that stood here were removed.
    Certifications (<=1024px): icon badge + label + caption instead of the
    placeholder stock photos (a brain scan, a workout...), which desktop
    already swapped out.
@@ -13821,56 +13949,11 @@ body.poster-open .sb-portal .call-fab {
     grid-column: 1 / -1;
   }
 }
-@media (max-width: 768px) {
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card {
-    border: 1px solid rgba(11, 122, 75, 0.10);
-    background: #ffffff;
-    box-shadow: 0 1px 2px rgba(20, 35, 28, 0.04), 0 8px 20px -14px rgba(20, 35, 28, 0.3);
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-img-box {
-    margin: 6px 6px 0;
-    border-radius: 13px;
-    background: radial-gradient(120% 90% at 50% 20%, #F7FBF8 0%, #E8F3EC 100%);
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-img-box img {
-    mix-blend-mode: multiply;
-    filter: drop-shadow(0 6px 8px rgba(20, 35, 28, 0.16));
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .discount-tag {
-    background: linear-gradient(135deg, #E5484D, #C62A2F);
-    color: #ffffff;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-category-tag {
-    color: var(--primary);
-    font-weight: 800;
-    letter-spacing: 0.08em;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .rating-row[style] {
-    display: none;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .pack-sizes-row .pack-chip {
-    border: 1px solid rgba(20, 35, 28, 0.14);
-    border-radius: 999px;
-    background: #ffffff;
-    color: var(--text-main, #14231C);
-    font-weight: 600;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .pack-sizes-row .pack-chip.active {
-    border-color: var(--primary);
-    background: #E7F3EC;
-    color: var(--primary-dark, #075437);
-    box-shadow: inset 0 0 0 1px var(--primary);
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .card-btn-row .btn {
-    box-shadow: 0 6px 14px -8px rgba(11, 122, 75, 0.7);
-  }
-}
 
-/* /products cards below desktop: the discount tag sat behind the image
-   ("15% OFF" was cut off). Same floating pill and framed image as desktop. */
-@media (max-width: 1024px) {
+/* /products cards on tablets: the discount tag sat behind the image
+   ("15% OFF" was cut off). Same floating pill and framed image as desktop.
+   Phones use the desktop card itself (PRODUCT CARD 2026). */
+@media (min-width: 769px) and (max-width: 1024px) {
   .all-products-page .agro-product-card .discount-tag {
     position: absolute;
     top: 14px;

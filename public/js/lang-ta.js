@@ -1742,7 +1742,9 @@ window.SB_LANG_TA = {
     'Quick answers, any time': 'எப்போதும் விரைவான பதில்கள்',
     // 2026-10 update: new store pages and features.
     'View all': 'அனைத்தையும் காண்க',
-    'Show less': 'குறைவாகக் காட்டு'
+    'Show less': 'குறைவாகக் காட்டு',
+    // 2026-10 update: new store pages and features.
+    'You are here': 'நீங்கள் இங்கே உள்ளீர்கள்'
   },
 
   patterns: [
