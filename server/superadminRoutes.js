@@ -144,7 +144,12 @@ router.put('/stores/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Store not found' });
     }
 
-    const updated = await db.updateStore(req.params.id, req.body);
+    // A moved store is located again (its map point picks the nearest store
+    // for support tickets, server/ticketRouting.js).
+    const body = { ...(req.body || {}) };
+    const moved = ['address', 'location'].some(k => body[k] !== undefined && String(body[k]).trim() !== String(existing[k] || '').trim());
+    if (moved) body.geo = null;
+    const updated = await db.updateStore(req.params.id, body);
 
     await logSuperAdminAction(req, {
       module: 'STORES',

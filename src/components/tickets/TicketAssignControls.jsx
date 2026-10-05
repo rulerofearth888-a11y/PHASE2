@@ -4,11 +4,21 @@ import { toast } from 'sonner'
 import { ticketService } from '../../services/ticketService'
 
 // Assigning a support ticket (server/ticketRouting.js has the rules).
-// Super Admin: choose the ticket's store - the store covering the farmer's
-// delivery district is pre-selected when there is one - then one of that
+// Super Admin: the ticket's store - the store nearest the farmer's delivery
+// location is pre-selected (stores are listed nearest first, with their
+// distance), and the Super Admin can choose another - then one of that
 // store's admins; nobody from another store can be picked. Store admin: hand
 // the ticket to an employee, delivery or billing member of their own store.
 // Used by pages/superadmin/SupportTicketSystem.jsx and pages/admin/SupportTickets.jsx.
+function suggestionNote(options, suggested) {
+  const where = options.place ? ` (${options.place})` : ''
+  if (suggested && options.basis === 'gps') return `Picked ${suggested.name}: nearest to the farmer's delivery location pin, about ${options.suggestedDistanceKm} km away. You can choose another store.`
+  if (suggested && options.basis === 'address') return `Picked ${suggested.name}: nearest to the farmer's delivery address${where}, about ${options.suggestedDistanceKm} km away. You can choose another store.`
+  if (suggested) return `Picked ${suggested.name}: it covers the farmer's district (${options.district}). You can choose another store.`
+  if (options.place || options.district) return `Could not place the farmer's address${where} on the map - choose the nearest or main store.`
+  return 'No delivery address on this ticket - choose the store that should handle it.'
+}
+
 export default function TicketAssignControls({ ticket, onAssigned, compact = false }) {
   const [options, setOptions] = useState(null)
   const [storeId, setStoreId] = useState('')
@@ -65,16 +75,10 @@ export default function TicketAssignControls({ ticket, onAssigned, compact = fal
           <select id={`tktStore-${ticket.id}`} className="tkt-assign-select" value={storeId} onChange={e => { setStoreId(e.target.value); setStaffId('') }}>
             <option value="">-- Choose the store --</option>
             {options.stores.map(s => (
-              <option key={s.id} value={s.id}>{s.name}{s.location ? ` · ${s.location}` : ''}{s.id === options.suggestedStoreId ? ' (suggested)' : ''}</option>
+              <option key={s.id} value={s.id}>{s.name}{s.location ? ` · ${s.location}` : ''}{s.distanceKm != null ? ` · ${s.distanceKm} km` : ''}{s.id === options.suggestedStoreId ? ' (nearest)' : ''}</option>
             ))}
           </select>
-          <p className={`tkt-assign-note${suggested ? ' is-ok' : ''}`}>
-            {suggested
-              ? `Suggested: ${suggested.name} covers the farmer's district (${options.district}).`
-              : options.district
-                ? `No store covers ${options.district} yet - choose the nearest or main store.`
-                : 'No delivery district on this ticket - choose the store that should handle it.'}
-          </p>
+          <p className={`tkt-assign-note${suggested ? ' is-ok' : ''}`}>{suggestionNote(options, suggested)}</p>
         </>
       )}
       <label className="tkt-assign-label" htmlFor={`tktStaff-${ticket.id}`}>{options.mode === 'stores' ? '2. Store admin' : 'Hand to your staff'}</label>

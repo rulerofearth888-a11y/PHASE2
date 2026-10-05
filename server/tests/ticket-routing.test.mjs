@@ -65,3 +65,62 @@ test('suggested store from the farmer district, none when no store covers it', (
   assert.equal(suggestStore('Sale', stores), null);           // whole words only
   assert.equal(suggestStore('', stores), null);
 });
+
+import { rankStores, haversineKm, ticketPlace } from '../ticketRouting.js';
+import { createGeocoder, geocodeKey, geocodeParams } from '../geocode.js';
+
+const CBE = { lat: 11.0168, lng: 76.9558 };   // Coimbatore
+const SALEM = { lat: 11.6643, lng: 78.146 };
+const TIRUPPUR = { lat: 11.1085, lng: 77.3411 };
+
+test('distance and nearest-first store order', () => {
+  const km = haversineKm(CBE, SALEM);
+  assert.ok(km > 140 && km < 160, `Coimbatore-Salem ~150 km, got ${km}`);
+  const ranked = rankStores(TIRUPPUR, [
+    { id: 'S', name: 'Salem', geo: SALEM },
+    { id: 'C', name: 'Coimbatore', geo: CBE },
+    { id: 'X', name: 'No map point' },
+    { id: 'Z', name: 'Closed', geo: TIRUPPUR, status: 'inactive' },
+  ]);
+  assert.deepEqual(ranked.map(s => s.id), ['C', 'S', 'X']);   // inactive left out, unknown last
+  assert.ok(ranked[0].distanceKm >= 40 && ranked[0].distanceKm <= 50);
+  assert.equal(ranked[2].distanceKm, null);
+  assert.deepEqual(rankStores(null, [{ id: 'A' }, { id: 'B' }]).map(s => s.id), ['A', 'B']);
+});
+
+test('where the farmer is: GPS pin first, then the address, then the profile', () => {
+  const withPin = ticketPlace({ addressDetails: { geo: { lat: 11, lng: 77 }, pincode: '641030', district: 'Coimbatore', state: 'Tamil Nadu', area: 'Kavundampalayam' } });
+  assert.deepEqual(withPin.geo, { lat: 11, lng: 77 });
+  assert.equal(withPin.label, 'Kavundampalayam, Coimbatore, 641030');
+  assert.equal(ticketPlace({ addressDetails: { pincode: '636001', district: 'Salem' } }).geo, null);
+  assert.equal(ticketPlace(null, { village: 'Avinashi', district: 'Tiruppur', state: 'Tamil Nadu' }).text, 'Avinashi');
+  assert.equal(ticketPlace(null, null), null);
+});
+
+test('geocoder: pincode lookups, cached once, misses remembered, failures not', async () => {
+  assert.equal(geocodeKey({ pincode: '641 030' }), 'pin:641030');
+  assert.equal(geocodeParams({ pincode: '641030', state: 'Tamil Nadu' }).get('postalcode'), '641030');
+  assert.equal(geocodeParams({ district: 'Salem', state: 'Tamil Nadu' }).get('q'), 'Salem, Tamil Nadu, India');
+  assert.equal(geocodeParams({}), null);
+
+  const kv = new Map();
+  let calls = 0;
+  const fakeFetch = async url => {
+    calls += 1;
+    if (url.includes('postalcode=641030')) return { ok: true, json: async () => [{ lat: '11.0168', lon: '76.9558' }] };
+    if (url.includes('postalcode=999999')) return { ok: true, json: async () => [] };
+    return { ok: false, json: async () => ({}) };
+  };
+  const geocode = createGeocoder({ kvGet: async k => kv.get(k) ?? null, kvSet: async (k, v) => kv.set(k, v), fetchImpl: fakeFetch, minGapMs: 0 });
+  assert.deepEqual(await geocode({ pincode: '641030' }), CBE);
+  assert.deepEqual(await geocode({ pincode: '641030' }), CBE);
+  assert.equal(calls, 1);                                   // second time from the cache
+  assert.equal(await geocode({ pincode: '999999' }), null);
+  assert.equal(await geocode({ pincode: '999999' }), null);
+  assert.equal(calls, 2);                                   // a miss is remembered
+  assert.equal(await geocode({ district: 'Nowhere' }), null);
+  assert.equal(await geocode({ district: 'Nowhere' }), null);
+  assert.equal(calls, 4);                                   // a service error is retried later
+  const offline = createGeocoder({ fetchImpl: async () => { throw new Error('offline'); }, minGapMs: 0 });
+  assert.equal(await offline({ pincode: '641030' }), null);
+});

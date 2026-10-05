@@ -16,7 +16,8 @@ import Razorpay from 'razorpay';
 import { db, connectDB, newId, STAFF_ROLES } from './db.js';
 import { productNameKey } from '../src/shared/productName.js';
 import { createProductTranslator, applyCorrection } from './productTranslate.js';
-import { checkAssignment, adminCanSeeTicket, suggestStore, ticketDistrict, STORE_STAFF_ROLES } from './ticketRouting.js';
+import { checkAssignment, adminCanSeeTicket, suggestStore, ticketDistrict, ticketPlace, rankStores, STORE_STAFF_ROLES } from './ticketRouting.js';
+import { createGeocoder } from './geocode.js';
 import adminRoutes from './adminRoutes.js';
 import superadminRoutes from './superadminRoutes.js';
 import { buildOtpMessage, buildResetOtpMessage, buildPasswordChangedMessage, forgetOtpLayout, otpBannerUrl } from './otpTemplates.js';
@@ -3274,6 +3275,10 @@ app.post('/api/tickets', async (req, res) => {
   }
 });
 
+// Address -> map point for the nearest-store pick (server/geocode.js), cached
+// in the key-value store so each pincode and store is looked up once.
+const geocode = createGeocoder({ kvGet: key => db.kvGet(key), kvSet: (key, value) => db.kvSet(key, value) });
+
 // Who a ticket can go to, for the assign controls. Super Admin: every active
 // store with its admins, plus the store suggested by the farmer's delivery
 // district (null when no store covers it). A store admin: their own store's
@@ -3286,21 +3291,37 @@ app.get('/api/tickets/:id/assign-options', requireAuth('admin'), ticketModule, a
     const activeStaff = u => u.status !== 'inactive' && u.status !== 'suspended';
 
     if (req.user.role === 'superadmin') {
-      const [stores, staff, order] = await Promise.all([
+      const [stores, staff, order, farmer] = await Promise.all([
         db.getStores(),
         db.listStaffProfiles({}),
         ticket.orderId ? db.getOrderById(ticket.orderId).catch(() => null) : null,
+        ticket.userId ? db.getUserById(ticket.userId).catch(() => null) : null,
       ]);
       const active = stores.filter(st => (st.status || 'active') === 'active');
-      const district = ticketDistrict(order);
-      const suggested = suggestStore(district, active);
+      // Stores are located once from their address and the point is saved.
+      for (const st of active) {
+        if (st.geo || !(st.address || st.location)) continue;
+        const point = await geocode({ text: st.address || st.location, district: st.location });
+        if (point) { st.geo = point; await db.updateStore(st.id, { geo: point }).catch(() => {}); }
+      }
+      // The farmer: GPS pin if they shared one, else their pincode/district.
+      const place = ticketPlace(order, farmer);
+      const point = place?.geo || (place ? await geocode(place) : null);
+      const ranked = rankStores(point, active);
+      const nearest = point ? ranked.find(st => st.distanceKm != null) : null;
+      const district = ticketDistrict(order) || place?.district || '';
+      const byName = nearest ? null : suggestStore(district, active);
+      const suggested = nearest || byName;
       return res.json({ success: true, data: {
         mode: 'stores',
         district,
+        place: place?.label || '',
+        basis: nearest ? (place?.geo ? 'gps' : 'address') : byName ? 'district' : null,
         suggestedStoreId: suggested?.id || null,
+        suggestedDistanceKm: nearest?.distanceKm ?? null,
         currentStoreId: ticket.storeId || null,
-        stores: active.map(st => ({
-          id: st.id, name: st.name, location: st.location || '',
+        stores: ranked.map(st => ({
+          id: st.id, name: st.name, location: st.location || '', distanceKm: st.distanceKm,
           admins: staff.filter(u => u.role === 'admin' && u.storeId === st.id && activeStaff(u)).map(person),
         })),
       } });

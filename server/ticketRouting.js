@@ -71,3 +71,41 @@ export function adminCanSeeTicket(user, ticket) {
   if (!user.storeId) return true;
   return ticket.storeId === user.storeId || ticket.assignedToId === user.id;
 }
+
+// ---- Nearest store (client, 2026-10-05) ----
+// The store picked for a ticket is the active store nearest the farmer's
+// delivery location; the Super Admin can still choose another.
+
+// Where the farmer is, for a ticket: the order's delivery address (its GPS
+// point when "Use my current location" was used, else pincode / district /
+// state), or - for a ticket with no order - the farmer's profile.
+export function ticketPlace(order, user) {
+  const a = order?.addressDetails;
+  if (a) {
+    const geo = a.geo && Number.isFinite(a.geo.lat) && Number.isFinite(a.geo.lng) ? { lat: a.geo.lat, lng: a.geo.lng } : null;
+    return { geo, pincode: a.pincode || '', taluk: a.taluk || '', district: a.district || '', state: a.state || '', label: [a.area, a.district, a.pincode].filter(Boolean).join(', ') };
+  }
+  if (user) {
+    return { geo: null, pincode: user.pincode || '', district: user.district || '', state: user.state || '', text: user.village || '', label: [user.village, user.district].filter(Boolean).join(', ') };
+  }
+  return null;
+}
+
+// Great-circle distance in km.
+export function haversineKm(a, b) {
+  if (!a || !b) return null;
+  const rad = d => (d * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+// Active stores with their distance from `point`, nearest first; stores with
+// no known position go last (distanceKm null), in their original order.
+export function rankStores(point, stores) {
+  const active = (stores || []).filter(s => s && (s.status || 'active') === 'active');
+  const withDist = active.map((s, i) => ({ store: s, i, km: point && s.geo ? haversineKm(point, s.geo) : null }));
+  withDist.sort((x, y) => (x.km == null) - (y.km == null) || (x.km ?? 0) - (y.km ?? 0) || x.i - y.i);
+  return withDist.map(({ store, km }) => ({ ...store, distanceKm: km == null ? null : Math.round(km) }));
+}
