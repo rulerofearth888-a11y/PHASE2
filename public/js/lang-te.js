@@ -1712,7 +1712,10 @@ window.SB_LANG_TE = {
     'Send an enquiry': 'విచారణ పంపండి',
     'Price, stock or crop problem': 'ధర, నిల్వ లేదా పంట సమస్య',
     'Chat assistant': 'చాట్ సహాయకుడు',
-    'Quick answers, any time': 'ఎప్పుడైనా త్వరిత సమాధానాలు'
+    'Quick answers, any time': 'ఎప్పుడైనా త్వరిత సమాధానాలు',
+    // 2026-10 update: new store pages and features.
+    'View all': 'అన్నీ చూడండి',
+    'Show less': 'తక్కువ చూపించు'
   },
 
   patterns: [

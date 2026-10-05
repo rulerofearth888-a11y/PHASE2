@@ -12197,7 +12197,8 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
 /* ==========================================================================
    Floating help button (sections/HelpFab.jsx, drawn by StorePopups on every
    store page): one button, bottom right, opening call / WhatsApp / enquiry /
-   chat. It replaced four floating buttons that covered product names and
+   chat (the call button stays separate, just above). It replaced three
+   floating buttons that covered product names and
    prices. Phones: a round icon above the bottom nav. Wider: a "Help" pill.
    Hidden while any sheet is open (body.overlay-open), under the phone Menu
    and the welcome poster.
@@ -12306,7 +12307,6 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
   font-size: 1.05rem;
 }
 .sb-portal .help-fab .help-fab-icon > i { color: inherit; }
-.sb-portal .help-fab .help-fab-icon.is-call { background: #FBF1E3; color: #8B5E1A; }
 .sb-portal .help-fab .help-fab-icon.is-whatsapp { background: #E6F7EC; color: #1C9D4F; }
 .sb-portal .help-fab .help-fab-icon.is-enquiry { background: #EAF1FB; color: #2B5EA7; }
 .sb-portal .help-fab .help-fab-icon.is-chat { background: #EEF6F1; color: #0F7A4F; }
@@ -12344,9 +12344,6 @@ body.poster-open .sb-portal .help-fab {
     overflow: visible;
     clip: auto;
   }
-  body.sb-home-active .sb-home .back-to-top {
-    bottom: 88px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .sb-portal .help-fab,
@@ -12357,6 +12354,120 @@ body.poster-open .sb-portal .help-fab {
 }
 @media print {
   .sb-portal .help-fab {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Floating call button (sections/CallFab.jsx, drawn by StorePopups on every
+   store page). Its own button, as the client asked, with the first-visit ring
+   and number slide-out. It sits one slot above the Help button (HelpFab.jsx):
+   phones above the bottom nav (higher while the product buy bar shows),
+   wider screens bottom right; back-to-top on the home page goes above both.
+   Hidden while any sheet is open (basket, checkout, payment, sign-in,
+   enquiry: body.overlay-open), under the phone Menu and the welcome poster.
+   ========================================================================== */
+.sb-portal .call-fab {
+  position: fixed;
+  right: 12px;
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  z-index: 1450;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #A8711F, #6B4412);
+  color: #ffffff;
+  font-size: 1.1rem;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(107, 68, 18, 0.35);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: opacity 0.2s ease, visibility 0.2s ease, background-color 0.15s ease, color 0.15s ease;
+}
+@media (max-width: 768px) {
+  body.buy-bar-open .sb-portal .call-fab {
+    bottom: calc(218px + env(safe-area-inset-bottom, 0px));
+  }
+}
+.sb-portal .call-fab:hover,
+.sb-portal .call-fab:active {
+  background: #5C3A0E;
+  color: #ffffff;
+}
+/* On the icon itself: the store's `:is(...) a { color: inherit }` outranks
+   `.sb-portal .call-fab`, so a colour on the link never reaches the glyph. */
+.sb-portal .call-fab > i {
+  color: #ffffff;
+}
+.sb-portal .call-fab:focus-visible {
+  outline: 3px solid rgba(139, 94, 26, 0.55);
+  outline-offset: 3px;
+}
+.sb-portal .call-fab-label {
+  display: none;
+}
+body.overlay-open .sb-portal .call-fab,
+body.menu-open .sb-portal .call-fab,
+body.poster-open .sb-portal .call-fab {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (min-width: 769px) {
+  .sb-portal .call-fab {
+    right: 24px;
+    bottom: 84px;
+    width: 52px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+  body.sb-home-active .sb-home .back-to-top {
+    bottom: 152px;
+  }
+}
+@media (min-width: 1025px) {
+  /* The number, on hover or keyboard focus: a desktop has no dialler, so
+     the visitor needs to read it. */
+  .sb-portal .call-fab .call-fab-label {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 10px);
+    display: block;
+    padding: 8px 14px;
+    border: 1px solid #cfe3d8;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #14231C;
+    font: 600 0.875rem/1.2 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(20, 35, 28, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(6px, -50%);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+  }
+  .sb-portal .call-fab .call-fab-label strong {
+    color: #8B5E1A;
+  }
+  .sb-portal .call-fab:hover .call-fab-label,
+  .sb-portal .call-fab:focus-visible .call-fab-label {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, -50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-portal .call-fab,
+  .sb-portal .call-fab-label {
+    transition: none;
+  }
+}
+@media print {
+  .sb-portal .call-fab {
     display: none;
   }
 }
@@ -13795,6 +13906,125 @@ body.poster-open .sb-portal .help-fab {
      line ("Powder") still lines up with its neighbours. */
   .all-products-page .agro-product-card .card-pricing-row {
     margin-top: auto;
+  }
+}
+
+/* ---- Floating call button: first-visit greeting (CallFab.jsx is-intro) ----
+   Once per visitor: the phone rings, two soft rings pulse out and the number
+   slides out beside the button, then tucks back in (4.5s, matching
+   INTRO_SHOWN_FOR). Phones normally never show the number; they do here. */
+@keyframes sbCallRing {
+  0%, 100% { transform: rotate(0); }
+  10%, 30%, 50% { transform: rotate(-16deg); }
+  20%, 40%, 60% { transform: rotate(16deg); }
+  70% { transform: rotate(0); }
+}
+@keyframes sbCallPulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes sbCallLabel {
+  0% { opacity: 0; transform: translate(10px, -50%) scale(0.96); }
+  9%, 88% { opacity: 1; transform: translate(0, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(10px, -50%) scale(0.96); }
+}
+@keyframes sbCallLabelFade {
+  0%, 100% { opacity: 0; }
+  9%, 88% { opacity: 1; }
+}
+.sb-portal .call-fab.is-intro > i {
+  animation: sbCallRing 1.2s ease-in-out 0.2s 2;
+}
+.sb-portal .call-fab.is-intro::before,
+.sb-portal .call-fab.is-intro::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid rgba(168, 113, 31, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: sbCallPulse 1.6s ease-out 0.2s 2;
+}
+.sb-portal .call-fab.is-intro::after {
+  animation-delay: 0.7s;
+}
+.sb-portal .call-fab.is-intro .call-fab-label {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  display: block;
+  padding: 8px 14px;
+  border: 1px solid #cfe3d8;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #14231C;
+  font: 600 0.875rem/1.2 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(20, 35, 28, 0.14);
+  visibility: visible;
+  pointer-events: none;
+  opacity: 0;
+  animation: sbCallLabel 4.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.sb-portal .call-fab.is-intro .call-fab-label strong {
+  color: #8B5E1A;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-portal .call-fab.is-intro > i,
+  .sb-portal .call-fab.is-intro::before,
+  .sb-portal .call-fab.is-intro::after {
+    animation: none;
+  }
+  .sb-portal .call-fab.is-intro .call-fab-label {
+    transform: translate(0, -50%);
+    animation-name: sbCallLabelFade;
+  }
+}
+
+/* ---- Shop rows: View all (sections/ShopGrids.jsx RowToggle) ----
+   Phones show categories and crops as swipe rows; "View all" opens the
+   whole set as a 2-column grid in place, "Show less" folds it back. */
+:is(body.sb-home-active .sb-home, .sb-portal) .shop-row-toggle {
+  display: none;
+}
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .shop-row-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 46px;
+    margin-top: 12px;
+    border: 1px solid #cfe3d8;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0A5C3B;
+    font: 700 0.92rem/1.2 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
+    cursor: pointer;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .shop-row-toggle:focus-visible {
+    outline: 3px solid rgba(15, 122, 79, 0.4);
+    outline-offset: 2px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#categoriesSection, #cropSection).is-expanded :is(.bento-grid-3, .bento-grid-4) {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#categoriesSection, #cropSection).is-expanded .bento-card {
+    flex: 0 0 calc(50% - 5px);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .shop-row-toggle > i {
+    color: inherit;
+    font-size: 0.85rem;
+  }
+  /* "All formulations" is not a category: in the swipe row it hid at the far
+     end, and "Shop all categories" above does the same job. Opened, it takes
+     its place as the sixth card and completes the 2 x 3 grid. */
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection:not(.is-expanded) .cat-card--all {
+    display: none;
   }
 }
 

@@ -1712,7 +1712,10 @@ window.SB_LANG_HI = {
     'Send an enquiry': 'पूछताछ भेजें',
     'Price, stock or crop problem': 'कीमत, स्टॉक या फसल की समस्या',
     'Chat assistant': 'चैट सहायक',
-    'Quick answers, any time': 'कभी भी झटपट जवाब'
+    'Quick answers, any time': 'कभी भी झटपट जवाब',
+    // 2026-10 update: new store pages and features.
+    'View all': 'सभी देखें',
+    'Show less': 'कम दिखाएँ'
   },
 
   patterns: [

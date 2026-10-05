@@ -1712,7 +1712,10 @@ window.SB_LANG_KN = {
     'Send an enquiry': 'ವಿಚಾರಣೆ ಕಳುಹಿಸಿ',
     'Price, stock or crop problem': 'ಬೆಲೆ, ದಾಸ್ತಾನು ಅಥವಾ ಬೆಳೆ ಸಮಸ್ಯೆ',
     'Chat assistant': 'ಚಾಟ್ ಸಹಾಯಕ',
-    'Quick answers, any time': 'ಯಾವಾಗ ಬೇಕಾದರೂ ತ್ವರಿತ ಉತ್ತರ'
+    'Quick answers, any time': 'ಯಾವಾಗ ಬೇಕಾದರೂ ತ್ವರಿತ ಉತ್ತರ',
+    // 2026-10 update: new store pages and features.
+    'View all': 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ',
+    'Show less': 'ಕಡಿಮೆ ತೋರಿಸಿ'
   },
 
   patterns: [

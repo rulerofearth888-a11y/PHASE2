@@ -1739,7 +1739,10 @@ window.SB_LANG_TA = {
     'Send an enquiry': 'விசாரணை அனுப்புங்கள்',
     'Price, stock or crop problem': 'விலை, இருப்பு அல்லது பயிர்ப் பிரச்சனை',
     'Chat assistant': 'அரட்டை உதவியாளர்',
-    'Quick answers, any time': 'எப்போதும் விரைவான பதில்கள்'
+    'Quick answers, any time': 'எப்போதும் விரைவான பதில்கள்',
+    // 2026-10 update: new store pages and features.
+    'View all': 'அனைத்தையும் காண்க',
+    'Show less': 'குறைவாகக் காட்டு'
   },
 
   patterns: [

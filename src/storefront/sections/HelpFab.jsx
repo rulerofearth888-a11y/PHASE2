@@ -1,13 +1,11 @@
 import { memo, useEffect, useRef, useState } from 'react'
-import { cmsText, useCms } from '../../context/CmsContext'
-import { telHref, SUPPORT_PHONE } from '../../shared/phoneLink'
 import { WHATSAPP_EXPERT_URL } from '../data'
 
-// The one floating button on every store page, bottom right: "Help" opens a
-// small menu - call us, WhatsApp, send an enquiry and, on the home page, the
-// chat assistant. It replaces four separate floating buttons (call, enquiry,
-// chat bubble, the /products advisory button) that covered product names and
-// prices on phones and stacked up on desktop.
+// A floating button on every store page, bottom right, under the separate
+// call button (CallFab.jsx): "Help" opens a small menu - WhatsApp, send an
+// enquiry and, on the home page, the chat assistant. It replaced the enquiry
+// button, the chat bubble and the /products advisory button, which covered
+// product names and prices on phones and stacked up on desktop.
 // The enquiry sheet (EnquirySheet.jsx) and the chat window (Chatbot.jsx) open
 // on the events below. Hidden while a sheet, the phone Menu or the welcome
 // poster is open (body.overlay-open / menu-open / poster-open).
@@ -17,9 +15,6 @@ const ENQUIRY_OPEN_EVENT = 'sb:open-enquiry'
 export const CHAT_OPEN_EVENT = 'sb:open-chat'
 
 export default memo(function HelpFab() {
-  const { cms } = useCms()
-  const phone = cmsText(cms, 'phone', SUPPORT_PHONE)
-  const call = telHref(phone)
   const [open, setOpen] = useState(false)
   const [hasChat, setHasChat] = useState(false)
   const rootRef = useRef(null)
@@ -56,12 +51,6 @@ export default memo(function HelpFab() {
       {open && (
         <div className="help-fab-menu" id="helpFabMenu">
           <p className="help-fab-title">How can we help?</p>
-          {call && (
-            <a className="help-fab-item" href={call} onClick={() => setOpen(false)}>
-              <span className="help-fab-icon is-call"><i className="fa-solid fa-phone" aria-hidden="true"></i></span>
-              <span><strong>Call us</strong><small className="notranslate">{phone}</small></span>
-            </a>
-          )}
           <a className="help-fab-item" href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
             <span className="help-fab-icon is-whatsapp"><i className="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
             <span><strong>WhatsApp us</strong><small>Send a crop photo for advice</small></span>

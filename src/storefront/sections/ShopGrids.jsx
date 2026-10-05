@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../StoreContext'
 import { cmsText } from '../../hooks/useCmsSettings'
@@ -24,6 +24,18 @@ const CROP_CARDS = [
   { value: 'Potato', image: 'photo-1518977676601-b53f82aba655', alt: 'Potato Crop Harvest', tag: 'Tuber Guard', title: 'Potato' },
 ]
 
+// Phones show these grids as one swipeable row; this button opens the whole
+// grid in place (and folds it back). Hidden on wider screens, which show all.
+// Styles: storefront.css, "Shop rows: View all".
+function RowToggle({ expanded, onToggle, controls }) {
+  return (
+    <button type="button" className="shop-row-toggle" aria-expanded={expanded} aria-controls={controls} onClick={onToggle}>
+      <span>{expanded ? 'Show less' : 'View all'}</span>
+      <i className={`fa-solid ${expanded ? 'fa-chevron-up' : 'fa-chevron-down'}`} aria-hidden="true"></i>
+    </button>
+  )
+}
+
 const unsplash = (id, width) => photoUrl(`https://images.unsplash.com/${id}`, width)
 const unsplashSet = id => photoSrcSet(`https://images.unsplash.com/${id}`)
 
@@ -31,8 +43,9 @@ export const CategoryGrid = memo(function CategoryGrid({ t, cms }) {
   const { filterByCategory } = useStore()
   const sectionTitle    = cmsText(cms, 'categoryGridTitle',    t('shop_by_category'))
   const sectionSubtitle = cmsText(cms, 'categoryGridSubtitle', 'Explore crop protection chemicals, bio-stimulants, and soil nutrients')
+  const [expanded, setExpanded] = useState(false)
   return (
-    <section className="section" id="categoriesSection" style={{ padding: '40px 0', background: '#ffffff' }}>
+    <section className={`section${expanded ? ' is-expanded' : ''}`} id="categoriesSection" style={{ padding: '40px 0', background: '#ffffff' }}>
       <div className="container">
         <div className="section-header-flex">
           <div>
@@ -42,11 +55,11 @@ export const CategoryGrid = memo(function CategoryGrid({ t, cms }) {
           <Link to="/categories" className="btn btn-outline">Shop All Categories <i className="fa-solid fa-arrow-right"></i></Link>
         </div>
 
-        <div className="bento-grid-3">
+        <div className="bento-grid-3" id="categoryCards">
           {CATEGORY_CARDS.map(card => (
             <div
               key={card.value}
-              className="bento-card cat-card"
+              className={`bento-card cat-card${card.value === 'All' ? ' cat-card--all' : ''}`}
               role="button"
               tabIndex={0}
               onClick={() => filterByCategory(card.value)}
@@ -62,6 +75,7 @@ export const CategoryGrid = memo(function CategoryGrid({ t, cms }) {
             </div>
           ))}
         </div>
+        <RowToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} controls="categoryCards" />
       </div>
     </section>
   )
@@ -71,8 +85,9 @@ export const CropGrid = memo(function CropGrid({ cms }) {
   const { filterByCrop } = useStore()
   const cropTitle    = cmsText(cms, 'cropGridTitle',    'Shop by Crop')
   const cropSubtitle = cmsText(cms, 'cropGridSubtitle', 'Select your crop to get customized pesticide & nutrient recommendations')
+  const [expanded, setExpanded] = useState(false)
   return (
-    <section className="section" id="cropSection" style={{ background: 'var(--bg-section)', padding: '40px 0' }}>
+    <section className={`section${expanded ? ' is-expanded' : ''}`} id="cropSection" style={{ background: 'var(--bg-section)', padding: '40px 0' }}>
       <div className="container">
         <div className="section-header-flex">
           <div>
@@ -81,7 +96,7 @@ export const CropGrid = memo(function CropGrid({ cms }) {
           </div>
         </div>
 
-        <div className="bento-grid-4">
+        <div className="bento-grid-4" id="cropCards">
           {CROP_CARDS.map(card => (
             <div
               key={card.value}
@@ -100,6 +115,7 @@ export const CropGrid = memo(function CropGrid({ cms }) {
             </div>
           ))}
         </div>
+        <RowToggle expanded={expanded} onToggle={() => setExpanded(v => !v)} controls="cropCards" />
       </div>
     </section>
   )
