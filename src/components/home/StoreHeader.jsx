@@ -33,15 +33,15 @@ export default function StoreHeader() {
 
   // Phones: the FACTORY 2 FARMER tag folds away once the page scrolls down and
   // comes back at the top, as on desktop (index.css, body.slogan-tucked). It
-  // sits in the header's flow here, so folding moves the page ~40px: hide
-  // past 48px and show again only under 8px, or it would flicker in between.
+  // hangs in a gap kept open below the header, so folding only moves and
+  // fades layers and never shifts the page.
   useEffect(() => {
     let frame = 0
     let tucked = false
     const update = () => {
       frame = 0
       const y = window.scrollY
-      const next = tucked ? y > 8 : y > 48
+      const next = y > 24
       if (next !== tucked) {
         tucked = next
         setBodyFlag('slogan-tucked', 'store-header', next)

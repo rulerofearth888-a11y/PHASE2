@@ -12437,9 +12437,6 @@ input[type='password']::-ms-clear {
 @media (max-width: 767px) {
   .header-slogan.header-slogan--chrome {
     display: flex;
-    position: static;
-    transform: none;
-    margin: 9px auto 0;
     max-width: calc(100% - 24px);
   }
 }
@@ -13002,27 +12999,57 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-titl
 @media (max-width: 767px) {
   .header-slogan.header-slogan--chrome {
     /* relative only to hold the road; the base rule's offsets must not move it */
-    position: relative;
-    left: auto;
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 50%;
     bottom: auto;
     gap: 8px;
     padding: 4px 12px 8px;
     width: fit-content;
-    max-height: 40px;
-    overflow: hidden;
     animation: sbSloganOpen 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s backwards;
-    transition: max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease, opacity 0.25s ease, border-width 0.35s ease, box-shadow 0.35s ease;
+    transform: translateX(-50%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
+    will-change: transform, opacity;
   }
-  /* Scrolled down: the tag folds away and the header closes up beneath it
-     (StoreHeader.jsx sets body.slogan-tucked); back at the top it returns. */
-  body.slogan-tucked .header-slogan.header-slogan--chrome {
-    max-height: 0;
-    margin-top: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-    border-width: 0;
+  /* The tag hangs below the header row in a gap the header's own margin
+     keeps open, on a white band that carries the header's edge. Folding it
+     (StoreHeader.jsx sets body.slogan-tucked when scrolled) only moves and
+     fades these layers - nothing is laid out again, so the page, the pinned
+     search bar and --sb-head-h never move and the fold runs on the GPU. */
+  .sb-store-head {
+    margin-bottom: var(--sb-slogan-gap);
+    border-bottom-color: transparent;
     box-shadow: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    --sb-slogan-gap: 41px;
+  }
+  .sb-store-head::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: calc(var(--sb-slogan-gap) + 1px);
+    clip-path: inset(0 0 -20px 0); /* no shadow seam up onto the header */
+    background: #ffffff;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    pointer-events: none;
+    transform-origin: top;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    will-change: transform;
+  }
+  body.slogan-tucked .sb-store-head {
+    border-bottom-color: rgba(16, 185, 129, 0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+  body.slogan-tucked .sb-store-head::after {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  body.slogan-tucked .header-slogan.header-slogan--chrome {
+    transform: translate(-50%, -14px) scale(0.92);
+    opacity: 0;
   }
   .header-slogan--chrome .header-slogan-text {
     animation-delay: 0.75s, 2.4s;
@@ -13073,7 +13100,9 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-titl
   100% { opacity: 1; clip-path: inset(0 0 round 999px); }
 }
 @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .header-slogan.header-slogan--chrome {
+  .header-slogan.header-slogan--chrome,
+  .sb-store-head,
+  .sb-store-head::after {
     transition: none;
   }
   .header-slogan.header-slogan--chrome,

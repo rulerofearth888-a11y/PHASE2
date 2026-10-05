@@ -6,7 +6,7 @@ import StoreHeader from './StoreHeader'
 // (App.jsx) so they stay in place while the pages change beneath them.
 // Their heights are published as CSS variables for what sits below:
 //   --sb-head-h    the header row, which stays pinned while the page scrolls;
-//   --sb-chrome-h  ticker + header row, where a full-screen page starts.
+//   --sb-chrome-h  ticker + header row + its tag, where a full-screen page starts.
 // Both are 0 on wider screens, where these are hidden.
 export default function StoreTopChrome() {
   useLayoutEffect(() => {
@@ -16,7 +16,9 @@ export default function StoreTopChrome() {
     const update = () => {
       const headHeight = head?.offsetHeight || 0
       root.style.setProperty('--sb-head-h', `${headHeight}px`)
-      root.style.setProperty('--sb-chrome-h', `${headHeight + (ticker?.offsetHeight || 0)}px`)
+      // The FACTORY 2 FARMER tag hangs in the header's bottom margin.
+      const tagGap = head ? parseFloat(getComputedStyle(head).marginBottom) || 0 : 0
+      root.style.setProperty('--sb-chrome-h', `${headHeight + tagGap + (ticker?.offsetHeight || 0)}px`)
     }
     // No update() here: reading offsetHeight now would lay the page out before
     // the storefront's layout effect adds body.sb-home-active, so its basket
