@@ -2,6 +2,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStoreActions } from '../useStoreActions'
 import { EN_KEYS, TEXT_PACKS } from '../i18n'
+import { setBodyFlag } from '../bodyFlags'
 import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { useCms } from '../../context/CmsContext'
@@ -400,6 +401,23 @@ export const NavBar = memo(function NavBar({ t: given }) {
  */
 export const StoreChrome = memo(function StoreChrome({ t, appliedLang, user, cartCount, cartTotal, searchText }) {
   const { cms } = useCms()
+  // Once the page leaves the top, the FACTORY 2 FARMER tag tucks away
+  // (desktop CSS reads body.slogan-tucked); back at the top it returns.
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      setBodyFlag('slogan-tucked', 'store-chrome', window.scrollY > 24)
+    }
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(frame)
+      setBodyFlag('slogan-tucked', 'store-chrome', false)
+    }
+  }, [])
   return (
     <>
       <div className="sb-utility-shell">
@@ -408,10 +426,15 @@ export const StoreChrome = memo(function StoreChrome({ t, appliedLang, user, car
       <div className="sb-header-shell">
         <Header t={t} appliedLang={appliedLang} user={user} cartCount={cartCount} cartTotal={cartTotal} searchText={searchText} />
         <NavBar t={t} />
-        {/* A second, smaller header: hangs below the main one and travels
-            with it while the page scrolls. */}
+        {/* A second, smaller header: hangs below the main one. Desktop draws
+            the factory-to-farm journey round it (a truck drives from the
+            goods to the wheat) and tucks it away once the page scrolls
+            (storefront.css "FACTORY 2 FARMER on desktop"). */}
         <div className="header-slogan header-slogan--store" aria-hidden="true">
+          <i className="fa-solid fa-cubes-stacked slogan-end slogan-end--from"></i>
           <span className="header-slogan-text" data-i18n="logo_sub">{(t || (key => EN_KEYS[key] || key))('logo_sub')}</span>
+          <i className="fa-solid fa-wheat-awn slogan-end slogan-end--to"></i>
+          <span className="slogan-road"><i className="fa-solid fa-truck-fast slogan-truck"></i></span>
         </div>
       </div>
     </>

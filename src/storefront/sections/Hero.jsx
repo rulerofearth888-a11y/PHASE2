@@ -29,7 +29,7 @@ export const Hero = memo(function Hero({ t, cms }) {
                 <a href="#catalog" className="btn btn-primary bento-btn">
                   <span data-i18n="hero_shop_btn">{shopBtn}</span>
                 </a>
-                {/* Desktop only (hidden below 1025px): a second route in for farmers who want advice first. */}
+                {/* Desktop and phones (hidden on tablets): a second route in for farmers who want advice first. */}
                 <a href={WHATSAPP_EXPERT_URL} className="hero-cta-secondary" target="_blank" rel="noopener noreferrer">
                   <i className="fa-brands fa-whatsapp" aria-hidden="true"></i> Talk to an Expert
                 </a>
