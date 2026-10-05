@@ -16,6 +16,8 @@ import './voiceAnywhere.css'
 // are numbers, passwords, emails, dates, files, one-time codes and data-voice="off".
 
 const TEXT_TYPES = new Set(['text', 'search', ''])
+// Mic (at most 36px) + 6px from the edge + 6px clear of the text.
+const MIC_ROOM = 48
 const PLACE = /address|street|village|district|taluk|city|town|area|location|door|pincode|postal|landmark/i
 
 function voiceModeOf(el) {
@@ -32,6 +34,19 @@ function voiceModeOf(el) {
   // Places (couriers read them) and searches (products match on English text): English.
   if (PLACE.test(hint) || el.type === 'search' || /search/i.test(hint)) return 'latin'
   return 'text'
+}
+
+function drawnBox(el, r) {
+  let node = el.parentElement
+  for (let depth = 0; node && depth < 3; depth += 1, node = node.parentElement) {
+    const box = node.getBoundingClientRect()
+    if (box.height < r.height || box.height > 64 || box.width < r.width - 2) continue
+    const cs = getComputedStyle(node)
+    const painted = (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)' && cs.backgroundColor !== 'transparent')
+      || parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderBottomWidth) > 0 || (cs.boxShadow && cs.boxShadow !== 'none')
+    if (painted) return box
+  }
+  return null
 }
 
 export default function VoiceAnywhere() {
@@ -91,6 +106,18 @@ export default function VoiceAnywhere() {
     }
   }, [])
 
+  // Room for the mic: while it sits on a field, the field's own right padding
+  // grows to clear it, so typed words never run underneath (support ticket
+  // "Target Crop" did); the field's own value is put back when the mic leaves.
+  useEffect(() => {
+    const el = target?.el
+    if (!el) return undefined
+    const before = el.style.paddingRight
+    const current = parseFloat(getComputedStyle(el).paddingRight) || 0
+    if (current < MIC_ROOM) el.style.paddingRight = `${MIC_ROOM}px`
+    return () => { el.style.paddingRight = before }
+  }, [target])
+
   // Keep the mic on the field's right edge as the page or a popup scrolls,
   // the keyboard opens or the field grows.
   useEffect(() => {
@@ -102,10 +129,12 @@ export default function VoiceAnywhere() {
       if (!el.isConnected) { setTarget(null); return }
       let r = el.getBoundingClientRect()
       // A borderless input drawn inside a pill (the shop searches) is shorter
-      // than the box people see: sit on the pill's right edge instead.
-      if (r.height < 32 && el.parentElement) {
-        const p = el.parentElement.getBoundingClientRect()
-        if (p.height >= r.height && p.height <= 64 && p.width >= r.width) r = p
+      // than the box people see: sit inside the element that draws the box
+      // (the nearest one, up to three levels, with a background, border or
+      // shadow) - not just the parent, which can be a taller wrapper.
+      if (r.height < 32) {
+        const drawn = drawnBox(el, r)
+        if (drawn) r = drawn
       }
       const hidden = r.width < 60 || r.height < 14 || r.bottom < 0 || r.top > window.innerHeight
       setBox(hidden ? null : { top: r.top, left: r.left, width: r.width, height: r.height, area: el instanceof HTMLTextAreaElement })
@@ -128,7 +157,8 @@ export default function VoiceAnywhere() {
 
   if (!voiceSupported || !target || !box) return null
 
-  const size = Math.min(36, Math.max(28, box.height - 8))
+  // Fits inside the field's box with 4px to spare above and below.
+  const size = Math.max(22, Math.min(36, box.height - 8))
   const style = {
     top: box.area ? box.top + 6 : box.top + (box.height - size) / 2,
     left: box.left + box.width - size - 6,

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { useBasket, useCheckoutActions } from '../../hooks/useCheckout'
 import HomeLogoLink from './HomeLogoLink'
+import { setBodyFlag } from '../../storefront/bodyFlags'
 
 // Phones: the header row - logo, language, account, basket - drawn once above
 // every store page (StoreTopChrome in App.jsx), so it stays in place between
@@ -29,6 +30,32 @@ export default function StoreHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuTop, setMenuTop] = useState(0)
   const langButton = useRef(null)
+
+  // Phones: the FACTORY 2 FARMER tag folds away once the page scrolls down and
+  // comes back at the top, as on desktop (index.css, body.slogan-tucked). It
+  // sits in the header's flow here, so folding moves the page ~40px: hide
+  // past 48px and show again only under 8px, or it would flicker in between.
+  useEffect(() => {
+    let frame = 0
+    let tucked = false
+    const update = () => {
+      frame = 0
+      const y = window.scrollY
+      const next = tucked ? y > 8 : y > 48
+      if (next !== tucked) {
+        tucked = next
+        setBodyFlag('slogan-tucked', 'store-header', next)
+      }
+    }
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(frame)
+      setBodyFlag('slogan-tucked', 'store-header', false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return undefined

@@ -6,6 +6,11 @@
   z-index: 2147483000;
   margin: 0;
   padding: 0;
+  /* Its size comes from VoiceAnywhere.jsx (fits the field's box); the store's
+     44px minimum tap size for buttons would make it overhang a slim field. */
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
