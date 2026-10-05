@@ -19,7 +19,8 @@
   :is(:root:has(> body.sb-home-active), .sb-portal),
   body.sb-home-active,
   :is(body.sb-home-active .sb-home, .sb-portal),
-  :is(body.sb-home-active .sb-home, .sb-portal) * {
+  /* Farmer Services (shared with the service pages) keeps its index.css look. */
+  :is(body.sb-home-active .sb-home, .sb-portal) *:not(.farmer-services, .farmer-services *) {
     all: revert;
   }
 }
@@ -87,7 +88,7 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-body.sb-home-active, :is(body.sb-home-active .sb-home, .sb-portal), :is(body.sb-home-active .sb-home, .sb-portal) * {
+body.sb-home-active, :is(body.sb-home-active .sb-home, .sb-portal), :is(body.sb-home-active .sb-home, .sb-portal) *:not(.farmer-services, .farmer-services *) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -1259,6 +1260,15 @@ body.sb-home-active {
 /* SECTION TITLES & 60-120 FPS SCROLL CONTAINMENT */
 :is(body.sb-home-active .sb-home, .sb-portal) .section {
   padding: 60px 0;
+}
+
+/* Farmer Services on the home page (Storefront.jsx): a short step between
+   Shop by Crop and the catalogue, not a full section of its own. */
+body.sb-home-active .sb-home .sb-home-services {
+  padding: 8px 0 28px;
+}
+body.sb-home-active .sb-home .sb-home-services .farmer-services {
+  margin: 0;
 }
 
 :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection,

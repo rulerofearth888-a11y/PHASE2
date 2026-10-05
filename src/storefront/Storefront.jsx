@@ -23,11 +23,14 @@ import { cmsOverride } from '../hooks/useCmsSettings'
 import { hasPrice } from '../shared/comingSoon'
 // The one footer, shared with every other store page.
 import Footer from '../components/home/Footer'
+import ServicesBottomNav from '../components/common/ServicesBottomNav'
 import BackToTop from './sections/BackToTop'
 import PhotoScannerModal from './sections/PhotoScannerModal'
 import Chatbot from './sections/Chatbot'
 import { packMrp, packPrice } from '../shared/packPricing'
 import './storefront.css'
+
+const HOME_SERVICES_EXCLUDE = ['/products']
 
 // The storefront home page (/): the catalogue and this page's own popups
 // (photo scanner). The basket, the floating checkout and the
@@ -310,6 +313,12 @@ export default function Storefront() {
         <StatsStrip cms={cms} />
         <CategoryGrid t={t} cms={cms} />
         <CropGrid cms={cms} />
+        {/* Farmer tools right after the crop picker: ask an expert, test the soil, track orders. */}
+        <section className="section sb-home-services">
+          <div className="container">
+            <ServicesBottomNav exclude={HOME_SERVICES_EXCLUDE} />
+          </div>
+        </section>
         <Catalog t={t} filters={filters} products={products} catalogOptions={catalogOptions} user={user} filterDrawerOpen={filterDrawerOpen} loading={catalogLoading} />
         <Trending t={t} products={products} loading={catalogLoading} />
         {cmsOverride(cms, 'testimonialsTitle') !== '' && <Testimonials cms={cms} />}

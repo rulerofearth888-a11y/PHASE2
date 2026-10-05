@@ -12,6 +12,8 @@ import {
 // Agronomy Experts and Soil Test pages. Each is a full card - icon, name,
 // what it does - so they read as the features they are, not as footnotes.
 // The page you are on is marked. Styles: index.css, "Farmer services".
+// The home page shows them too, after Shop by Crop, without the All Products
+// card (`exclude`) - the catalogue follows right below there.
 const SERVICES = [
   { to: '/orders', title: 'My Orders', desc: 'Track past orders & shipments', icon: PackageCheck, color: '#2563eb', bg: '#eff6ff' },
   { to: '/support-tickets', title: 'Support Tickets', desc: 'Order issues & direct admin resolution', icon: TicketCheck, color: '#ea580c', bg: '#fff7ed' },
@@ -20,19 +22,20 @@ const SERVICES = [
   { to: '/products', title: 'All Products', desc: 'Explore bio-inputs & fertilizers', icon: Store, color: '#7c3aed', bg: '#f5f3ff' },
 ]
 
-export default function ServicesBottomNav({ currentPath: propPath }) {
+export default function ServicesBottomNav({ currentPath: propPath, exclude = [] }) {
   const location = useLocation()
   const currentPath = propPath || location.pathname
+  const services = SERVICES.filter(service => !exclude.includes(service.to))
 
   return (
-    <section className="farmer-services" aria-labelledby="farmerServicesTitle">
+    <section className={`farmer-services farmer-services--n${services.length}`} aria-labelledby="farmerServicesTitle">
       <div className="farmer-services-head">
         <h2 id="farmerServicesTitle"><span aria-hidden="true">🌱</span> Farmer Services &amp; Quick Links</h2>
         <p>Jump directly to any of your farmer tools, orders, or support desks</p>
       </div>
 
       <div className="farmer-services-grid">
-        {SERVICES.map(service => {
+        {services.map(service => {
           const isActive = currentPath === service.to
           const Icon = service.icon
           return (

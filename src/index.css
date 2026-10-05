@@ -12984,6 +12984,13 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
   .farmer-service-title { font-size: 0.95rem; }
   .farmer-service-desc { font-size: 0.8rem; }
 }
+/* Four cards (home page, no All Products): 4 across, 2 x 2 below desktop. */
+.farmer-services--n4 .farmer-services-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1024px) {
+  .farmer-services--n4 .farmer-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-title {
   line-height: var(--script-leading, 1.4);
 }
