@@ -13775,3 +13775,11 @@ body.poster-open .sb-portal .call-fab {
 @media (max-width: 768px) {
   .p2-split { --p2-split: minmax(0, 1fr); }
 }
+
+/* Tablet, Indian scripts: "AI இலை மருத்துவர்" is wider than "AI Leaf Doctor"
+   and pushed the nav 17px past a 1024px screen. */
+@media (min-width: 769px) and (max-width: 1024px) {
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .nav-scan-btn {
+    padding-inline: 12px;
+  }
+}

@@ -1,6 +1,8 @@
-import { Suspense } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import { StoreChrome } from '../storefront/sections/Header'
+import { isLanguageReady, loadLanguagePack, translationFor } from '../storefront/i18n'
 import Footer from '../components/home/Footer'
 
 // Shared shell for every storefront page except the home page (Storefront.jsx
@@ -17,13 +19,27 @@ import Footer from '../components/home/Footer'
 // app's shared phone chrome (StoreTopChrome/MobileBottomNav, mounted in
 // App.jsx outside <Routes>) if not forced off here.
 export default function StoreLayout() {
+  // Same rule as the home page (Storefront.jsx): the chosen language applies
+  // once its pack has loaded. The chrome's data-i18n labels are skipped by the
+  // page walker, so without t they stayed English on every page but home.
+  const { lang } = useLanguage()
+  const [appliedLang, setAppliedLang] = useState('en')
+  useEffect(() => {
+    let cancelled = false
+    loadLanguagePack(lang).then(ok => {
+      if (!cancelled) setAppliedLang(ok && isLanguageReady(lang) ? lang : 'en')
+    })
+    return () => { cancelled = true }
+  }, [lang])
+  const t = useCallback(key => translationFor(appliedLang, key) || key, [appliedLang])
+
   return (
     <>
       <div className="desktop-only-nav">
         {/* The same chrome the home page renders. It used to be a second
             copy (components/home/Navigation.jsx) kept in step by hand. */}
         <div className="sb-portal">
-          <StoreChrome />
+          <StoreChrome t={t} appliedLang={appliedLang} />
         </div>
       </div>
       <main className="public-page-shell">

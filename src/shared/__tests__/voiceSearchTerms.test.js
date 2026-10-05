@@ -60,3 +60,24 @@ test('Hindi, Kannada and Telugu farmer words work without a pack', () => {
   assert.equal(q('ಹತ್ತಿ ಬಿಳಿನೊಣ', 'kn', {}).query, 'Cotton Whitefly');
   assert.equal(q('వరి కలుపు', 'te', {}).query, 'Paddy Weeds');
 });
+
+test('Hindi, Kannada and Telugu pests, diseases and product forms', () => {
+  assert.equal(q('टमाटर में फल छेदक की दवा', 'hi', {}).query, 'Tomato Fruit Borer');
+  assert.equal(q('मिर्च चूर्णिल आसिता', 'hi', {}).query, 'Chilli Powdery Mildew');
+  assert.equal(q('ಭತ್ತ ಬೆಂಕಿ ರೋಗ ಔಷಧಿ ಬೇಕು', 'kn', {}).query, 'Paddy Blast');
+  assert.equal(q('ಬದನೆ ಕಾಯಿ ಕೊರಕ', 'kn', {}).query, 'Brinjal Fruit Borer');
+  assert.equal(q('వరి అగ్గి తెగులు మందు కావాలి', 'te', {}).query, 'Paddy Blast');
+  assert.equal(q('మిరప తామర పురుగు', 'te', {}).query, 'Chilli Thrips');
+  assert.equal(q('పత్తి తెల్లదోమ', 'te', {}).query, 'Cotton Whitefly');
+  assert.equal(q('ಶಿಲೀಂಧ್ರನಾಶಕ ಪುಡಿ', 'kn', {}).query, 'Fungicide Powder');
+});
+
+test('the Hindi, Kannada and Telugu packs add their crop and pest labels', () => {
+  for (const code of ['hi', 'kn', 'te']) {
+    require(`../../../public/js/lang-${code}.js`);
+    const pack = globalThis.window[`SB_LANG_${code.toUpperCase()}`].text;
+    const vocab = catalogueVocabulary([['Mango', 'Onion', 'Groundnut'], ['Nematode', 'Wilt']]);
+    assert.equal(spokenToCatalogQuery(pack.Nematode, code, pack, vocab).query, 'Nematode', code);
+    assert.equal(spokenToCatalogQuery(pack.Mango, code, pack, vocab).query, 'Mango', code);
+  }
+});
