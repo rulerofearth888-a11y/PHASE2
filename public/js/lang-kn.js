@@ -1704,7 +1704,15 @@ window.SB_LANG_KN = {
     'Shop Catalog': 'ಉತ್ಪನ್ನಗಳನ್ನು ನೋಡಿ',
     '100% Bio-Certified': '100% ಜೈವಿಕ ಪ್ರಮಾಣೀಕೃತ',
     'Same-Day Dispatch': 'ಅದೇ ದಿನ ರವಾನೆ',
-    'WhatsApp Advisory': 'WhatsApp ಸಲಹೆ'
+    'WhatsApp Advisory': 'WhatsApp ಸಲಹೆ',
+    // 2026-10 update: new store pages and features.
+    'Help': 'ಸಹಾಯ',
+    'How can we help?': 'ನಾವು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?',
+    'Send a crop photo for advice': 'ಸಲಹೆಗಾಗಿ ಬೆಳೆಯ ಫೋಟೋ ಕಳುಹಿಸಿ',
+    'Send an enquiry': 'ವಿಚಾರಣೆ ಕಳುಹಿಸಿ',
+    'Price, stock or crop problem': 'ಬೆಲೆ, ದಾಸ್ತಾನು ಅಥವಾ ಬೆಳೆ ಸಮಸ್ಯೆ',
+    'Chat assistant': 'ಚಾಟ್ ಸಹಾಯಕ',
+    'Quick answers, any time': 'ಯಾವಾಗ ಬೇಕಾದರೂ ತ್ವರಿತ ಉತ್ತರ'
   },
 
   patterns: [

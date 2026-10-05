@@ -3,15 +3,15 @@ import axios from 'axios'
 import { showToast } from '../toast'
 import VoiceButton from './VoiceButton'
 
-// A floating "Farmer Enquiry" button and its premium sheet, mounted once
-// (StorePopups.jsx) so it floats over every store page on desktop and tablet (on phones
-// it opens from Menu → Enquiry instead). Self-contained: its own open state, focus and scroll lock -
+// The "Farmer Enquiry" sheet, mounted once (StorePopups.jsx). It opens from the
+// floating Help menu (HelpFab.jsx) and the phone Menu's Enquiry tile, both by
+// the event below. Self-contained: its own open state, focus and scroll lock -
 // it does not touch the checkout/sign-in modal system in hooks/useCheckout.js.
 // Styles: storefront.css, "ENQUIRY SHEET" block. Reuses the generic
 // .modal-overlay/.modal-card and .auth-* field classes for a consistent,
 // already-accessible look.
 
-// Also dispatched by components/home/MobileBottomNav.jsx (Menu → Enquiry).
+// Dispatched by sections/HelpFab.jsx and components/home/MobileBottomNav.jsx.
 const ENQUIRY_OPEN_EVENT = 'sb:open-enquiry'
 
 const ENQUIRY_TYPES = ['Product', 'Price', 'Availability', 'Crop Problem', 'Dealer', 'Other']
@@ -43,15 +43,7 @@ export default memo(function EnquirySheet() {
     openerRef.current?.focus?.({ preventScroll: true })
   }
 
-  const openSheet = event => {
-    openerRef.current = event.currentTarget
-    setDone(false)
-    setErrors({})
-    setOpen(true)
-  }
-
-  // Phones have no floating button (hidden at <=767px, where the bottom nav is): the Menu
-  // sheet's Enquiry tile asks for the sheet with this event instead.
+  // The Help menu and the phone Menu's Enquiry tile ask for the sheet with this event.
   // detail.opener is where focus goes back to on close.
   useEffect(() => {
     const onRequest = event => {
@@ -163,11 +155,6 @@ export default memo(function EnquirySheet() {
 
   return (
     <>
-      <button type="button" className="enq-fab" onClick={openSheet} aria-haspopup="dialog" aria-expanded={open}>
-        <i className="fa-solid fa-clipboard-question" aria-hidden="true"></i>
-        <span className="enq-fab-label">Enquiry</span>
-      </button>
-
       <div
         id="enquiryModal"
         className={['modal-overlay', open && 'active'].filter(Boolean).join(' ')}

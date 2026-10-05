@@ -8,17 +8,12 @@ import {
 import { useBasket, useCheckoutActions } from '../hooks/useCheckout'
 import { useAuth } from '../context/AuthContext'
 import useCatalogProducts from '../hooks/useCatalogProducts'
-import { useCms } from '../context/CmsContext'
-import { cmsText } from '../hooks/useCmsSettings'
-import { SUPPORT_PHONE, telHref } from '../shared/phoneLink'
-import { WHATSAPP_EXPERT_URL } from '../storefront/data'
 import { hasPrice } from '../shared/comingSoon'
 import { packMrp, packPrice } from '../shared/packPricing'
 import { cacheWishlistIds, cacheWishlistItem, cachedWishlistIds, wishlistIdsFrom, wishlistVisitorId } from '../shared/wishlist'
 import { dedupeCropLabels, isSameCrop, matchesCrop, matchesCategory, matchesDisease, normalizeCrop, topSelling } from '../utils/catalogUtils'
 import { ALL_CROPS, cropList } from '../shared/profileFieldRules'
 import { PRODUCT_FORMS, formCounts, matchesForm, productForm } from '../shared/productForm'
-import { setBodyFlag } from '../storefront/bodyFlags'
 import axios from 'axios'
 import {
   SHOP_CATEGORIES,
@@ -28,17 +23,6 @@ import {
   EXTRA_CATEGORY_ICONS,
   FALLBACK_CATEGORY_ICON,
 } from '../data/allProductsData'
-
-// This page has its own floating button (the advisory one below), bottom
-// right. While it is shown, the floating call button (CallFab) moves up a
-// slot above it instead of sitting on it.
-function PageFabFlag() {
-  useEffect(() => {
-    setBodyFlag('page-fab', 'all-products', true)
-    return () => setBodyFlag('page-fab', 'all-products', false)
-  }, [])
-  return null
-}
 
 // The farmer's own crop this product is for, if any (a farmer can grow up to six).
 const myCropFor = (user, prod) => cropList(user?.crop).find(crop => crop !== ALL_CROPS && matchesCrop(prod.crops, crop))
@@ -75,8 +59,6 @@ const matchesNutrientFilter = (product, nutrient) => {
 
 export default function AllProducts() {
   const { user } = useAuth()
-  const { cms } = useCms()
-  const supportPhone = cmsText(cms, 'phone', SUPPORT_PHONE)
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
 
@@ -167,7 +149,6 @@ export default function AllProducts() {
   }
 
   // Quick advisory modal
-  const [advisoryModalOpen, setAdvisoryModalOpen] = useState(false)
 
   // Scroll references for carousels
   const top10ScrollRef = useRef(null)
@@ -1602,59 +1583,6 @@ export default function AllProducts() {
         </section>
       </main>
 
-      <PageFabFlag />
-      {/* FLOATING GREEN EXPERT HELPLINE / ADVISORY BUTTON (Matching Mobile Screenshot 1 & 2) */}
-      <button 
-        type="button" 
-        className="floating-agronomist-btn"
-        onClick={() => setAdvisoryModalOpen(true)}
-        aria-label="Contact Agronomist Advisory"
-      >
-        <Headphones size={24} />
-      </button>
-
-      {/* ADVISORY POPUP MODAL */}
-      {advisoryModalOpen && (
-        <div className="advisory-modal-backdrop" onClick={() => setAdvisoryModalOpen(false)}>
-          <div className="advisory-modal-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title-box">
-                <span className="modal-sprout-icon"><Sprout size={20} /></span>
-                <strong>Sathyam Agro Mart Farmer Advisory</strong>
-              </div>
-              <button type="button" onClick={() => setAdvisoryModalOpen(false)} className="modal-close-btn">
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <p className="modal-description">
-                Need customized dosage, pest identification or tank-mix compatibility for your crops?
-              </p>
-              <div className="advisory-contact-cards">
-                <a href={telHref(supportPhone)} className="advisory-action-card">
-                  <div className="action-icon-circle call-circle">
-                    <PhoneCall size={20} />
-                  </div>
-                  <div>
-                    <strong>Farmer Expert Helpline</strong>
-                    <p className="notranslate">{supportPhone}</p>
-                  </div>
-                </a>
-                <a href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer" className="advisory-action-card">
-                  <div className="action-icon-circle wa-circle">
-                    <Sparkles size={20} />
-                  </div>
-                  <div>
-                    <strong>WhatsApp AI Crop Doctor</strong>
-                    <p>Send crop photo for instant disease diagnosis</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
 
 

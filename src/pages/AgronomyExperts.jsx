@@ -182,11 +182,11 @@ export default function AgronomyExperts() {
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px 60px' }}>
       {/* Hero Banner */}
-      <div
+      <div className="p2-hero"
         style={{
           background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)',
           borderRadius: 20,
-          padding: '40px 32px',
+          '--p2-hero-pad': '40px 32px',
           color: '#fff',
           boxShadow: '0 12px 30px rgba(6, 78, 59, 0.25)',
           marginBottom: 32,
@@ -194,16 +194,16 @@ export default function AgronomyExperts() {
           overflow: 'hidden'
         }}
       >
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 740 }}>
+        <div className="p2-hero-inner" style={{ position: 'relative', zIndex: 2, maxWidth: 740 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', padding: '6px 14px', borderRadius: 30, fontSize: '0.8rem', fontWeight: 700, marginBottom: 16 }}>
             <Sparkles size={15} color="#34d399" /> CERTIFIED AGRICULTURAL SCIENTISTS &amp; AGRONOMISTS
           </div>
 
-          <h1 style={{ fontSize: '2.4rem', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.2 }}>
+          <h1 className="p2-hero-title" style={{ '--p2-title-size': '2.4rem', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.2 }}>
             Book a 1-on-1 Session with Our Agronomy Experts
           </h1>
 
-          <p style={{ fontSize: '1.05rem', color: '#d1fae5', margin: '0 0 24px', lineHeight: 1.6 }}>
+          <p className="p2-hero-text" style={{ '--p2-text-size': '1.05rem', color: '#d1fae5', margin: '0 0 24px', lineHeight: 1.6 }}>
             Have crop diseases, pest outbreaks, or soil nutrition doubts? Schedule a personalized callback with Sathyam Agro Mart's certified agronomists. Free for registered farmers.
           </p>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { ArrowLeft, ExternalLink, Heart, ShoppingCart, Star, Film, Video } from 'lucide-react'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -14,6 +14,7 @@ import { getYouTubeId, isHtml5Video } from '../shared/video'
 import { productText } from '../shared/productText'
 import { useLanguage } from '../context/LanguageContext'
 import { cacheWishlistIds, cacheWishlistItem, wishlistIdsFrom, wishlistVisitorId } from '../shared/wishlist'
+import { setBodyFlag } from '../storefront/bodyFlags'
 
 // Signed-in customers are identified by their token on the server. Guests get
 // a random, unguessable visitor id so nobody can read another person's list.
@@ -27,6 +28,8 @@ export default function ProductDetail() {
   const navigate = useNavigate()
   const { addItem, startCheckout } = useCheckoutActions()
   const [product, setProduct] = useState(null)
+  const actionsRef = useRef(null)
+  const [showBuyBar, setShowBuyBar] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
   const [activeImage, setActiveImage] = useState(0)
   const [selectedPack, setSelectedPack] = useState('')
@@ -121,6 +124,21 @@ export default function ProductDetail() {
       }
     }
   }, [loadProduct])
+
+  // The phone buy bar shows while the page's own Add/Checkout buttons are off
+  // screen (scrolled past, or not reached yet below a long description).
+  useEffect(() => {
+    const el = actionsRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined
+    const io = new IntersectionObserver(([entry]) => setShowBuyBar(!entry.isIntersecting), { rootMargin: '0px 0px -80px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [product, loading])
+  // Lifts the floating Help button above the bar while the bar shows.
+  useEffect(() => {
+    setBodyFlag('buy-bar-open', 'product', showBuyBar && hasPrice(product || {}))
+    return () => setBodyFlag('buy-bar-open', 'product', false)
+  }, [showBuyBar, product])
 
   if (loading) return <div className="product-detail-page"><div className="empty-state"><p>Loading product details...</p></div></div>
   if (!product) return (
@@ -230,14 +248,7 @@ export default function ProductDetail() {
             )}
           </div>}
 
-          <p className="product-detail-description">{text('detailedDescription') || text('description')}</p>
-          <div className="product-detail-facts">
-            <div><strong>Active ingredient</strong><span>{product.activeIngredient || 'Not specified'}</span></div>
-            <div><strong>Dosage</strong><span>{text('dosage') || 'Not specified'}</span></div>
-            <div><strong>Pack sizes</strong><span>{priced ? product.packSizes?.join(', ') || 'Not specified' : 'Coming Soon'}</span></div>
-            <div><strong>Suitable crops</strong><span>{product.crops?.join(', ') || 'Not specified'}</span></div>
-          </div>
-          <div className="product-detail-actions">
+          <div className="product-detail-actions" ref={actionsRef}>
             {priced ? (
               <>
                 <button className="btn btn-primary btn-lg" onClick={addToCart}><ShoppingCart size={18} /> {cartAdded ? 'Added to cart' : 'Add to cart'}</button>
@@ -251,8 +262,27 @@ export default function ProductDetail() {
               </>
             )}
           </div>
+          <p className="product-detail-description">{text('detailedDescription') || text('description')}</p>
+          <div className="product-detail-facts">
+            <div><strong>Active ingredient</strong><span>{product.activeIngredient || 'Not specified'}</span></div>
+            <div><strong>Dosage</strong><span>{text('dosage') || 'Not specified'}</span></div>
+            <div><strong>Pack sizes</strong><span>{priced ? product.packSizes?.join(', ') || 'Not specified' : 'Coming Soon'}</span></div>
+            <div><strong>Suitable crops</strong><span>{product.crops?.join(', ') || 'Not specified'}</span></div>
+          </div>
         </div>
       </div>
+
+      {/* Phones: once the buttons above scroll away, price and Add stay in reach
+          (shown <=768px only, storefront.css "Product buy bar"). */}
+      {priced && (
+        <div className={`product-buy-bar${showBuyBar ? ' is-visible' : ''}`} aria-hidden={!showBuyBar}>
+          <div className="product-buy-bar-price">
+            <strong>₹{totalPrice.toLocaleString()}</strong>
+            {selectedPack && <small>{selectedPack}{quantity > 1 ? ` × ${quantity}` : ''}</small>}
+          </div>
+          <button type="button" className="btn btn-primary" onClick={addToCart} tabIndex={showBuyBar ? 0 : -1}><ShoppingCart size={18} /> {cartAdded ? 'Added to cart' : 'Add to cart'}</button>
+        </div>
+      )}
 
       <div className="product-detail-content-grid">
         <section className="product-detail-section"><h2>How to use</h2><p>{text('howToUse') || 'Usage instructions will be published by the administrator.'}</p></section>

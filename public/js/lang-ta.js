@@ -1731,7 +1731,15 @@ window.SB_LANG_TA = {
     'Shop Catalog': 'பொருட்களைப் பாருங்கள்',
     '100% Bio-Certified': '100% உயிர்ச் சான்று பெற்றது',
     'Same-Day Dispatch': 'அதே நாளில் அனுப்புதல்',
-    'WhatsApp Advisory': 'WhatsApp ஆலோசனை'
+    'WhatsApp Advisory': 'WhatsApp ஆலோசனை',
+    // 2026-10 update: new store pages and features.
+    'Help': 'உதவி',
+    'How can we help?': 'நாங்கள் எப்படி உதவலாம்?',
+    'Send a crop photo for advice': 'ஆலோசனைக்குப் பயிர்ப் புகைப்படம் அனுப்புங்கள்',
+    'Send an enquiry': 'விசாரணை அனுப்புங்கள்',
+    'Price, stock or crop problem': 'விலை, இருப்பு அல்லது பயிர்ப் பிரச்சனை',
+    'Chat assistant': 'அரட்டை உதவியாளர்',
+    'Quick answers, any time': 'எப்போதும் விரைவான பதில்கள்'
   },
 
   patterns: [

@@ -1704,7 +1704,15 @@ window.SB_LANG_TE = {
     'Shop Catalog': 'ఉత్పత్తులు చూడండి',
     '100% Bio-Certified': '100% బయో ధృవీకృతం',
     'Same-Day Dispatch': 'అదే రోజు పంపిణీ',
-    'WhatsApp Advisory': 'WhatsApp సలహా'
+    'WhatsApp Advisory': 'WhatsApp సలహా',
+    // 2026-10 update: new store pages and features.
+    'Help': 'సహాయం',
+    'How can we help?': 'మేము ఎలా సహాయం చేయగలం?',
+    'Send a crop photo for advice': 'సలహా కోసం పంట ఫోటో పంపండి',
+    'Send an enquiry': 'విచారణ పంపండి',
+    'Price, stock or crop problem': 'ధర, నిల్వ లేదా పంట సమస్య',
+    'Chat assistant': 'చాట్ సహాయకుడు',
+    'Quick answers, any time': 'ఎప్పుడైనా త్వరిత సమాధానాలు'
   },
 
   patterns: [

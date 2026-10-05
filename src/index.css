@@ -8800,6 +8800,27 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(.category-circle
 html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .category-circle-label {
   -webkit-line-clamp: 3;
 }
+/* ...but a Tamil word split in two ("பூச்சிக்கொ / ல்லிகள்") is hard to read.
+   Wider tiles fit the whole word ("பூஞ்சைக்கொல்லிகள்" needs ~123px at 10.5px),
+   so the break above is only a fallback for the rare longer one. The rails
+   scroll sideways, so fewer tiles per screen only shows more of the scroll. */
+@media (max-width: 767px) {
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(.category-circle-item, .crop-circle-item, .pest-circle-item) {
+    flex-basis: 124px;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(.category-circle-label, .crop-circle-label, .pest-circle-label) {
+    max-width: 124px;
+    font-size: 10.5px;
+  }
+}
+@media (min-width: 768px) {
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .all-products-page :is(.category-circle-item, .crop-circle-item, .pest-circle-item) {
+    flex-basis: 132px;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .all-products-page :is(.category-circle-label, .crop-circle-label, .pest-circle-label) {
+    max-width: 132px;
+  }
+}
 /* /categories: the side rail labels ("பூஞ்சைக்கொல்லிகள்" needs 143px of a 66px
    tab) were cut mid-glyph, and the banner title ran out of its card over the
    category image on phones. */
@@ -12757,3 +12778,89 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
   .profile-field:not(.half) { grid-column: 1; }
   .profile-save-bar { flex-direction: column; align-items: stretch; }
 }
+
+/* ---- Product buy bar (pages/ProductDetail.jsx), phones only ----
+   Once the page's own Add/Checkout buttons are off screen, price and "Add to
+   cart" stay in reach just above the bottom nav. Desktop and tablet show the
+   buttons beside the price instead. */
+.product-buy-bar {
+  display: none;
+}
+@media (max-width: 768px) {
+  .product-buy-bar {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    z-index: 1400;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 10px 10px 16px;
+    border: 1px solid #d7e8df;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(20, 35, 28, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  }
+  .product-buy-bar.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  body.overlay-open .product-buy-bar,
+  body.menu-open .product-buy-bar {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .product-buy-bar-price strong {
+    display: block;
+    color: var(--brand-700, #0A5C3B);
+    font-size: 1.25rem;
+    line-height: 1.1;
+  }
+  .product-buy-bar-price small {
+    color: #5B6B63;
+    font-size: 0.78rem;
+  }
+  .product-buy-bar .btn {
+    flex: none;
+    min-height: 46px;
+    padding: 0 18px;
+    gap: 8px;
+  }
+  /* The page ends clear of the bar and the bottom nav. */
+  .product-detail-page {
+    padding-bottom: 96px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-buy-bar { transition: none; }
+}
+
+/* ---- Phase 2 page heroes (SoilTestReport.jsx, AgronomyExperts.jsx) ----
+   Sizes come from the inline custom properties, so wider screens look as
+   before. Phones: the title filled the whole first screen (more so in Tamil)
+   and the page's own buttons sat under the bottom nav, so the hero is
+   compact and its buttons come before the long paragraph. */
+.p2-hero { padding: var(--p2-hero-pad, 36px 32px); }
+.p2-hero-title { font-size: var(--p2-title-size, 2.1rem); }
+.p2-hero-text { font-size: var(--p2-text-size, 1rem); }
+@media (max-width: 768px) {
+  .p2-hero { padding: 20px 18px; }
+  .p2-hero-title { font-size: 1.55rem; }
+  .p2-hero-text { font-size: 0.9rem; }
+  .p2-hero-inner { display: flex; flex-direction: column; align-items: flex-start; }
+  .p2-hero-actions { order: 3; margin-top: 14px; }
+  .p2-hero-inner > .p2-hero-text { order: 4; margin-top: 14px; }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .p2-hero-title {
+    font-size: 1.3rem;
+    line-height: 1.35;
+  }
+}
+/* The Add/Checkout buttons now sit above the description: keep them apart. */
+.product-detail-actions + .product-detail-description { margin-top: 20px; }

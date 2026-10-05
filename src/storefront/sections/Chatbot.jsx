@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useStore } from '../StoreContext'
 import { WHATSAPP_EXPERT_URL } from '../data'
+import { CHAT_OPEN_EVENT } from './HelpFab'
 
 // Crop Assistant: canned answers matched on keywords (no AI model behind it).
 // Product buttons only ever offer a live catalogue product.
@@ -60,6 +61,12 @@ export default memo(function Chatbot({ t }) {
   const nextId = useRef(0)
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
+  // Opened from the floating Help menu (HelpFab.jsx); it has no bubble of its own.
+  useEffect(() => {
+    const onOpen = () => setOpen(true)
+    window.addEventListener(CHAT_OPEN_EVENT, onOpen)
+    return () => window.removeEventListener(CHAT_OPEN_EVENT, onOpen)
+  }, [])
   useEffect(() => {
     if (open) inputRef.current?.focus()
   }, [open])
@@ -83,10 +90,6 @@ export default memo(function Chatbot({ t }) {
 
   return (
     <>
-      <div className="chatbot-trigger-btn" id="chatbotTriggerBtn" onClick={() => setOpen(current => !current)} role="button" tabIndex={0} aria-label="Chat assistant">
-        <i className={open ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'}></i>
-      </div>
-
       <div className={`chatbot-window${open ? ' active' : ''}`} id="chatbotWindow">
         <div className="chatbot-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

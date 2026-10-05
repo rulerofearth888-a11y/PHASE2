@@ -5,7 +5,7 @@ import { useCheckout, useCheckoutActions } from '../hooks/useCheckout'
 import { StoreContext } from './StoreContext'
 import { isLanguageReady, loadLanguagePack, translationFor } from './i18n'
 import { setBodyFlag } from './bodyFlags'
-import CallFab from './sections/CallFab'
+import HelpFab from './sections/HelpFab'
 import EnquirySheet from './sections/EnquirySheet'
 import GuestContactPrompt from './sections/GuestContactPrompt'
 import LocationPrompt from './sections/LocationPrompt'
@@ -148,7 +148,7 @@ export default function StorePopups() {
         </Suspense>
         <EnquirySheet />
         <WelcomeCelebration />
-        <CallFab />
+        <HelpFab />
         <GuestContactPrompt t={t} />
         <LocationPrompt />
       </div>

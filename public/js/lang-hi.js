@@ -1704,7 +1704,15 @@ window.SB_LANG_HI = {
     'Shop Catalog': 'उत्पाद देखें',
     '100% Bio-Certified': '100% जैव-प्रमाणित',
     'Same-Day Dispatch': 'उसी दिन रवाना',
-    'WhatsApp Advisory': 'WhatsApp सलाह'
+    'WhatsApp Advisory': 'WhatsApp सलाह',
+    // 2026-10 update: new store pages and features.
+    'Help': 'मदद',
+    'How can we help?': 'हम कैसे मदद करें?',
+    'Send a crop photo for advice': 'सलाह के लिए फसल की फ़ोटो भेजें',
+    'Send an enquiry': 'पूछताछ भेजें',
+    'Price, stock or crop problem': 'कीमत, स्टॉक या फसल की समस्या',
+    'Chat assistant': 'चैट सहायक',
+    'Quick answers, any time': 'कभी भी झटपट जवाब'
   },
 
   patterns: [

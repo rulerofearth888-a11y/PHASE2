@@ -228,12 +228,13 @@ export default function SoilTestReport() {
 
   return (
     <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 16px 80px' }}>
-      {/* Top Banner */}
+      {/* Top Banner (phones: compact, actions first - index.css "Phase 2 page heroes") */}
       <div
+        className="p2-hero"
         style={{
           background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)',
           borderRadius: 20,
-          padding: '36px 32px',
+          '--p2-hero-pad': '36px 32px',
           color: '#fff',
           boxShadow: '0 12px 36px rgba(4, 120, 87, 0.25)',
           marginBottom: 24,
@@ -241,18 +242,18 @@ export default function SoilTestReport() {
           overflow: 'hidden'
         }}
       >
-        <div style={{ position: 'relative', zIndex: 2, maxWidth: 780 }}>
+        <div className="p2-hero-inner" style={{ position: 'relative', zIndex: 2, maxWidth: 780 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)', padding: '4px 12px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 700, marginBottom: 12 }}>
             <Sparkles size={14} /> AI-Powered Soil Lab &amp; Crop Prescription Engine
           </div>
-          <h1 style={{ margin: '0 0 10px', fontSize: '2.1rem', fontWeight: 900, lineHeight: 1.2 }}>
+          <h1 className="p2-hero-title" style={{ margin: '0 0 10px', '--p2-title-size': '2.1rem', fontWeight: 900, lineHeight: 1.2 }}>
             Soil Test Report &amp; Crop Advisory
           </h1>
-          <p style={{ margin: 0, fontSize: '0.98rem', opacity: 0.92, lineHeight: 1.6 }}>
+          <p className="p2-hero-text" style={{ margin: 0, '--p2-text-size': '0.98rem', opacity: 0.92, lineHeight: 1.6 }}>
             Upload your laboratory Soil Health Card or test metrics. Our agronomic engine provides <strong>accurate crop suitability suggestions</strong>, detailed <strong>pre-measures for target crops</strong>, and required <strong>soil amendments to buy</strong>.
           </p>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 20 }}>
+          <div className="p2-hero-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 20 }}>
             <button
               type="button"
               onClick={handleOpenSubmitModal}
