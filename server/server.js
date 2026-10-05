@@ -16,6 +16,7 @@ import Razorpay from 'razorpay';
 import { db, connectDB, newId, STAFF_ROLES } from './db.js';
 import { productNameKey } from '../src/shared/productName.js';
 import { createProductTranslator, applyCorrection } from './productTranslate.js';
+import { checkAssignment, adminCanSeeTicket, suggestStore, ticketDistrict, STORE_STAFF_ROLES } from './ticketRouting.js';
 import adminRoutes from './adminRoutes.js';
 import superadminRoutes from './superadminRoutes.js';
 import { buildOtpMessage, buildResetOtpMessage, buildPasswordChangedMessage, forgetOtpLayout, otpBannerUrl } from './otpTemplates.js';
@@ -3198,11 +3199,12 @@ function ownsRecord(user, record) {
   return Boolean(phone && record.phone && normalizePhone(record.phone) === phone);
 }
 
-// Admins see every ticket; employees see tickets assigned to them plus the
-// unassigned queue; delivery/billing staff only tickets assigned to them;
-// farmers only their own.
+// Super Admin and head-office admins see every ticket, a store admin their
+// store's (server/ticketRouting.js); employees see tickets assigned to them
+// plus the unassigned queue; delivery/billing staff only tickets assigned to
+// them; farmers only their own.
 function canSeeTicket(user, ticket) {
-  if (user.role === 'superadmin' || user.role === 'admin') return true;
+  if (user.role === 'superadmin' || user.role === 'admin') return adminCanSeeTicket(user, ticket);
   if (user.role === 'employee') return !ticket.assignedToId || ticket.assignedToId === user.id;
   if (TICKET_STAFF_ROLES.includes(user.role)) return ticket.assignedToId === user.id;
   return ownsRecord(user, ticket);
@@ -3272,23 +3274,80 @@ app.post('/api/tickets', async (req, res) => {
   }
 });
 
+// Who a ticket can go to, for the assign controls. Super Admin: every active
+// store with its admins, plus the store suggested by the farmer's delivery
+// district (null when no store covers it). A store admin: their own store's
+// employees, delivery and billing staff.
+app.get('/api/tickets/:id/assign-options', requireAuth('admin'), ticketModule, async (req, res) => {
+  try {
+    const ticket = await db.getTicketById(req.params.id);
+    if (!ticket || !canSeeTicket(req.user, ticket)) return res.status(404).json({ success: false, message: 'Ticket not found' });
+    const person = u => ({ id: u.id, name: u.name, role: u.role, designation: u.profile?.designation || '' });
+    const activeStaff = u => u.status !== 'inactive' && u.status !== 'suspended';
+
+    if (req.user.role === 'superadmin') {
+      const [stores, staff, order] = await Promise.all([
+        db.getStores(),
+        db.listStaffProfiles({}),
+        ticket.orderId ? db.getOrderById(ticket.orderId).catch(() => null) : null,
+      ]);
+      const active = stores.filter(st => (st.status || 'active') === 'active');
+      const district = ticketDistrict(order);
+      const suggested = suggestStore(district, active);
+      return res.json({ success: true, data: {
+        mode: 'stores',
+        district,
+        suggestedStoreId: suggested?.id || null,
+        currentStoreId: ticket.storeId || null,
+        stores: active.map(st => ({
+          id: st.id, name: st.name, location: st.location || '',
+          admins: staff.filter(u => u.role === 'admin' && u.storeId === st.id && activeStaff(u)).map(person),
+        })),
+      } });
+    }
+
+    if (!req.user.storeId || ticket.storeId !== req.user.storeId) {
+      return res.json({ success: true, data: { mode: 'none', staff: [] } });
+    }
+    const staff = await db.listStaffProfiles({ storeId: req.user.storeId });
+    res.json({ success: true, data: {
+      mode: 'staff',
+      staff: staff.filter(u => STORE_STAFF_ROLES.includes(u.role) && activeStaff(u)).map(person),
+    } });
+  } catch (err) {
+    sendError(res, err, 'Ticket assign options');
+  }
+});
+
+// Super Admin assigns a ticket to an admin of the store it belongs to; a
+// store admin hands their store's ticket to their own staff. The rules are in
+// server/ticketRouting.js; the store and the staff are always re-read here,
+// never taken from the request.
 app.put('/api/tickets/:id/assign', requireAuth('admin'), ticketModule, async (req, res) => {
   try {
     const ticket = await db.getTicketById(req.params.id);
-    if (!ticket) return res.status(404).json({ success: false, message: 'Ticket not found' });
-    const staff = await findStaff(req.body?.assignedToId);
-    if (!staff) return res.status(400).json({ success: false, message: 'Choose a staff member to assign.' });
+    if (!ticket || !canSeeTicket(req.user, ticket)) return res.status(404).json({ success: false, message: 'Ticket not found' });
+    const staffId = req.body?.assignedToId ? String(req.body.assignedToId) : '';
+    const staff = staffId ? await db.getUserById(staffId) : null;
+    const store = req.user.role === 'superadmin' && req.body?.storeId ? await db.getStoreById(String(req.body.storeId)) : null;
+    const verdict = checkAssignment({ actor: req.user, ticket, staff, store });
+    if (!verdict.ok) return res.status(verdict.status).json({ success: false, message: verdict.message });
 
+    const storeName = store?.name || ticket.storeName || '';
+    const now = new Date().toISOString();
     await db.updateTicket(ticket.id, {
+      storeId: verdict.storeId,
+      storeName,
       assignedToId: staff.id,
       assignedToName: staff.name,
       assignedRole: staff.role,
-      assignedAt: new Date().toISOString(),
+      assignedAt: now,
       status: ticket.status === 'Open' ? 'In Progress' : ticket.status,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
     });
+    const where = storeName ? ` (${storeName})` : '';
     const updated = await db.addTicketReply(ticket.id, makeReply('System', 'system',
-      `Ticket assigned to ${staff.name} (${staff.role.toUpperCase()}) by ${req.user.name}.`));
+      `Ticket assigned to ${staff.name} (${staff.role.toUpperCase()})${where} by ${req.user.name}.`));
     res.json({ success: true, message: 'Ticket assigned successfully', data: updated });
   } catch (err) {
     sendError(res, err, 'Assign ticket');

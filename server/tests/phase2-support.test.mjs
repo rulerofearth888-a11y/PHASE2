@@ -25,7 +25,9 @@ console.error = () => {};
 const people = [
   { id: 'U-ADMIN', name: 'Asha', role: 'admin', status: 'active', password: 'h' },
   { id: 'U-NOTIX', name: 'Nila', role: 'admin', status: 'active', password: 'h', permissions: ['orders'] },
-  { id: 'U-EMP', name: 'Karthik', role: 'employee', status: 'active', password: 'h' },
+  { id: 'U-SUPER', name: 'Owner', role: 'superadmin', status: 'active', password: 'h' },
+  { id: 'U-SADMIN', name: 'Meena', role: 'admin', status: 'active', password: 'h', storeId: 'STR-A' },
+  { id: 'U-EMP', name: 'Karthik', role: 'employee', status: 'active', password: 'h', storeId: 'STR-A' },
   { id: 'U-EMP2', name: 'Priya', role: 'employee', status: 'active', password: 'h' },
   { id: 'U-VAN', name: 'Ravi', role: 'delivery', status: 'active', password: 'h' },
   { id: 'U-F1', name: 'Farmer One', role: 'farmer', status: 'active', password: 'h', phone: '9000000001' },
@@ -51,6 +53,7 @@ Object.assign(db, {
   kvClaimSlot: async () => 0,
   kvIncrement: async () => 1,
   getUserById: async (id) => byId.get(id) ?? null,
+  getStoreById: async (id) => (id === 'STR-A' ? { id: 'STR-A', name: 'Coimbatore Branch', location: 'Coimbatore', status: 'active' } : null),
   getTickets: async () => [...tickets.values()].map(clone),
   getTicketById: async (id) => clone(tickets.get(id)),
   addTicket: async (t) => { tickets.set(t.id, clone(t)); return clone(t); },
@@ -123,13 +126,25 @@ test('tickets: a reply\'s sender is the signed-in account', async () => {
   assert.equal(last.senderName, 'Farmer One');
 });
 
-test('tickets: only admins assign, and only to real staff; farmers cannot change status', async () => {
+test('tickets: Super Admin assigns to the store admin, who hands it to their own staff; farmers cannot change status', async () => {
   const t = [...tickets.values()].find((x) => x.userId === 'U-F2');
-  assert.equal((await call('U-EMP', 'PUT', `/api/tickets/${t.id}/assign`, { assignedToId: 'U-EMP' })).status, 403);
-  assert.equal((await call('U-ADMIN', 'PUT', `/api/tickets/${t.id}/assign`, { assignedToId: 'U-F1' })).status, 400);
-  const ok = await call('U-ADMIN', 'PUT', `/api/tickets/${t.id}/assign`, { assignedToId: 'U-EMP', assignedToName: 'Spoofed' });
+  const assign = (who, body) => call(who, 'PUT', `/api/tickets/${t.id}/assign`, body);
+  assert.equal((await assign('U-EMP', { assignedToId: 'U-EMP' })).status, 403);
+  // Only the Super Admin sends a ticket to a store; a head-office admin cannot.
+  assert.equal((await assign('U-ADMIN', { assignedToId: 'U-SADMIN', storeId: 'STR-A' })).status, 403);
+  assert.equal((await assign('U-SUPER', { assignedToId: 'U-SADMIN' })).status, 400);              // no store chosen
+  assert.equal((await assign('U-SUPER', { assignedToId: 'U-EMP', storeId: 'STR-A' })).status, 400); // not an admin
+  assert.equal((await assign('U-SUPER', { assignedToId: 'U-ADMIN', storeId: 'STR-A' })).status, 400); // not this store's admin
+  const toStore = await assign('U-SUPER', { assignedToId: 'U-SADMIN', storeId: 'STR-A', assignedToName: 'Spoofed' });
+  assert.equal(toStore.status, 200);
+  assert.equal(toStore.body.data.assignedToName, 'Meena');
+  assert.equal(toStore.body.data.storeId, 'STR-A');
+  // The store admin hands it on, but only inside their own store.
+  assert.equal((await assign('U-SADMIN', { assignedToId: 'U-VAN' })).status, 400);
+  const ok = await assign('U-SADMIN', { assignedToId: 'U-EMP', assignedToName: 'Spoofed' });
   assert.equal(ok.status, 200);
   assert.equal(ok.body.data.assignedToName, 'Karthik');
+  assert.equal(ok.body.data.storeId, 'STR-A');
   assert.equal((await call('U-F2', 'PUT', `/api/tickets/${t.id}/status`, { status: 'Resolved' })).status, 403);
   assert.equal((await call('U-ADMIN', 'PUT', `/api/tickets/${t.id}/status`, { status: 'Bogus' })).status, 400);
 });

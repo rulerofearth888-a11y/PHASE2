@@ -13067,3 +13067,43 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-titl
     display: none;
   }
 }
+
+/* ---- Ticket assignment (components/tickets/TicketAssignControls.jsx) ----
+   Super Admin: the ticket's store, then one of its admins. Store admin: their
+   own staff. Staff portals only (English). */
+.tkt-assign { display: grid; gap: 6px; }
+.tkt-assign-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tkt-assign-row { display: flex; gap: 8px; }
+.tkt-assign-select {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.84rem;
+}
+.tkt-assign-select:disabled { background: #f1f5f9; color: #94a3b8; }
+.tkt-assign-btn {
+  flex: none;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tkt-assign-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.tkt-assign-btn:focus-visible, .tkt-assign-select:focus-visible { outline: 3px solid rgba(124, 58, 237, 0.35); outline-offset: 2px; }
+.tkt-assign-note { margin: 0 0 4px; font-size: 0.78rem; color: #64748b; line-height: 1.4; }
+.tkt-assign-note.is-ok { color: #15803d; }
+.tkt-assign-note.is-warn { color: #b45309; }
+.tkt-assign.is-compact .tkt-assign-btn { background: #16a34a; }

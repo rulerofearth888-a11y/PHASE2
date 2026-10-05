@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import axios from 'axios'
 import { toast } from 'sonner'
 import {
   Ticket,
@@ -24,11 +23,11 @@ import {
 } from 'lucide-react'
 import { ticketService } from '../../services/ticketService'
 import { useAuth } from '../../context/AuthContext'
+import TicketAssignControls from '../../components/tickets/TicketAssignControls'
 
 export default function SupportTicketSystem() {
   const { user } = useAuth()
   const [tickets, setTickets] = useState([])
-  const [staffList, setStaffList] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedTicket, setSelectedTicket] = useState(null)
 
@@ -40,28 +39,10 @@ export default function SupportTicketSystem() {
 
   // Assignment Modal / Controls
   const [showAssignModal, setShowAssignModal] = useState(false)
-  const [selectedStaffId, setSelectedStaffId] = useState('')
-  const [assigning, setAssigning] = useState(false)
 
   // Reply state
   const [adminReply, setAdminReply] = useState('')
   const [sendingReply, setSendingReply] = useState(false)
-
-  // Load staff profiles from backend
-  const loadStaff = useCallback(async () => {
-    try {
-      const res = await axios.get('/api/admin/staff-profiles').catch(() => null)
-      if (res?.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-        const mapped = res.data.data.map(s => ({
-          id: s.id || s._id,
-          name: s.name,
-          role: s.role,
-          designation: s.profile?.designation || (s.role === 'admin' ? 'Store Administrator' : 'Operations Employee')
-        }))
-        setStaffList(mapped)
-      }
-    } catch {}
-  }, [])
 
   // Load tickets
   // Read the selection through a ref so loadTickets stays stable; depending
@@ -89,47 +70,12 @@ export default function SupportTicketSystem() {
   }, [])
 
   useEffect(() => {
-    loadStaff()
     loadTickets()
 
     const handleUpdate = () => loadTickets()
     window.addEventListener('sathyam:tickets-updated', handleUpdate)
     return () => window.removeEventListener('sathyam:tickets-updated', handleUpdate)
-  }, [loadStaff, loadTickets])
-
-  // Perform Assignment
-  const handleAssignTicket = async () => {
-    if (!selectedTicket || !selectedStaffId) {
-      toast.error('Please select a staff member to assign this ticket')
-      return
-    }
-
-    const targetStaff = staffList.find(s => s.id === selectedStaffId)
-    if (!targetStaff) return
-
-    setAssigning(true)
-    try {
-      const updated = await ticketService.assignTicket(selectedTicket.id, {
-        assignedToId: targetStaff.id,
-        assignedToName: targetStaff.name,
-        assignedRole: targetStaff.role,
-        assignedBy: 'Super Admin'
-      })
-
-      toast.success(`Ticket ${selectedTicket.id} assigned to ${targetStaff.name} (${targetStaff.role})!`, {
-        description: `This ticket will now be monitored by ${targetStaff.name} and store admins.`
-      })
-
-      setSelectedTicket(updated)
-      setShowAssignModal(false)
-      setSelectedStaffId('')
-      await loadTickets()
-    } catch {
-      toast.error('Failed to assign ticket')
-    } finally {
-      setAssigning(false)
-    }
-  }
+  }, [loadTickets])
 
   // Update Status
   const handleStatusChange = async (newStatus) => {
@@ -514,56 +460,8 @@ export default function SupportTicketSystem() {
                 </strong>
               </div>
 
-              {/* Assignment Form Controls */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <select
-                  value={selectedStaffId}
-                  onChange={e => setSelectedStaffId(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    border: '1px solid #c084fc',
-                    fontSize: '0.82rem',
-                    background: '#fff'
-                  }}
-                >
-                  <option value="">-- Choose Admin or Employee --</option>
-                  <optgroup label="Store Administrators">
-                    {staffList.filter(s => s.role === 'admin').map(s => (
-                      <option key={s.id} value={s.id}>
-                        👑 {s.name} ({s.designation})
-                      </option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Agronomy & Operations Employees">
-                    {staffList.filter(s => s.role === 'employee').map(s => (
-                      <option key={s.id} value={s.id}>
-                        👨‍🌾 {s.name} ({s.designation})
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-
-                <button
-                  type="button"
-                  onClick={handleAssignTicket}
-                  disabled={!selectedStaffId || assigning}
-                  style={{
-                    background: '#7c3aed',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 6,
-                    padding: '8px 14px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {assigning ? 'Assigning...' : 'Assign'}
-                </button>
-              </div>
+              {/* Store first, then one of that store's admins (TicketAssignControls). */}
+              <TicketAssignControls ticket={selectedTicket} onAssigned={updated => { if (updated) setSelectedTicket(updated); loadTickets() }} />
             </div>
 
             {/* Quick Status Setter */}
@@ -686,59 +584,17 @@ export default function SupportTicketSystem() {
               Assign Ticket {selectedTicket.id}
             </h3>
             <p style={{ margin: '0 0 16px', fontSize: '0.82rem', color: '#64748b' }}>
-              Select an Admin or Employee to take ownership. They will be notified and can monitor this ticket in their portal.
+              Choose the store this ticket belongs to, then one of that store's admins. They see it in their portal and can hand it to their own staff.
             </p>
 
-            <div style={{ marginBottom: 18 }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#334155', marginBottom: 6 }}>
-                Assign to Personnel:
-              </label>
-              <select
-                value={selectedStaffId}
-                onChange={e => setSelectedStaffId(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
-              >
-                <option value="">-- Choose Staff Member --</option>
-                <optgroup label="Admins">
-                  {staffList.filter(s => s.role === 'admin').map(s => (
-                    <option key={s.id} value={s.id}>
-                      👑 {s.name} ({s.designation})
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="Employees (Agronomists &amp; QC)">
-                  {staffList.filter(s => s.role === 'employee').map(s => (
-                    <option key={s.id} value={s.id}>
-                      👨‍🌾 {s.name} ({s.designation})
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <TicketAssignControls ticket={selectedTicket} onAssigned={updated => { if (updated) setSelectedTicket(updated); setShowAssignModal(false); loadTickets() }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
               <button
                 type="button"
                 onClick={() => setShowAssignModal(false)}
                 style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', cursor: 'pointer' }}
               >
                 Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleAssignTicket}
-                disabled={!selectedStaffId || assigning}
-                style={{
-                  background: '#7c3aed',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 6,
-                  padding: '8px 18px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                {assigning ? 'Confirming...' : 'Confirm Assignment'}
               </button>
             </div>
           </div>

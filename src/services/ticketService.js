@@ -30,9 +30,10 @@ export const ticketService = {
     return ticket
   },
 
-  // Admin / Super Admin assign a ticket to a staff member
-  async assignTicket(ticketId, { assignedToId }) {
-    const res = await axios.put(`/api/tickets/${encodeURIComponent(ticketId)}/assign`, { assignedToId })
+  // Super Admin assigns to an admin of the ticket's store (storeId); a store
+  // admin hands it to their own staff. Rules: server/ticketRouting.js.
+  async assignTicket(ticketId, { assignedToId, storeId }) {
+    const res = await axios.put(`/api/tickets/${encodeURIComponent(ticketId)}/assign`, { assignedToId, storeId })
     const ticket = unwrap(res, 'Could not assign ticket')
     notifyUpdated(ticket)
     return ticket

@@ -1,14 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { MessageSquare, Clock, User, AlertCircle, CheckCircle, Hourglass, X, UserCheck, Send, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
-import axios from 'axios'
 import { ticketService } from '../../services/ticketService'
 import { useAuth } from '../../context/AuthContext'
+import TicketAssignControls from '../../components/tickets/TicketAssignControls'
 
 export default function SupportTickets() {
   const { user } = useAuth()
   const [tickets, setTickets] = useState([])
-  const [employees, setEmployees] = useState([])
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
@@ -16,26 +15,8 @@ export default function SupportTickets() {
   const [loading, setLoading] = useState(true)
 
   // Assignment & reply
-  const [assigneeId, setAssigneeId] = useState('')
   const [replyText, setReplyText] = useState('')
   const [submittingReply, setSubmittingReply] = useState(false)
-
-  // Load employees
-  const loadEmployees = useCallback(async () => {
-    try {
-      const res = await axios.get('/api/admin/staff-profiles').catch(() => null)
-      if (res?.data?.data && Array.isArray(res.data.data)) {
-        const emps = res.data.data
-          .filter(u => u.role === 'employee')
-          .map(u => ({
-            id: u.id || u._id,
-            name: u.name,
-            designation: u.profile?.designation || 'Operations Staff'
-          }))
-        setEmployees(emps)
-      }
-    } catch {}
-  }, [])
 
   // Load tickets
   // Read the selection through a ref so loadTickets stays stable; depending
@@ -63,13 +44,12 @@ export default function SupportTickets() {
   }, [])
 
   useEffect(() => {
-    loadEmployees()
     loadTickets()
 
     const onUpdate = () => loadTickets()
     window.addEventListener('sathyam:tickets-updated', onUpdate)
     return () => window.removeEventListener('sathyam:tickets-updated', onUpdate)
-  }, [loadEmployees, loadTickets])
+  }, [loadTickets])
 
   const filtered = tickets.filter(t => {
     const status = (t.status || 'open').toLowerCase()
@@ -127,28 +107,6 @@ export default function SupportTickets() {
       await loadTickets()
     } catch {
       toast.error('Failed to update status')
-    }
-  }
-
-  // Admin assign ticket to employee
-  const handleAssignToEmployee = async () => {
-    if (!selectedTicket || !assigneeId) return
-    const emp = employees.find(e => e.id === assigneeId)
-    if (!emp) return
-
-    try {
-      const updated = await ticketService.assignTicket(selectedTicket.id, {
-        assignedToId: emp.id,
-        assignedToName: emp.name,
-        assignedRole: 'employee',
-        assignedBy: user?.name || 'Store Admin'
-      })
-      toast.success(`Assigned ticket to ${emp.name}`)
-      setSelectedTicket(updated)
-      setAssigneeId('')
-      await loadTickets()
-    } catch {
-      toast.error('Could not assign employee')
     }
   }
 
@@ -334,33 +292,13 @@ export default function SupportTickets() {
               {/* ASSIGN TO EMPLOYEE (Admin Action) */}
               <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <UserCheck size={14} /> Assign / Delegate to Employee
+                  <UserCheck size={14} /> Hand to your store's staff
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 8 }}>
-                  Currently Assigned: <strong>{selectedTicket.assignedToName || 'Unassigned'}</strong>
+                  Store: <strong>{selectedTicket.storeName || 'Not assigned to a store yet'}</strong> · Currently assigned: <strong>{selectedTicket.assignedToName || 'Unassigned'}</strong>
                 </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <select
-                    value={assigneeId}
-                    onChange={e => setAssigneeId(e.target.value)}
-                    style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#fff' }}
-                  >
-                    <option value="">-- Choose Employee --</option>
-                    {employees.map(emp => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.name} ({emp.designation})
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={handleAssignToEmployee}
-                    disabled={!assigneeId}
-                    style={{ background: '#16a34a', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    Assign
-                  </button>
-                </div>
+                {/* Own store's staff only; tickets reach a store from the Super Admin. */}
+                <TicketAssignControls ticket={selectedTicket} compact onAssigned={updated => { if (updated) setSelectedTicket(updated); loadTickets() }} />
               </div>
 
               {/* Status Update Buttons */}
