@@ -177,7 +177,7 @@ window.SB_LANG_HI = {
 
     // Header & navigation
     'Categories': 'श्रेणियाँ',
-    'Shop by Crop': 'फसल के अनुसार खरीदें',
+    'Shop by Crop': 'फसल अनुसार',
     'Brands': 'ब्रांड',
     'Soil Analyzer': 'मिट्टी विश्लेषण',
     'Support Tickets': 'सहायता अनुरोध',

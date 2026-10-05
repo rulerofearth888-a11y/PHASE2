@@ -3936,9 +3936,16 @@ body.sb-home-active {
     display: none !important;
   }
 
-  /* Compact 2-Column Categories & Crops Grid */
+  /* Categories & crops: one swipeable row each, so the products are reached
+     in about two screens instead of three-plus (each grid used ~600px). */
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-grid-3 {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: 47%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
     gap: 10px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-card {
@@ -3964,8 +3971,20 @@ body.sb-home-active {
   }
 
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-grid-4 {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: none !important;
+    grid-auto-flow: column;
+    grid-auto-columns: 38%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
     gap: 10px !important;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#categoriesSection .bento-grid-3, #cropSection .bento-grid-4)::-webkit-scrollbar {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#categoriesSection, #cropSection) .bento-card {
+    scroll-snap-align: start;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #cropSection .bento-card {
     height: 105px !important;
@@ -4385,9 +4404,17 @@ body.sb-home-active {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
+  /* Stats: one swipeable row (the 2-column block was ~360px tall). */
   :is(body.sb-home-active .sb-home, .sb-portal) .stats-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     gap: 14px !important;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-grid > .stat-item {
+    flex: 0 0 46%;
+    scroll-snap-align: start;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .stat-divider {
     display: none !important;
@@ -4427,8 +4454,10 @@ body.sb-home-active {
   :is(body.sb-home-active .sb-home, .sb-portal) .category-circles-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+  /* Trust badges 2 x 2 (one column of four took ~320px). */
   :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .section {
     padding-top: 24px;
@@ -8557,10 +8586,11 @@ html.sb-scroll-lock.sb-scroll-lock-gutter {
   outline: var(--co-focus);
   outline-offset: 2px;
 }
+/* The title takes focus when the sheet opens, so screen readers announce it.
+   It is not a control, so no ring (it showed as a stray box round the title). */
+.sb-portal #checkoutSheet .co-title:focus,
 .sb-portal #checkoutSheet .co-title:focus-visible {
-  outline: var(--co-focus);
-  outline-offset: 4px;
-  border-radius: 6px;
+  outline: none;
 }
 .sb-portal #checkoutSheet .co-sr {
   position: absolute;
@@ -10999,10 +11029,36 @@ html.sb-loc-lock {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  /* "Track order" runs about twice as long in these scripts; the search box
-     gives up the difference so the basket stays inside the bar. */
-  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .header-search {
-    min-width: 150px;
+  /* The search box is the bar's most used control: it keeps room for a
+     query (it was squeezed to "Sea..." in Tamil). Below 1440px Track order
+     shows its truck icon only; its label stays for screen readers and as a
+     tooltip. */
+  :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .header-search {
+    min-width: 240px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .action-track .action-track-icon {
+    display: none;
+    color: var(--primary-dark, #0b4630);
+    font-size: 0.95rem;
+  }
+  @media (max-width: 1439px) {
+    :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .action-track {
+      width: 40px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 999px;
+    }
+    :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .action-track .action-track-icon {
+      display: inline-block;
+    }
+    :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .action-track .action-title {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
   }
   html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .sb-header-shell .action-track .action-title {
     font-size: 0.74rem;
@@ -13592,8 +13648,13 @@ body.poster-open .sb-portal .help-fab {
    ("பூஞ்சைக்கொல்லிகள்") and broke mid-word in the 2-column cards. */
 @media (max-width: 768px) {
   html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-title {
-    --cat-title-size: 0.8rem;
+    --cat-title-size: 0.72rem;
     overflow-wrap: normal;
+  }
+  /* The swipe row's cards: a little wider than English so the longest name
+     ("நூற்புழுக்கொல்லிகள்", ~150px at 0.72rem) fits. */
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-grid-3 {
+    grid-auto-columns: 49%;
   }
 }
 
@@ -13749,4 +13810,9 @@ body.poster-open .sb-portal .help-fab {
   html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .nav-scan-btn {
     padding-inline: 12px;
   }
+}
+
+/* Track order truck icon: desktop header only (see the >=1025px block). */
+:is(body.sb-home-active .sb-home, .sb-portal) .action-track-icon {
+  display: none;
 }

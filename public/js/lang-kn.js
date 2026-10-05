@@ -177,7 +177,7 @@ window.SB_LANG_KN = {
 
     // Header & navigation
     'Categories': 'ವಿಭಾಗಗಳು',
-    'Shop by Crop': 'ಬೆಳೆಯ ಪ್ರಕಾರ ಖರೀದಿಸಿ',
+    'Shop by Crop': 'ಬೆಳೆವಾರು',
     'Brands': 'ಬ್ರ್ಯಾಂಡ್‌ಗಳು',
     'Soil Analyzer': 'ಮಣ್ಣು ವಿಶ್ಲೇಷಣೆ',
     'Support Tickets': 'ಸಹಾಯ ವಿನಂತಿಗಳು',

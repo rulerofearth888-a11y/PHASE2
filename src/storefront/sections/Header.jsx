@@ -182,7 +182,8 @@ export const Header = memo(function Header(props) {
 
         <div className="header-actions">
 
-          <div className="action-item action-track" onClick={() => goTo('/orders')} role="button" tabIndex={0}>
+          <div className="action-item action-track" onClick={() => goTo('/orders')} role="button" tabIndex={0} title="Track order">
+            <i className="fa-solid fa-truck-fast action-track-icon" aria-hidden="true"></i>
             <span className="action-title">Track order</span>
           </div>
 

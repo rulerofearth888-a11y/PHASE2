@@ -128,7 +128,7 @@ window.SB_LANG_TA = {
 
     // Header & navigation
     'Categories': 'வகைகள்',
-    'Shop by Crop': 'பயிர் வாரியாக வாங்க',
+    'Shop by Crop': 'பயிர் வாரியாக',
     'Brands': 'பிராண்டுகள்',
     'Soil Analyzer': 'மண் ஆய்வு',
     'Support Tickets': 'உதவி கோரிக்கைகள்',

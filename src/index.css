@@ -12864,3 +12864,10 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
 }
 /* The Add/Checkout buttons now sit above the description: keep them apart. */
 .product-detail-actions + .product-detail-description { margin-top: 20px; }
+
+/* Desktop: the "FACTORY 2 FARMER" tag hangs below the header (to ~158px) and
+   sat over the top edge of these page banners. */
+@media (min-width: 1025px) {
+  .p2-hero { margin-top: 28px; }
+  .sb-blog-hero { margin-top: 16px; }
+}

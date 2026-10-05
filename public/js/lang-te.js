@@ -177,7 +177,7 @@ window.SB_LANG_TE = {
 
     // Header & navigation
     'Categories': 'వర్గాలు',
-    'Shop by Crop': 'పంట వారీగా కొనండి',
+    'Shop by Crop': 'పంట వారీగా',
     'Brands': 'బ్రాండ్‌లు',
     'Soil Analyzer': 'నేల విశ్లేషణ',
     'Support Tickets': 'సహాయ అభ్యర్థనలు',
