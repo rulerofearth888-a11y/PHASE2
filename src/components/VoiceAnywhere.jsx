@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { fillInput, speechLang, useVoiceInput, voiceSupported } from '../storefront/voice'
+import { translationFor } from '../storefront/i18n'
 import './voiceAnywhere.css'
 
 // Voice typing for every text field customers use - every store page and its
@@ -35,6 +36,8 @@ function voiceModeOf(el) {
 
 export default function VoiceAnywhere() {
   const { lang } = useLanguage()
+  // Tooltip and screen-reader label in the site language (the page walker skips attributes).
+  const label = key => translationFor(lang, key)
   const [target, setTarget] = useState(null) // { el, mode }
   const [box, setBox] = useState(null)
   const targetRef = useRef(null)
@@ -142,8 +145,8 @@ export default function VoiceAnywhere() {
       onMouseDown={event => event.preventDefault()}
       onClick={() => { if (!listening) baseRef.current = target.el.value || ''; toggle() }}
       aria-pressed={listening}
-      aria-label={listening ? 'Stop voice typing' : 'Speak to type'}
-      title={listening ? 'Listening... tap to stop' : 'Speak to type'}
+      aria-label={label(listening ? 'voice_stop' : 'voice_speak')}
+      title={label(listening ? 'voice_listening' : 'voice_speak')}
     >
       <i className={`fa-solid ${listening ? 'fa-stop' : 'fa-microphone'}`} aria-hidden="true"></i>
     </button>,

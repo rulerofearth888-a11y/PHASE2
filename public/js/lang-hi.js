@@ -7,8 +7,8 @@
 window.SB_LANG_HI = {
   keys: {
     topbar_shipping: '₹999 से ऊपर के ऑर्डर पर मुफ़्त डिलीवरी',
-    logo_sub: 'हमारे खेतों से आपके घर तक',
-    search_placeholder: 'फसल, रोग या दवा के नाम से खोजें...',
+    logo_sub: 'फ़ैक्टरी से किसान तक',
+    search_placeholder: 'फसल, रोग या दवा के नाम से खोजें, जैसे ब्लास्ट, धान...',
     search_btn: 'खोजें',
     basket_label: 'टोकरी',
     nav_all_products: 'सभी उत्पाद',
@@ -65,7 +65,13 @@ window.SB_LANG_HI = {
     showing_products: 'दिखाए जा रहे',
     of_products: '/',
     products_label: 'उत्पाद',
-    nav_ai_scanner: 'AI पत्ती डॉक्टर'
+    nav_ai_scanner: 'AI पत्ती डॉक्टर',
+    voice_speak: 'बोलकर लिखें',
+    voice_stop: 'बोलकर लिखना बंद करें',
+    voice_listening: 'सुन रहा है... रोकने के लिए टैप करें',
+    voice_search_btn: 'आवाज़ से खोजें',
+    voice_search: 'आवाज़ से खोजें',
+    voice_search_stop: 'आवाज़ से खोज बंद करें'
   },
 
   text: {
@@ -1688,7 +1694,17 @@ window.SB_LANG_HI = {
     'Grade A (Excellent Fertility': 'ग्रेड A (बेहतरीन उर्वरता',
     'Grade B (Good Fertility - Minor Adjustments Needed': 'ग्रेड B (अच्छी उर्वरता - थोड़े सुधार ज़रूरी',
     'Grade C (Moderate Fertility - Deficiencies Present': 'ग्रेड C (मध्यम उर्वरता - कमियाँ हैं',
-    'Grade D (Degraded - Immediate Care Required': 'ग्रेड D (खराब - तुरंत देखभाल ज़रूरी'
+    'Grade D (Degraded - Immediate Care Required': 'ग्रेड D (खराब - तुरंत देखभाल ज़रूरी',
+    // 2026-10 update: new store pages and features.
+    'India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers': 'बेहतरीन जैविक कीटनाशक, फसल सुरक्षा और कृषि सामग्री के लिए भारत का भरोसेमंद ठिकाना — 15,000+ किसानों का भरोसा',
+    'KHARIF SPECIAL: Flat 20% OFF on Bio-Fungicides + Farmer Helpline +91 87786 13372': 'खरीफ़ विशेष: जैविक फफूंदनाशकों पर सीधी 20% छूट + किसान हेल्पलाइन +91 87786 13372',
+    'Free Delivery on orders above ₹2999 | Use code KISAN20 for 20% off first order | Grow More. Protect Better. Farm Smarter | India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers | Get Weekly Crop & Pesticide Recommendations': '₹2999 से ऊपर के ऑर्डर पर मुफ़्त डिलीवरी | पहले ऑर्डर पर 20% छूट के लिए KISAN20 कोड लगाएँ | ज़्यादा उगाएँ। बेहतर बचाएँ। समझदारी से खेती करें | बेहतरीन जैविक कीटनाशक, फसल सुरक्षा और कृषि सामग्री के लिए भारत का भरोसेमंद ठिकाना — 15,000+ किसानों का भरोसा | हर हफ़्ते फसल और दवा की सलाह पाएँ',
+    'Get Weekly Crop & Pesticide Recommendations': 'हर हफ़्ते फसल और दवा की सलाह पाएँ',
+    'Join 20,000+ farmers receiving our free seasonal advisory newsletter. Kharif & Rabi crop schedules, disease alerts, and exclusive offers every week': 'हमारा मुफ़्त मौसमी सलाह न्यूज़लेटर पाने वाले 20,000+ किसानों से जुड़ें। खरीफ़ और रबी फसल कार्यक्रम, रोग चेतावनी और खास ऑफ़र हर हफ़्ते',
+    'Shop Catalog': 'उत्पाद देखें',
+    '100% Bio-Certified': '100% जैव-प्रमाणित',
+    'Same-Day Dispatch': 'उसी दिन रवाना',
+    'WhatsApp Advisory': 'WhatsApp सलाह'
   },
 
   patterns: [

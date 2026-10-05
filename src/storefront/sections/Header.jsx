@@ -15,7 +15,7 @@ import { catalogueVocabulary, spokenToCatalogQuery } from '../../shared/voiceSea
 const VOICE_NOT_FOUND = {
   en: 'no matching crop or product. Try a crop and a pest, e.g. "paddy blast".',
   ta: 'பொருந்தும் பயிர் அல்லது மருந்து இல்லை. பயிர் மற்றும் நோயைச் சொல்லுங்கள், எ.கா. "நெல் குலை நோய்".',
-  hi: 'कोई फसल या उत्पाद नहीं मिला। फसल और रोग बोलें, जैसे "धान झुलसा"।',
+  hi: 'कोई फसल या उत्पाद नहीं मिला। फसल और रोग बोलें, जैसे "धान ब्लास्ट"।',
   kn: 'ಹೊಂದುವ ಬೆಳೆ ಅಥವಾ ಉತ್ಪನ್ನ ಸಿಗಲಿಲ್ಲ. ಬೆಳೆ ಮತ್ತು ರೋಗ ಹೇಳಿ, ಉದಾ. "ಭತ್ತ ಬೆಂಕಿ ರೋಗ".',
   te: 'సరిపోయే పంట లేదా ఉత్పత్తి దొరకలేదు. పంట మరియు తెగులు చెప్పండి, ఉదా. "వరి అగ్గి తెగులు".',
 }
@@ -173,7 +173,7 @@ export const Header = memo(function Header(props) {
             onKeyDown={onSearchKey}
           />
           {voiceSupported && (
-            <button type="button" className={`voice-search-btn${voice.listening ? ' is-listening' : ''}`} title={voice.listening ? 'Listening... tap to stop' : 'Voice Search'} aria-label={voice.listening ? 'Stop voice search' : 'Voice search'} aria-pressed={voice.listening} onClick={voice.toggle}>
+            <button type="button" className={`voice-search-btn${voice.listening ? ' is-listening' : ''}`} title={t(voice.listening ? 'voice_listening' : 'voice_search_btn')} aria-label={t(voice.listening ? 'voice_search_stop' : 'voice_search')} aria-pressed={voice.listening} onClick={voice.toggle}>
               <i className={`fa-solid ${voice.listening ? 'fa-stop' : 'fa-microphone'}`} aria-hidden="true"></i>
             </button>
           )}

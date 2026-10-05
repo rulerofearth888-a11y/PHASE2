@@ -7,8 +7,8 @@
 window.SB_LANG_KN = {
   keys: {
     topbar_shipping: '₹999 ಮೇಲಿನ ಆರ್ಡರ್‌ಗಳಿಗೆ ಉಚಿತ ಡೆಲಿವರಿ',
-    logo_sub: 'ನಮ್ಮ ಹೊಲದಿಂದ ನಿಮ್ಮ ಮನೆಗೆ',
-    search_placeholder: 'ಬೆಳೆ, ರೋಗ ಅಥವಾ ಔಷಧದ ಹೆಸರಿನಲ್ಲಿ ಹುಡುಕಿ...',
+    logo_sub: 'ಕಾರ್ಖಾನೆಯಿಂದ ರೈತನಿಗೆ',
+    search_placeholder: 'ಬೆಳೆ, ರೋಗ ಅಥವಾ ಔಷಧದ ಹೆಸರಿನಿಂದ ಹುಡುಕಿ, ಉದಾ. ಬೆಂಕಿ ರೋಗ, ಭತ್ತ...',
     search_btn: 'ಹುಡುಕಿ',
     basket_label: 'ಬುಟ್ಟಿ',
     nav_all_products: 'ಎಲ್ಲಾ ಉತ್ಪನ್ನಗಳು',
@@ -65,7 +65,13 @@ window.SB_LANG_KN = {
     showing_products: 'ತೋರಿಸಲಾಗುತ್ತಿದೆ',
     of_products: '/',
     products_label: 'ಉತ್ಪನ್ನಗಳು',
-    nav_ai_scanner: 'AI ಎಲೆ ವೈದ್ಯ'
+    nav_ai_scanner: 'AI ಎಲೆ ವೈದ್ಯ',
+    voice_speak: 'ಮಾತನಾಡಿ ಟೈಪ್ ಮಾಡಿ',
+    voice_stop: 'ಧ್ವನಿ ಟೈಪಿಂಗ್ ನಿಲ್ಲಿಸಿ',
+    voice_listening: 'ಕೇಳುತ್ತಿದೆ... ನಿಲ್ಲಿಸಲು ಒತ್ತಿ',
+    voice_search_btn: 'ಧ್ವನಿ ಹುಡುಕಾಟ',
+    voice_search: 'ಧ್ವನಿ ಹುಡುಕಾಟ',
+    voice_search_stop: 'ಧ್ವನಿ ಹುಡುಕಾಟ ನಿಲ್ಲಿಸಿ'
   },
 
   text: {
@@ -1688,7 +1694,17 @@ window.SB_LANG_KN = {
     'Grade A (Excellent Fertility': 'ಶ್ರೇಣಿ A (ಅತ್ಯುತ್ತಮ ಫಲವತ್ತತೆ',
     'Grade B (Good Fertility - Minor Adjustments Needed': 'ಶ್ರೇಣಿ B (ಉತ್ತಮ ಫಲವತ್ತತೆ - ಸಣ್ಣ ಹೊಂದಾಣಿಕೆ ಬೇಕು',
     'Grade C (Moderate Fertility - Deficiencies Present': 'ಶ್ರೇಣಿ C (ಮಧ್ಯಮ ಫಲವತ್ತತೆ - ಕೊರತೆಗಳಿವೆ',
-    'Grade D (Degraded - Immediate Care Required': 'ಶ್ರೇಣಿ D (ಹದಗೆಟ್ಟಿದೆ - ತಕ್ಷಣ ಆರೈಕೆ ಬೇಕು'
+    'Grade D (Degraded - Immediate Care Required': 'ಶ್ರೇಣಿ D (ಹದಗೆಟ್ಟಿದೆ - ತಕ್ಷಣ ಆರೈಕೆ ಬೇಕು',
+    // 2026-10 update: new store pages and features.
+    'India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers': 'ಗುಣಮಟ್ಟದ ಜೈವಿಕ ಕೀಟನಾಶಕ, ಬೆಳೆ ರಕ್ಷಣೆ ಮತ್ತು ಕೃಷಿ ಸಾಮಗ್ರಿಗಳಿಗೆ ಭಾರತದ ವಿಶ್ವಾಸಾರ್ಹ ತಾಣ — 15,000+ ರೈತರ ನಂಬಿಕೆ',
+    'KHARIF SPECIAL: Flat 20% OFF on Bio-Fungicides + Farmer Helpline +91 87786 13372': 'ಮುಂಗಾರು ವಿಶೇಷ: ಜೈವಿಕ ಶಿಲೀಂಧ್ರನಾಶಕಗಳ ಮೇಲೆ 20% ರಿಯಾಯಿತಿ + ರೈತ ಸಹಾಯವಾಣಿ +91 87786 13372',
+    'Free Delivery on orders above ₹2999 | Use code KISAN20 for 20% off first order | Grow More. Protect Better. Farm Smarter | India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers | Get Weekly Crop & Pesticide Recommendations': '₹2999 ಮೇಲಿನ ಆರ್ಡರ್‌ಗಳಿಗೆ ಉಚಿತ ಡೆಲಿವರಿ | ಮೊದಲ ಆರ್ಡರ್‌ಗೆ 20% ರಿಯಾಯಿತಿಗೆ KISAN20 ಕೋಡ್ ಬಳಸಿ | ಹೆಚ್ಚು ಬೆಳೆಯಿರಿ. ಉತ್ತಮವಾಗಿ ರಕ್ಷಿಸಿ. ಜಾಣತನದಿಂದ ಕೃಷಿ ಮಾಡಿ | ಗುಣಮಟ್ಟದ ಜೈವಿಕ ಕೀಟನಾಶಕ, ಬೆಳೆ ರಕ್ಷಣೆ ಮತ್ತು ಕೃಷಿ ಸಾಮಗ್ರಿಗಳಿಗೆ ಭಾರತದ ವಿಶ್ವಾಸಾರ್ಹ ತಾಣ — 15,000+ ರೈತರ ನಂಬಿಕೆ | ವಾರದ ಬೆಳೆ & ಔಷಧ ಶಿಫಾರಸುಗಳನ್ನು ಪಡೆಯಿರಿ',
+    'Get Weekly Crop & Pesticide Recommendations': 'ವಾರದ ಬೆಳೆ & ಔಷಧ ಶಿಫಾರಸುಗಳನ್ನು ಪಡೆಯಿರಿ',
+    'Join 20,000+ farmers receiving our free seasonal advisory newsletter. Kharif & Rabi crop schedules, disease alerts, and exclusive offers every week': 'ನಮ್ಮ ಉಚಿತ ಹಂಗಾಮಿ ಸಲಹಾ ಸುದ್ದಿಪತ್ರ ಪಡೆಯುವ 20,000+ ರೈತರೊಂದಿಗೆ ಸೇರಿ. ಮುಂಗಾರು & ಹಿಂಗಾರು ಬೆಳೆ ವೇಳಾಪಟ್ಟಿ, ರೋಗ ಎಚ್ಚರಿಕೆ ಮತ್ತು ವಿಶೇಷ ಕೊಡುಗೆಗಳು ಪ್ರತಿ ವಾರ',
+    'Shop Catalog': 'ಉತ್ಪನ್ನಗಳನ್ನು ನೋಡಿ',
+    '100% Bio-Certified': '100% ಜೈವಿಕ ಪ್ರಮಾಣೀಕೃತ',
+    'Same-Day Dispatch': 'ಅದೇ ದಿನ ರವಾನೆ',
+    'WhatsApp Advisory': 'WhatsApp ಸಲಹೆ'
   },
 
   patterns: [

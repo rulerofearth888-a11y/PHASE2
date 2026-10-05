@@ -48,6 +48,13 @@ export const EN_KEYS = {
   of_products: 'of',
   products_label: 'products',
   nav_ai_scanner: 'AI Leaf Doctor',
+  // Mic buttons: tooltips and screen-reader labels (attributes the page walker skips).
+  voice_speak: 'Speak to type',
+  voice_stop: 'Stop voice typing',
+  voice_listening: 'Listening... tap to stop',
+  voice_search_btn: 'Voice Search',
+  voice_search: 'Voice search',
+  voice_search_stop: 'Stop voice search',
 }
 
 const TRANSLATIONS = { en: EN_KEYS }

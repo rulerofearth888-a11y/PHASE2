@@ -7,8 +7,8 @@
 window.SB_LANG_TE = {
   keys: {
     topbar_shipping: '₹999 పైబడిన ఆర్డర్‌లకు ఉచిత డెలివరీ',
-    logo_sub: 'మా పొలం నుండి మీ ఇంటికి',
-    search_placeholder: 'పంట, తెగులు లేదా మందు పేరుతో వెతకండి...',
+    logo_sub: 'ఫ్యాక్టరీ నుంచి రైతుకు',
+    search_placeholder: 'పంట, తెగులు లేదా మందు పేరుతో వెతకండి, ఉదా. అగ్గి తెగులు, వరి...',
     search_btn: 'వెతకండి',
     basket_label: 'బుట్ట',
     nav_all_products: 'అన్ని ఉత్పత్తులు',
@@ -65,7 +65,13 @@ window.SB_LANG_TE = {
     showing_products: 'చూపిస్తున్నవి',
     of_products: '/',
     products_label: 'ఉత్పత్తులు',
-    nav_ai_scanner: 'AI ఆకు వైద్యుడు'
+    nav_ai_scanner: 'AI ఆకు వైద్యుడు',
+    voice_speak: 'మాట్లాడి టైప్ చేయండి',
+    voice_stop: 'వాయిస్ టైపింగ్ ఆపండి',
+    voice_listening: 'వింటోంది... ఆపడానికి నొక్కండి',
+    voice_search_btn: 'వాయిస్ సెర్చ్',
+    voice_search: 'వాయిస్ సెర్చ్',
+    voice_search_stop: 'వాయిస్ సెర్చ్ ఆపండి'
   },
 
   text: {
@@ -1688,7 +1694,17 @@ window.SB_LANG_TE = {
     'Grade A (Excellent Fertility': 'గ్రేడ్ A (అద్భుతమైన సారం',
     'Grade B (Good Fertility - Minor Adjustments Needed': 'గ్రేడ్ B (మంచి సారం - చిన్న మార్పులు అవసరం',
     'Grade C (Moderate Fertility - Deficiencies Present': 'గ్రేడ్ C (మధ్యస్థ సారం - లోపాలు ఉన్నాయి',
-    'Grade D (Degraded - Immediate Care Required': 'గ్రేడ్ D (క్షీణించింది - వెంటనే జాగ్రత్త అవసరం'
+    'Grade D (Degraded - Immediate Care Required': 'గ్రేడ్ D (క్షీణించింది - వెంటనే జాగ్రత్త అవసరం',
+    // 2026-10 update: new store pages and features.
+    'India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers': 'నాణ్యమైన బయో పురుగుమందులు, పంట రక్షణ, వ్యవసాయ ఇన్‌పుట్‌లకు భారతదేశంలో నమ్మకమైన చోటు — 15,000+ రైతుల నమ్మకం',
+    'KHARIF SPECIAL: Flat 20% OFF on Bio-Fungicides + Farmer Helpline +91 87786 13372': 'ఖరీఫ్ ప్రత్యేకం: బయో శిలీంద్రనాశినులపై 20% తగ్గింపు + రైతు హెల్ప్‌లైన్ +91 87786 13372',
+    'Free Delivery on orders above ₹2999 | Use code KISAN20 for 20% off first order | Grow More. Protect Better. Farm Smarter | India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers | Get Weekly Crop & Pesticide Recommendations': '₹2999 పైన ఆర్డర్లకు ఉచిత డెలివరీ | మొదటి ఆర్డర్‌పై 20% తగ్గింపుకు KISAN20 కోడ్ వాడండి | ఎక్కువ పండించండి. బాగా రక్షించండి. తెలివిగా సాగు చేయండి | నాణ్యమైన బయో పురుగుమందులు, పంట రక్షణ, వ్యవసాయ ఇన్‌పుట్‌లకు భారతదేశంలో నమ్మకమైన చోటు — 15,000+ రైతుల నమ్మకం | వారపు పంట & మందుల సిఫార్సులు పొందండి',
+    'Get Weekly Crop & Pesticide Recommendations': 'వారపు పంట & మందుల సిఫార్సులు పొందండి',
+    'Join 20,000+ farmers receiving our free seasonal advisory newsletter. Kharif & Rabi crop schedules, disease alerts, and exclusive offers every week': 'మా ఉచిత కాలానుగుణ సలహా వార్తాలేఖ పొందే 20,000+ రైతులతో చేరండి. ఖరీఫ్ & రబీ పంట షెడ్యూళ్లు, తెగులు హెచ్చరికలు, ప్రత్యేక ఆఫర్లు ప్రతి వారం',
+    'Shop Catalog': 'ఉత్పత్తులు చూడండి',
+    '100% Bio-Certified': '100% బయో ధృవీకృతం',
+    'Same-Day Dispatch': 'అదే రోజు పంపిణీ',
+    'WhatsApp Advisory': 'WhatsApp సలహా'
   },
 
   patterns: [

@@ -14,8 +14,8 @@ window.SB_LANG_TA = {
   keys: {
     topbar_shipping: '₹999-க்கு மேல் ஆர்டர்களுக்கு இலவச டெலிவரி',
     // Short: on phones this sits under the brand name, beside the header buttons.
-    logo_sub: 'எங்கள் பண்ணைகளில் இருந்து உங்கள் வீட்டிற்கு',
-    search_placeholder: 'பயிர், நோய் அல்லது மருந்து பெயரில் தேடுங்கள்...',
+    logo_sub: 'தொழிற்சாலையிலிருந்து விவசாயிக்கு',
+    search_placeholder: 'பயிர், நோய் அல்லது மருந்து பெயரில் தேடுங்கள், எ.கா. குலை நோய், நெல்...',
     search_btn: 'தேடு',
     basket_label: 'கூடை',
     nav_all_products: 'அனைத்து பொருட்கள்',
@@ -75,7 +75,13 @@ window.SB_LANG_TA = {
     showing_products: 'காட்டப்படுவது',
     of_products: '/',
     products_label: 'பொருட்கள்',
-    nav_ai_scanner: 'AI இலை மருத்துவர்'
+    nav_ai_scanner: 'AI இலை மருத்துவர்',
+    voice_speak: 'பேசி உள்ளிடுங்கள்',
+    voice_stop: 'குரல் உள்ளீட்டை நிறுத்து',
+    voice_listening: 'கேட்கிறது... நிறுத்தத் தட்டுங்கள்',
+    voice_search_btn: 'குரல் தேடல்',
+    voice_search: 'குரல் தேடல்',
+    voice_search_stop: 'குரல் தேடலை நிறுத்து'
   },
 
   text: {
@@ -1715,7 +1721,17 @@ window.SB_LANG_TA = {
     'Grade A (Excellent Fertility': 'தரம் A (சிறந்த வளம்',
     'Grade B (Good Fertility - Minor Adjustments Needed': 'தரம் B (நல்ல வளம் - சிறு மாற்றங்கள் தேவை',
     'Grade C (Moderate Fertility - Deficiencies Present': 'தரம் C (மிதமான வளம் - குறைபாடுகள் உள்ளன',
-    'Grade D (Degraded - Immediate Care Required': 'தரம் D (சீரழிந்தது - உடனடிக் கவனம் தேவை'
+    'Grade D (Degraded - Immediate Care Required': 'தரம் D (சீரழிந்தது - உடனடிக் கவனம் தேவை',
+    // 2026-10 update: new store pages and features.
+    'India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers': 'தரமான உயிர்ப் பூச்சிக்கொல்லிகள், பயிர்ப் பாதுகாப்பு, வேளாண் இடுபொருட்களுக்கு இந்தியாவின் நம்பகமான இடம் — 15,000+ விவசாயிகளின் நம்பிக்கை',
+    'KHARIF SPECIAL: Flat 20% OFF on Bio-Fungicides + Farmer Helpline +91 87786 13372': 'காரிஃப் சிறப்பு: உயிர் பூஞ்சைக்கொல்லிகளுக்கு 20% தள்ளுபடி + விவசாயி உதவி எண் +91 87786 13372',
+    'Free Delivery on orders above ₹2999 | Use code KISAN20 for 20% off first order | Grow More. Protect Better. Farm Smarter | India\'s most trusted source for premium bio-pesticides, crop protection, and agro-inputs — trusted by 15,000+ farmers | Get Weekly Crop & Pesticide Recommendations': '₹2999-க்கு மேல் ஆர்டர்களுக்கு இலவச டெலிவரி | முதல் ஆர்டரில் 20% தள்ளுபடிக்கு KISAN20 குறியீட்டைப் பயன்படுத்துங்கள் | அதிகம் விளைவியுங்கள். சிறப்பாகப் பாதுகாருங்கள். புத்திசாலித்தனமாக விவசாயம் செய்யுங்கள் | தரமான உயிர்ப் பூச்சிக்கொல்லிகள், பயிர்ப் பாதுகாப்பு, வேளாண் இடுபொருட்களுக்கு இந்தியாவின் நம்பகமான இடம் — 15,000+ விவசாயிகளின் நம்பிக்கை | வாராந்திர பயிர் & மருந்துப் பரிந்துரைகளைப் பெறுங்கள்',
+    'Get Weekly Crop & Pesticide Recommendations': 'வாராந்திர பயிர் & மருந்துப் பரிந்துரைகளைப் பெறுங்கள்',
+    'Join 20,000+ farmers receiving our free seasonal advisory newsletter. Kharif & Rabi crop schedules, disease alerts, and exclusive offers every week': 'எங்கள் இலவசப் பருவகால ஆலோசனைச் செய்திமடலைப் பெறும் 20,000+ விவசாயிகளுடன் சேருங்கள். காரிஃப் & ராபி பயிர் அட்டவணைகள், நோய் எச்சரிக்கைகள், சிறப்புச் சலுகைகள் ஒவ்வொரு வாரமும்',
+    'Shop Catalog': 'பொருட்களைப் பாருங்கள்',
+    '100% Bio-Certified': '100% உயிர்ச் சான்று பெற்றது',
+    'Same-Day Dispatch': 'அதே நாளில் அனுப்புதல்',
+    'WhatsApp Advisory': 'WhatsApp ஆலோசனை'
   },
 
   patterns: [

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
 import { fillInput, speechLang, useVoiceInput, voiceSupported } from '../voice'
+import { translationFor } from '../i18n'
 
 // The mic at the right end of an input: tap, speak, and the words go into the
 // field with id `htmlFor` (see voice.js). mode: 'text' (Tamil or English, with
@@ -9,6 +10,8 @@ import { fillInput, speechLang, useVoiceInput, voiceSupported } from '../voice'
 // Its container needs the .has-voice class (room on the right; storefront.css 7n).
 export default function VoiceButton({ htmlFor, mode = 'text', disabled }) {
   const { lang } = useLanguage()
+  // Tooltip and screen-reader label in the site language (the page walker skips attributes).
+  const label = key => translationFor(lang, key)
   // What the field held when listening began: live words replace only themselves.
   const baseRef = useRef('')
   const put = heard => {
@@ -25,8 +28,8 @@ export default function VoiceButton({ htmlFor, mode = 'text', disabled }) {
       onClick={() => { if (!listening) baseRef.current = document.getElementById(htmlFor)?.value || ''; toggle() }}
       disabled={disabled}
       aria-pressed={listening}
-      aria-label={listening ? 'Stop voice typing' : 'Speak to type'}
-      title={listening ? 'Listening... tap to stop' : 'Speak to type'}
+      aria-label={label(listening ? 'voice_stop' : 'voice_speak')}
+      title={label(listening ? 'voice_listening' : 'voice_speak')}
     >
       <i className={`fa-solid ${listening ? 'fa-stop' : 'fa-microphone'}`} aria-hidden="true"></i>
     </button>
