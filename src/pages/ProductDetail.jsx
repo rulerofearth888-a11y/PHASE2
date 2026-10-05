@@ -11,6 +11,8 @@ import { SUPPORT_PHONE, telHref } from '../shared/phoneLink'
 import { WHATSAPP_EXPERT_URL } from '../storefront/data'
 import { packMrp, packPrice } from '../shared/packPricing'
 import { getYouTubeId, isHtml5Video } from '../shared/video'
+import { productText } from '../shared/productText'
+import { useLanguage } from '../context/LanguageContext'
 import { cacheWishlistIds, cacheWishlistItem, wishlistIdsFrom, wishlistVisitorId } from '../shared/wishlist'
 
 // Signed-in customers are identified by their token on the server. Guests get
@@ -20,6 +22,8 @@ const getWishlistIdentity = () => ({ visitorId: wishlistVisitorId() })
 export default function ProductDetail() {
   const { id } = useParams()
   const { cms } = useCms()
+  const { lang } = useLanguage()
+  const text = field => productText(product, field, lang)
   const navigate = useNavigate()
   const { addItem, startCheckout } = useCheckoutActions()
   const [product, setProduct] = useState(null)
@@ -191,7 +195,7 @@ export default function ProductDetail() {
         <div className="product-detail-summary">
           <div className="product-detail-heading-row"><span className="badge badge-green">{product.category}</span><button className={`product-detail-wishlist ${wishlisted ? 'active' : ''}`} onClick={toggleWishlist} aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}><Heart size={21} fill={wishlisted ? 'currentColor' : 'none'} /></button></div>
           <h1>{product.name}</h1>
-          <p className="product-detail-tagline">{product.tagline}</p>
+          <p className="product-detail-tagline">{text('tagline')}</p>
           <div className="product-detail-review-summary">
             {averageRating ? <><Star size={16} fill="currentColor" /> {averageRating} ({reviews.length} verified reviews)</> : 'No verified reviews yet'}
           </div>
@@ -226,10 +230,10 @@ export default function ProductDetail() {
             )}
           </div>}
 
-          <p className="product-detail-description">{product.detailedDescription || product.description}</p>
+          <p className="product-detail-description">{text('detailedDescription') || text('description')}</p>
           <div className="product-detail-facts">
             <div><strong>Active ingredient</strong><span>{product.activeIngredient || 'Not specified'}</span></div>
-            <div><strong>Dosage</strong><span>{product.dosage || 'Not specified'}</span></div>
+            <div><strong>Dosage</strong><span>{text('dosage') || 'Not specified'}</span></div>
             <div><strong>Pack sizes</strong><span>{priced ? product.packSizes?.join(', ') || 'Not specified' : 'Coming Soon'}</span></div>
             <div><strong>Suitable crops</strong><span>{product.crops?.join(', ') || 'Not specified'}</span></div>
           </div>
@@ -251,8 +255,8 @@ export default function ProductDetail() {
       </div>
 
       <div className="product-detail-content-grid">
-        <section className="product-detail-section"><h2>How to use</h2><p>{product.howToUse || 'Usage instructions will be published by the administrator.'}</p></section>
-        <section className="product-detail-section"><h2>When to use</h2><p>{product.whenToUse || 'Timing guidance will be published by the administrator.'}</p></section>
+        <section className="product-detail-section"><h2>How to use</h2><p>{text('howToUse') || 'Usage instructions will be published by the administrator.'}</p></section>
+        <section className="product-detail-section"><h2>When to use</h2><p>{text('whenToUse') || 'Timing guidance will be published by the administrator.'}</p></section>
       </div>
 
       {/* Product Demonstrations & Field Usage Videos */}

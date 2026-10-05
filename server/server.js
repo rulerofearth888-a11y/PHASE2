@@ -15,6 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import Razorpay from 'razorpay';
 import { db, connectDB, newId, STAFF_ROLES } from './db.js';
 import { productNameKey } from '../src/shared/productName.js';
+import { createProductTranslator, applyCorrection } from './productTranslate.js';
 import adminRoutes from './adminRoutes.js';
 import superadminRoutes from './superadminRoutes.js';
 import { buildOtpMessage, buildResetOtpMessage, buildPasswordChangedMessage, forgetOtpLayout, otpBannerUrl } from './otpTemplates.js';
@@ -1067,7 +1068,8 @@ app.post('/api/products', requireAuth('admin'), requireModule('products'), async
     const problem = productInputError(req.body);
     if (problem) return res.status(400).json({ success: false, message: problem });
 
-    const { id, _id, ...details } = req.body;
+    // i18n is written only by the translator and the corrections endpoint below.
+    const { id, _id, i18n, ...details } = req.body;
     // One product per name: the store lists every product to everyone, so a
     // second one with the same name would show twice.
     const same = await db.findSameNamedProduct(details.name);
@@ -1080,6 +1082,7 @@ app.post('/api/products', requireAuth('admin'), requireModule('products'), async
     }
     try {
       const product = await db.createProduct(details);
+      productTranslator.queue(product.id);
       res.json({ success: true, data: product });
     } catch (err) {
       await db.kvDelete(lock).catch(() => {});
@@ -1095,7 +1098,7 @@ app.put('/api/products/:id', requireAuth('admin'), requireModule('products'), as
     const problem = productInputError(req.body, { partial: true });
     if (problem) return res.status(400).json({ success: false, message: problem });
 
-    const { id, _id, ...updates } = req.body;
+    const { id, _id, i18n, ...updates } = req.body;
     if (updates.name !== undefined) {
       // Only a changed name has to be free: a product that already shares its
       // name with an older copy can still be edited (price, stock...).
@@ -1116,9 +1119,51 @@ app.put('/api/products/:id', requireAuth('admin'), requireModule('products'), as
       description: `Updated product "${product.name}"`,
       details: { changedKeys: Object.keys(updates) }
     });
+    productTranslator.queue(product.id);
     res.json({ success: true, data: product });
   } catch (err) {
     sendError(res, err, 'Update product');
+  }
+});
+
+// ---- Product translations (Tamil, Kannada, Telugu, Hindi) ----
+// Machine translation runs in the background after every create/edit, and a
+// sweep fills anything missing (startup, then every 6 hours). Off without
+// GOOGLE_TRANSLATE_API_KEY. See server/productTranslate.js.
+const productTranslator = createProductTranslator({ db });
+if (productTranslator.enabled && process.env.NODE_ENV !== 'test') {
+  const sweep = () => productTranslator.sweep()
+    .then(n => { if (n) console.log(`🌐 product translation sweep: ${n} product(s)`); })
+    .catch(err => console.warn(`🌐 product translation sweep failed: ${err.message}`));
+  setTimeout(sweep, 15000);
+  setInterval(sweep, 6 * 60 * 60 * 1000).unref();
+}
+
+app.get('/api/product-translation-status', requireAuth('admin'), requireModule('products'), (req, res) => {
+  res.json({ success: true, data: { enabled: productTranslator.enabled } });
+});
+
+// A staff correction for one field in one language: { lang, field, text }.
+// Empty text removes the correction and lets the machine translate again.
+app.put('/api/products/:id/translations', requireAuth('admin'), requireModule('products'), async (req, res) => {
+  try {
+    const product = await db.getProductById(req.params.id);
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    const { lang, field, text } = req.body || {};
+    let i18n;
+    try { i18n = applyCorrection(product, lang, field, typeof text === 'string' ? text.slice(0, 5000) : ''); }
+    catch (err) { return res.status(400).json({ success: false, message: err.message }); }
+    await db.setProductI18n(req.params.id, i18n);
+    if (!String(text || '').trim()) productTranslator.queue(req.params.id);
+    recordActivity(req, {
+      module: 'PRODUCTS',
+      action: 'UPDATE_PRODUCT_TRANSLATION',
+      entityId: req.params.id,
+      description: `Corrected ${lang} ${field} for "${product.name}"`,
+    });
+    res.json({ success: true, data: { ...product, i18n } });
+  } catch (err) {
+    sendError(res, err, 'Update translation');
   }
 });
 

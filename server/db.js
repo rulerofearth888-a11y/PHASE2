@@ -1486,6 +1486,19 @@ class DatabaseManager {
         return normalizeProduct(serialize(p));
   }
 
+  // Machine translations (server/productTranslate.js). Touches only `i18n`,
+  // so an admin edit saved meanwhile is never overwritten.
+  async setProductI18n(id, i18n) {
+        await connectDB();
+        await Product.updateOne({ _id: id }, { $set: { i18n } });
+        invalidateProductCache();
+  }
+
+  async getAllProductsRaw() {
+        await connectDB();
+        return allProducts();
+  }
+
   async getCatalogOptions() {
         await connectDB();
         const settings = await Settings.findById('global').lean();

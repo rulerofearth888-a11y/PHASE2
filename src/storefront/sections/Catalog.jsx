@@ -6,6 +6,8 @@ import { ALL_CROPS, cropList } from '../../shared/profileFieldRules'
 import { PRODUCT_FORMS, formCounts, matchesForm, productForm } from '../../shared/productForm'
 import { hasPrice } from '../../shared/comingSoon'
 import { packMrp, packPrice } from '../../shared/packPricing'
+import { productText } from '../../shared/productText'
+import { useLanguage } from '../../context/LanguageContext'
 
 // The phone chips and the category dropdown list the categories the live
 // products are in (liveCategories); these emoji lead the chips we know.
@@ -28,6 +30,7 @@ export const ProductSkeleton = memo(function ProductSkeleton() {
 })
 
 const ProductCard = memo(function ProductCard({ product: p, user, t, variant }) {
+  const { lang } = useLanguage()
   const { addToCart, openProductPage } = useStore()
   const catalog = variant === 'catalog'
 
@@ -97,7 +100,7 @@ const ProductCard = memo(function ProductCard({ product: p, user, t, variant }) 
         <span className="product-category-tag">{p.category}{productForm(p) ? <> · {productForm(p)}</> : null}</span>
         {personalBadge}
         <h3 className="product-name">{p.name}</h3>
-        <p className="product-tagline">{p.tagline || ''}</p>
+        <p className="product-tagline">{productText(p, 'tagline', lang)}</p>
 
         {hasReviews
           ? <div className="rating-row"><i className="fa-solid fa-star"></i><span style={{ fontWeight: 700 }}>{Number(p.rating).toFixed(1)}</span><span style={{ color: 'var(--text-muted)' }}>({p.reviewsCount} {t('reviews')})</span></div>

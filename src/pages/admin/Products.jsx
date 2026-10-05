@@ -11,6 +11,7 @@ import { duplicateNameGroups, findSameNamedProduct, productNameKey } from '../..
 import { PRODUCT_FORMS, productForm } from '../../shared/productForm.js'
 import { cropList, joinCrops, CROP_CHOICES } from '../../shared/profileFieldRules'
 import { packUnits } from '../../shared/packPricing'
+import ProductTranslations from './ProductTranslations'
 
 const PFORM_SECTIONS = [
   { id: 'pform-basic', label: 'Basic details', hint: 'Title, category, badge' },
@@ -1607,6 +1608,7 @@ export default function AdminProducts() {
                     </div>
                   </div>
                 </details>
+                {isEditing && <ProductTranslations product={editingOriginal} onSaved={fetchProducts} />}
               </div>
               </div>
 
