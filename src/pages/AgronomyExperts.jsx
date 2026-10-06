@@ -180,83 +180,49 @@ export default function AgronomyExperts() {
   })
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px 60px' }}>
+    <div className="p2-page">
       {/* Hero Banner */}
-      <div className="p2-hero"
-        style={{
-          background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)',
-          borderRadius: 20,
-          '--p2-hero-pad': '40px 32px',
-          color: '#fff',
-          boxShadow: '0 12px 30px rgba(6, 78, 59, 0.25)',
-          marginBottom: 32,
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        <div className="p2-hero-inner" style={{ position: 'relative', zIndex: 2, maxWidth: 740 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', padding: '6px 14px', borderRadius: 30, fontSize: '0.8rem', fontWeight: 700, marginBottom: 16 }}>
-            <Sparkles size={15} color="#34d399" /> CERTIFIED AGRICULTURAL SCIENTISTS &amp; AGRONOMISTS
+      <section className="p2-hero">
+        <Sprout className="p2-hero-art" aria-hidden="true" />
+        <div className="p2-hero-inner">
+          <div className="p2-eyebrow">
+            <Sparkles size={14} /> CERTIFIED AGRICULTURAL SCIENTISTS &amp; AGRONOMISTS
           </div>
 
-          <h1 className="p2-hero-title" style={{ '--p2-title-size': '2.4rem', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.2 }}>
+          <h1 className="p2-hero-title">
             Book a 1-on-1 Session with Our Agronomy Experts
           </h1>
 
-          <p className="p2-hero-text" style={{ '--p2-text-size': '1.05rem', color: '#d1fae5', margin: '0 0 24px', lineHeight: 1.6 }}>
+          <p className="p2-hero-text">
             Have crop diseases, pest outbreaks, or soil nutrition doubts? Schedule a personalized callback with Sathyam Agro Mart's certified agronomists. Free for registered farmers.
           </p>
 
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.2)', padding: '8px 14px', borderRadius: 8, fontSize: '0.88rem' }}>
-              <PhoneCall size={18} color="#34d399" /> Expert Calls You Back
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.2)', padding: '8px 14px', borderRadius: 8, fontSize: '0.88rem' }}>
-              <Sprout size={18} color="#34d399" /> 100% Scientific Crop Plan
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.2)', padding: '8px 14px', borderRadius: 8, fontSize: '0.88rem' }}>
-              <ShieldCheck size={18} color="#34d399" /> Zero Advisory Fee
-            </div>
+          <div className="p2-hero-perks">
+            <span className="p2-perk"><PhoneCall size={16} /> Expert Calls You Back</span>
+            <span className="p2-perk"><Sprout size={16} /> 100% Scientific Crop Plan</span>
+            <span className="p2-perk"><ShieldCheck size={16} /> Zero Advisory Fee</span>
           </div>
         </div>
-
-        {/* Decorative Badge */}
-        <div
-          style={{
-            position: 'absolute',
-            right: 40,
-            bottom: -20,
-            opacity: 0.15,
-            pointerEvents: 'none'
-          }}
-        >
-          <Sprout size={280} color="#fff" />
-        </div>
-      </div>
+      </section>
 
       {/* Tabs Row: Directory vs My Scheduled Consultations */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, borderBottom: '2px solid #e2e8f0', paddingBottom: 12, marginBottom: 24 }}>
-        <div style={{ display: 'flex', gap: 12 }}>
+      <div className="p2-tabbar">
+        <div className="p2-tabs" role="tablist">
           <button
             type="button"
+            role="tab"
+            className="p2-tab"
+            aria-selected={activeTab === 'experts'}
             onClick={() => setActiveTab('experts')}
-            style={{
-              background: activeTab === 'experts' ? '#047857' : 'transparent',
-              color: activeTab === 'experts' ? '#fff' : '#64748b',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: 8,
-              fontSize: '0.92rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
           >
             👨‍🌾 Available Agronomists ({experts.length})
           </button>
 
           <button
             type="button"
+            role="tab"
+            className="p2-tab"
+            aria-selected={activeTab === 'my-sessions'}
             onClick={() => {
               if (!user) {
                 setShowAuthPrompt(true)
@@ -264,43 +230,14 @@ export default function AgronomyExperts() {
               }
               setActiveTab('my-sessions')
             }}
-            style={{
-              background: activeTab === 'my-sessions' ? '#047857' : 'transparent',
-              color: activeTab === 'my-sessions' ? '#fff' : '#64748b',
-              border: 'none',
-              padding: '8px 20px',
-              borderRadius: 8,
-              fontSize: '0.92rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              transition: 'all 0.15s ease'
-            }}
           >
             📅 My Scheduled Sessions
-            {userBookings.length > 0 && (
-              <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 8px', borderRadius: 10, fontSize: '0.75rem', fontWeight: 800 }}>
-                {userBookings.length}
-              </span>
-            )}
+            {userBookings.length > 0 && <span className="p2-count">{userBookings.length}</span>}
           </button>
         </div>
 
         {/* Link to Soil test page */}
-        <Link
-          to="/soil-test-report"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            color: '#047857',
-            fontWeight: 700,
-            fontSize: '0.88rem',
-            textDecoration: 'none'
-          }}
-        >
+        <Link to="/soil-test-report" className="p2-link">
           🧪 Have a Soil Test Report? Upload it here <ChevronRight size={16} />
         </Link>
       </div>
@@ -308,241 +245,148 @@ export default function AgronomyExperts() {
       {activeTab === 'experts' ? (
         <div>
           {/* Filters & Search */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 24, background: '#fff', padding: '14px 18px', borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
-            <div style={{ position: 'relative', flex: '1 1 260px' }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: '#94a3b8' }} />
+          <div className="p2-card p2-toolbar">
+            <div className="p2-search">
+              <Search size={16} />
               <input
                 type="text"
+                className="p2-input"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search expert by name, crop, or language (Tamil, Hindi, English)..."
-                style={{ width: '100%', padding: '9px 12px 9px 36px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
               />
             </div>
 
-            <select
-              value={filterSpec}
-              onChange={e => setFilterSpec(e.target.value)}
-              style={{ padding: '9px 14px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem', background: '#fff', minWidth: 200 }}
-            >
+            <select className="p2-input" value={filterSpec} onChange={e => setFilterSpec(e.target.value)}>
               {SPECIALIZATIONS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
 
           {!loading && filteredExperts.length === 0 && (
-            <div style={{ padding: '32px 16px', textAlign: 'center', color: '#64748b', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 12 }}>
-              {experts.length === 0
-                ? 'Our agronomy experts will be listed here soon.'
-                : 'No experts match your search.'}
+            <div className="p2-empty p2-empty--dashed">
+              <div className="p2-empty-icon"><User size={28} /></div>
+              <p>
+                {experts.length === 0
+                  ? 'Our agronomy experts will be listed here soon.'
+                  : 'No experts match your search.'}
+              </p>
             </div>
           )}
 
           {/* Experts Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(360px, 100%), 1fr))', gap: 24 }}>
+          <div className="p2-expert-grid">
             {filteredExperts.map(expert => (
-              <div
-                key={expert.id}
-                style={{
-                  background: '#fff',
-                  borderRadius: 16,
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  padding: '24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
-                }}
-              >
+              <article key={expert.id} className="p2-card p2-expert">
                 <div>
                   {/* Top Profile Header */}
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 16 }}>
-                    <div style={{ position: 'relative' }}>
+                  <div className="p2-expert-top">
+                    <div className="p2-avatar">
                       {expert.avatar ? (
-                        <img
-                          src={expert.avatar}
-                          alt={expert.name}
-                          style={{ width: 68, height: 68, borderRadius: '50%', objectFit: 'cover', border: '3px solid #d1fae5' }}
-                        />
+                        <img src={expert.avatar} alt={expert.name} />
                       ) : (
-                        <div
-                          aria-hidden="true"
-                          style={{ width: 68, height: 68, borderRadius: '50%', border: '3px solid #d1fae5', background: '#ecfdf5', color: '#047857', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.4rem' }}
-                        >
+                        <div className="p2-avatar-initial" aria-hidden="true">
                           {(expert.name || '?').trim().charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <div
-                        title="Verified Agronomy Expert"
-                        style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          right: 0,
-                          background: '#16a34a',
-                          color: '#fff',
-                          borderRadius: '50%',
-                          width: 22,
-                          height: 22,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: '2px solid #fff'
-                        }}
-                      >
+                      <span className="p2-avatar-badge" title="Verified Agronomy Expert">
                         <CheckCircle2 size={13} />
-                      </div>
+                      </span>
                     </div>
 
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ margin: '0 0 2px', fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                        {expert.name}
-                      </h3>
-                      <div style={{ fontSize: '0.78rem', color: '#047857', fontWeight: 700, marginBottom: 4 }}>
-                        {expert.qualification}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <h3>{expert.name}</h3>
+                      <div className="p2-expert-qual">{expert.qualification}</div>
+                      <div className="p2-expert-stats">
                         {expert.rating ? (
                           <>
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#d97706', fontWeight: 700 }}>
+                            <span className="p2-star">
                               <Star size={13} fill="#f59e0b" color="#f59e0b" /> {expert.rating}
                             </span>
-                            <span style={{ color: '#94a3b8' }}>({expert.reviewsCount} reviews)</span>
+                            <span>({expert.reviewsCount} reviews)</span>
                           </>
                         ) : null}
-                        {expert.rating && expert.experienceYears ? <span style={{ color: '#cbd5e1' }}>•</span> : null}
-                        {expert.experienceYears ? <span style={{ color: '#64748b' }}>{expert.experienceYears}+ Yrs Exp</span> : null}
+                        {expert.rating && expert.experienceYears ? <span>•</span> : null}
+                        {expert.experienceYears ? <span>{expert.experienceYears}+ Yrs Exp</span> : null}
                       </div>
                     </div>
                   </div>
 
                   {/* Specialization & Bio */}
-                  <div style={{ marginBottom: 14 }}>
-                    <span style={{ display: 'inline-block', background: '#ecfdf5', color: '#065f46', fontSize: '0.75rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20, marginBottom: 8, border: '1px solid #a7f3d0' }}>
-                      🌿 {expert.specialization}
-                    </span>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 }}>
-                      {expert.bio}
-                    </p>
-                  </div>
+                  <span className="p2-chip p2-chip--green">🌿 {expert.specialization}</span>
+                  {expert.bio && <p className="p2-expert-bio">{expert.bio}</p>}
 
                   {/* Crops & Languages chips */}
-                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 12, marginBottom: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', color: '#64748b', marginBottom: 6 }}>
+                  <div className="p2-expert-tags">
+                    <div className="p2-expert-langs">
                       <Languages size={14} /> Languages: <strong>{expert.languages?.join(', ')}</strong>
                     </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    <div className="p2-chip-row">
                       {expert.cropsExpertise?.map(crop => (
-                        <span key={crop} style={{ background: '#f8fafc', color: '#475569', fontSize: '0.72rem', padding: '2px 8px', borderRadius: 4, border: '1px solid #e2e8f0' }}>
-                          🌾 {crop}
-                        </span>
+                        <span key={crop} className="p2-chip p2-chip--line">🌾 {crop}</span>
                       ))}
                     </div>
                   </div>
                 </div>
 
                 {/* Card Action & Timing */}
-                <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    <div style={{ fontWeight: 600, color: '#334155' }}>🕒 {expert.availableDays}</div>
+                <div className="p2-expert-foot">
+                  <div className="p2-expert-hours">
+                    <strong>🕒 {expert.availableDays}</strong>
                     <div>Callback Slots: 10 AM - 6 PM</div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleInitiateBooking(expert)}
-                    style={{
-                      background: 'linear-gradient(135deg, #047857, #065f46)',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 8,
-                      padding: '10px 16px',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      boxShadow: '0 4px 10px rgba(4, 120, 87, 0.25)'
-                    }}
-                  >
+                  <button type="button" className="p2-btn p2-btn--primary" onClick={() => handleInitiateBooking(expert)}>
                     <PhoneCall size={15} /> Book Session
                   </button>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       ) : (
         /* My Scheduled Consultations Tab */
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '0 0 16px' }}>
+        <div className="p2-card p2-card-pad">
+          <h2 className="p2-card-title" style={{ marginBottom: 16 }}>
             Your Consultation Callbacks
           </h2>
 
           {userBookings.length === 0 ? (
-            <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>
-              <Calendar size={44} color="#cbd5e1" style={{ margin: '0 auto 12px' }} />
+            <div className="p2-empty">
+              <div className="p2-empty-icon"><Calendar size={28} /></div>
               <h3>No Sessions Booked Yet</h3>
-              <p style={{ fontSize: '0.85rem', margin: '4px 0 16px' }}>
-                Select an agronomist above and book your free callback session.
-              </p>
-              <button
-                type="button"
-                onClick={() => setActiveTab('experts')}
-                style={{ background: '#047857', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: 6, fontWeight: 700, cursor: 'pointer' }}
-              >
+              <p>Select an agronomist above and book your free callback session.</p>
+              <button type="button" className="p2-btn p2-btn--primary p2-btn--sm" onClick={() => setActiveTab('experts')}>
                 Browse Experts
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="p2-stack">
               {userBookings.map(b => (
-                <div
-                  key={b.id}
-                  style={{
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 12,
-                    padding: '18px 20px',
-                    background: b.status === 'Completed' ? '#f8fafc' : '#f0fdf4',
-                    borderLeft: `4px solid ${b.status === 'Completed' ? '#64748b' : '#16a34a'}`
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
+                <div key={b.id} className={`p2-booking${b.status === 'Completed' ? ' is-done' : ''}`}>
+                  <div className="p2-booking-top">
                     <div>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#047857' }}>
-                        {b.id} · Scheduled Consultation
-                      </div>
-                      <h4 style={{ margin: '2px 0 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-                        {b.expertName}
-                      </h4>
+                      <div className="p2-booking-id">{b.id} · Scheduled Consultation</div>
+                      <h4>{b.expertName}</h4>
                     </div>
-
-                    <span style={{
-                      padding: '4px 12px',
-                      borderRadius: 20,
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      background: b.status === 'Completed' ? '#e2e8f0' : '#dcfce7',
-                      color: b.status === 'Completed' ? '#475569' : '#15803d'
-                    }}>
+                    <span className={`p2-chip ${b.status === 'Completed' ? '' : 'p2-chip--green'}`}>
                       {b.status === 'Completed' ? '✅ Callback Completed' : '⏰ Callback Scheduled'}
                     </span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, fontSize: '0.82rem', color: '#475569', marginBottom: 10 }}>
-                    <div>📅 Date: <strong>{b.preferredDate}</strong></div>
-                    <div>🕒 Time Slot: <strong>{b.preferredSlot}</strong></div>
-                    <div>📱 Contact: <strong>{b.farmerPhone}</strong></div>
-                    <div>🌾 Crop: <strong>{b.crop} ({b.acreage} Acres)</strong></div>
-                  </div>
+                  <dl className="p2-facts">
+                    <div><dt>📅 Date:</dt><dd>{b.preferredDate}</dd></div>
+                    <div><dt>🕒 Time Slot:</dt><dd>{b.preferredSlot}</dd></div>
+                    <div><dt>📱 Contact:</dt><dd>{b.farmerPhone}</dd></div>
+                    <div><dt>🌾 Crop:</dt><dd>{b.crop} ({b.acreage} Acres)</dd></div>
+                  </dl>
 
-                  <div style={{ fontSize: '0.85rem', color: '#334155', background: '#fff', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontWeight: 700, color: '#047857' }}>Query / Topic: </span>
+                  <div className="p2-quote">
+                    <b>Query / Topic: </b>
                     {b.topic} — {b.notes || 'No extra notes.'}
                   </div>
 
                   {b.callbackNotes && (
-                    <div style={{ marginTop: 10, fontSize: '0.85rem', background: '#ecfdf5', padding: '10px 14px', borderRadius: 8, border: '1px solid #a7f3d0', color: '#065f46' }}>
+                    <div className="p2-quote p2-quote--green">
                       <strong>📝 Expert Follow-up Recommendation: </strong>
                       {b.callbackNotes}
                     </div>
@@ -559,80 +403,22 @@ export default function AgronomyExperts() {
 
       {/* AUTH REQUIRED MODAL PROMPT */}
       {showAuthPrompt && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: 16
-          }}
-          onClick={() => setShowAuthPrompt(false)}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: '#fff',
-              borderRadius: 18,
-              maxWidth: 480,
-              width: '100%',
-              padding: '28px 28px',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#047857' }}>
-              <User size={30} />
+        <div className="p2-backdrop" onClick={() => setShowAuthPrompt(false)}>
+          <div className="p2-modal p2-modal--narrow p2-modal--center" role="dialog" aria-modal="true" aria-labelledby="p2-auth-title" onClick={e => e.stopPropagation()}>
+            <div className="p2-modal-body">
+              <div className="p2-empty-icon"><User size={28} /></div>
+              <h3 id="p2-auth-title" className="p2-card-title" style={{ fontSize: '1.3rem', marginBottom: 8 }}>
+                Account Required to Book Expert
+              </h3>
+              <p className="p2-card-sub">
+                To ensure our Agronomy Experts can review your previous orders, crop history, and maintain your callback records, you must have an active farmer account in our portal.
+              </p>
             </div>
-
-            <h3 style={{ margin: '0 0 8px', fontSize: '1.35rem', fontWeight: 800, color: '#0f172a' }}>
-              Account Required to Book Expert
-            </h3>
-
-            <p style={{ margin: '0 0 20px', fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5 }}>
-              To ensure our Agronomy Experts can review your previous orders, crop history, and maintain your callback records, you must have an active farmer account in our portal.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button
-                type="button"
-                onClick={handleOpenLogin}
-                style={{
-                  background: 'linear-gradient(135deg, #047857, #065f46)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '12px 20px',
-                  fontWeight: 700,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  boxShadow: '0 4px 12px rgba(4, 120, 87, 0.3)'
-                }}
-              >
+            <div className="p2-modal-foot" style={{ flexDirection: 'column' }}>
+              <button type="button" className="p2-btn p2-btn--primary p2-btn--block" onClick={handleOpenLogin}>
                 <LogIn size={18} /> Sign In / Create Account
               </button>
-
-              <button
-                type="button"
-                onClick={() => setShowAuthPrompt(false)}
-                style={{
-                  background: '#f1f5f9',
-                  color: '#475569',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '10px 20px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
+              <button type="button" className="p2-btn p2-btn--ghost p2-btn--block" onClick={() => setShowAuthPrompt(false)}>
                 Continue Browsing
               </button>
             </div>
@@ -642,188 +428,128 @@ export default function AgronomyExperts() {
 
       {/* BOOKING MODAL (FOR LOGGED-IN USERS) */}
       {showBookingModal && selectedExpert && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: 16
-          }}
-          onClick={() => setShowBookingModal(false)}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: '#fff',
-              borderRadius: 18,
-              maxWidth: 580,
-              width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              padding: '28px 28px',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: '1px solid #f1f5f9', paddingBottom: 12 }}>
+        <div className="p2-backdrop" onClick={() => setShowBookingModal(false)}>
+          <div className="p2-modal" role="dialog" aria-modal="true" aria-labelledby="p2-book-title" onClick={e => e.stopPropagation()}>
+            <div className="p2-modal-head">
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
-                  📞 Book Session with {selectedExpert.name}
-                </h3>
-                <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#047857', fontWeight: 600 }}>
+                <h3 id="p2-book-title">📞 Book Session with {selectedExpert.name}</h3>
+                <p style={{ color: 'var(--p2-green)', fontWeight: 600 }}>
                   {selectedExpert.specialization} · Free Callback
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowBookingModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8' }}
-              >
+              <button type="button" className="p2-close" aria-label="Close" onClick={() => setShowBookingModal(false)}>
                 &times;
               </button>
             </div>
 
             <form onSubmit={handleConfirmBooking}>
-              {/* Phone confirmation */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Callback Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={bookingData.phone}
-                  onChange={e => setBookingData({ ...bookingData, phone: e.target.value })}
-                  placeholder="Enter 10-digit mobile number"
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
-                />
-                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                  The agronomist will call this number during your chosen time slot.
-                </span>
-              </div>
-
-              {/* Date & Slot */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Preferred Date *
-                  </label>
+              <div className="p2-modal-body">
+                {/* Phone confirmation */}
+                <div className="p2-field">
+                  <label className="p2-label">Callback Phone Number *</label>
                   <input
-                    type="date"
+                    type="tel"
+                    className="p2-input"
                     required
-                    min={new Date().toISOString().split('T')[0]}
-                    value={bookingData.preferredDate}
-                    onChange={e => setBookingData({ ...bookingData, preferredDate: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
+                    value={bookingData.phone}
+                    onChange={e => setBookingData({ ...bookingData, phone: e.target.value })}
+                    placeholder="Enter 10-digit mobile number"
                   />
+                  <span className="p2-hint">
+                    The agronomist will call this number during your chosen time slot.
+                  </span>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Preferred Time Window *
-                  </label>
+                {/* Date & Slot */}
+                <div className="p2-grid-2">
+                  <div className="p2-field">
+                    <label className="p2-label">Preferred Date *</label>
+                    <input
+                      type="date"
+                      className="p2-input"
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      value={bookingData.preferredDate}
+                      onChange={e => setBookingData({ ...bookingData, preferredDate: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="p2-field">
+                    <label className="p2-label">Preferred Time Window *</label>
+                    <select
+                      className="p2-input"
+                      value={bookingData.preferredSlot}
+                      onChange={e => setBookingData({ ...bookingData, preferredSlot: e.target.value })}
+                    >
+                      {selectedExpert.availableSlots?.map(slot => (
+                        <option key={slot} value={slot}>{slot}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Crop & Acreage */}
+                <div className="p2-grid-2">
+                  <div className="p2-field">
+                    <label className="p2-label">Crop Type *</label>
+                    <input
+                      type="text"
+                      className="p2-input"
+                      required
+                      value={bookingData.crop}
+                      onChange={e => setBookingData({ ...bookingData, crop: e.target.value })}
+                      placeholder="e.g. Paddy, Cotton, Tomato"
+                    />
+                  </div>
+
+                  <div className="p2-field">
+                    <label className="p2-label">Field Size (Acres)</label>
+                    <input
+                      type="number"
+                      className="p2-input"
+                      min="0.5"
+                      step="0.5"
+                      value={bookingData.acreage}
+                      onChange={e => setBookingData({ ...bookingData, acreage: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Topic */}
+                <div className="p2-field">
+                  <label className="p2-label">Consultation Subject / Symptom *</label>
                   <select
-                    value={bookingData.preferredSlot}
-                    onChange={e => setBookingData({ ...bookingData, preferredSlot: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
+                    className="p2-input"
+                    value={bookingData.topic}
+                    onChange={e => setBookingData({ ...bookingData, topic: e.target.value })}
                   >
-                    {selectedExpert.availableSlots?.map(slot => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
+                    <option value="Pest & Disease Outbreak">Pest &amp; Disease Outbreak (Blast, Leaf Curl, Whitefly)</option>
+                    <option value="Soil Health & Alkalinity">Soil Health, High Salinity / Alkalinity Correction</option>
+                    <option value="Bio-Fertilizer Schedule">Bio-Fertilizer &amp; Organic Nutrition Schedule</option>
+                    <option value="Flower Drop & Yield Booster">Flower Drop Prevention &amp; Yield Optimization</option>
+                    <option value="General Crop Guidance">General Crop Maintenance</option>
                   </select>
                 </div>
-              </div>
 
-              {/* Crop & Acreage */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Crop Type *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={bookingData.crop}
-                    onChange={e => setBookingData({ ...bookingData, crop: e.target.value })}
-                    placeholder="e.g. Paddy, Cotton, Tomato"
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
+                {/* Description */}
+                <div className="p2-field">
+                  <label className="p2-label">Detailed Description (Optional)</label>
+                  <textarea
+                    rows={3}
+                    className="p2-input"
+                    value={bookingData.notes}
+                    onChange={e => setBookingData({ ...bookingData, notes: e.target.value })}
+                    placeholder="Describe leaf symptoms, days after sowing, or chemicals previously applied..."
                   />
                 </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Field Size (Acres)
-                  </label>
-                  <input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    value={bookingData.acreage}
-                    onChange={e => setBookingData({ ...bookingData, acreage: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
-                  />
-                </div>
-              </div>
-
-              {/* Topic */}
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Consultation Subject / Symptom *
-                </label>
-                <select
-                  value={bookingData.topic}
-                  onChange={e => setBookingData({ ...bookingData, topic: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.88rem' }}
-                >
-                  <option value="Pest & Disease Outbreak">Pest &amp; Disease Outbreak (Blast, Leaf Curl, Whitefly)</option>
-                  <option value="Soil Health & Alkalinity">Soil Health, High Salinity / Alkalinity Correction</option>
-                  <option value="Bio-Fertilizer Schedule">Bio-Fertilizer &amp; Organic Nutrition Schedule</option>
-                  <option value="Flower Drop & Yield Booster">Flower Drop Prevention &amp; Yield Optimization</option>
-                  <option value="General Crop Guidance">General Crop Maintenance</option>
-                </select>
-              </div>
-
-              {/* Description */}
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Detailed Description (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  value={bookingData.notes}
-                  onChange={e => setBookingData({ ...bookingData, notes: e.target.value })}
-                  placeholder="Describe leaf symptoms, days after sowing, or chemicals previously applied..."
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #cbd5e1', fontSize: '0.85rem', fontFamily: 'inherit' }}
-                />
               </div>
 
               {/* Modal Buttons */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowBookingModal(false)}
-                  style={{ padding: '9px 18px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
-                >
+              <div className="p2-modal-foot">
+                <button type="button" className="p2-btn p2-btn--ghost" onClick={() => setShowBookingModal(false)}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={bookingLoading}
-                  style={{
-                    background: 'linear-gradient(135deg, #047857, #065f46)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '9px 22px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(4, 120, 87, 0.3)'
-                  }}
-                >
+                <button type="submit" className="p2-btn p2-btn--primary" disabled={bookingLoading}>
                   {bookingLoading ? 'Booking...' : 'Confirm Callback Booking'}
                 </button>
               </div>

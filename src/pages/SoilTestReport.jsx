@@ -226,119 +226,76 @@ export default function SoilTestReport() {
     window.print()
   }
 
+  const tone = s => (s >= 75 ? 'good' : s >= 60 ? 'mid' : 'bad')
+  const suitTone = s => (s === 'Highly Suitable' ? 'good' : s === 'Conditionally Suitable' ? 'mid' : 'bad')
+  const reportChip = s => (s === 'Prescription Issued' ? 'p2-chip--green' : s === 'Under Agronomist Analysis' ? 'p2-chip--blue' : 'p2-chip--amber')
+  const METRICS = [
+    ['ph', 'Soil pH (Reaction)', '', true],
+    ['ec', 'Salinity (EC dS/m)', '', true],
+    ['oc', 'Organic Carbon (%)', '%', true],
+    ['nitrogen', 'Available Nitrogen (N)', 'kg/ha', false],
+    ['phosphorus', 'Available Phosphorus (P)', 'kg/ha', false],
+    ['potassium', 'Available Potash (K)', 'kg/ha', false]
+  ]
+  const TABS = [
+    ['crop-suitability', '🌾', `Crop Suitability Suggestions (${result.cropSuitability?.length || 0})`],
+    ['target-crop', '🎯', 'Target Crop Pre-measures & Products'],
+    ['analysis', '🧪', 'Soil Chemical Metrics'],
+    ['my-submissions', '📋', `My Submitted Reports (${submittedReports.length})`]
+  ]
+
   return (
-    <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 16px 80px' }}>
-      {/* Top Banner (phones: compact, actions first - index.css "Phase 2 page heroes") */}
-      <div
-        className="p2-hero"
-        style={{
-          background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)',
-          borderRadius: 20,
-          '--p2-hero-pad': '36px 32px',
-          color: '#fff',
-          boxShadow: '0 12px 36px rgba(4, 120, 87, 0.25)',
-          marginBottom: 24,
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        <div className="p2-hero-inner" style={{ position: 'relative', zIndex: 2, maxWidth: 780 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(4px)', padding: '4px 12px', borderRadius: 20, fontSize: '0.78rem', fontWeight: 700, marginBottom: 12 }}>
+    <div className="p2-page p2-soil">
+      {/* Top Banner (phones: compact, actions before the paragraph) */}
+      <section className="p2-hero">
+        <Layers className="p2-hero-art" aria-hidden="true" />
+        <div className="p2-hero-inner">
+          <div className="p2-eyebrow">
             <Sparkles size={14} /> AI-Powered Soil Lab &amp; Crop Prescription Engine
           </div>
-          <h1 className="p2-hero-title" style={{ margin: '0 0 10px', '--p2-title-size': '2.1rem', fontWeight: 900, lineHeight: 1.2 }}>
+          <h1 className="p2-hero-title">
             Soil Test Report &amp; Crop Advisory
           </h1>
-          <p className="p2-hero-text" style={{ margin: 0, '--p2-text-size': '0.98rem', opacity: 0.92, lineHeight: 1.6 }}>
+          <p className="p2-hero-text">
             Upload your laboratory Soil Health Card or test metrics. Our agronomic engine provides <strong>accurate crop suitability suggestions</strong>, detailed <strong>pre-measures for target crops</strong>, and required <strong>soil amendments to buy</strong>.
           </p>
 
-          <div className="p2-hero-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 20 }}>
-            <button
-              type="button"
-              onClick={handleOpenSubmitModal}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: '#ffffff',
-                color: '#065f46',
-                border: 'none',
-                borderRadius: 8,
-                padding: '10px 20px',
-                fontSize: '0.88rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }}
-            >
+          <div className="p2-hero-actions">
+            <button type="button" className="p2-btn p2-btn--light" onClick={handleOpenSubmitModal}>
               <Send size={16} /> Submit Report for Agronomist Review
             </button>
-
-            <Link
-              to="/agronomy-experts"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: 'rgba(255,255,255,0.16)',
-                border: '1px solid rgba(255,255,255,0.3)',
-                color: '#fff',
-                borderRadius: 8,
-                padding: '10px 18px',
-                fontSize: '0.88rem',
-                fontWeight: 700,
-                textDecoration: 'none'
-              }}
-            >
+            <Link to="/agronomy-experts" className="p2-btn p2-btn--glass">
               <PhoneCall size={16} /> Book Certified Agronomist Callback
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Preset soil scenarios picker */}
-      <div style={{ background: '#f8fafc', borderRadius: 14, border: '1px solid #e2e8f0', padding: '16px 20px', marginBottom: 24 }}>
-        <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Layers size={16} color="#059669" /> Or try a pre-configured regional soil report scenario:
+      <div className="p2-card p2-presets">
+        <div className="p2-section-label">
+          <Layers size={16} /> Or try a pre-configured regional soil report scenario:
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
+        <div className="p2-preset-grid">
           {SAMPLE_SOIL_PRESETS.map(preset => (
-            <button
-              key={preset.name}
-              type="button"
-              onClick={() => loadPreset(preset)}
-              style={{
-                textAlign: 'left',
-                background: '#fff',
-                border: '1px solid #cbd5e1',
-                borderRadius: 8,
-                padding: '10px 14px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#059669'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.transform = 'none' }}
-            >
-              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0f172a' }}>{preset.name}</div>
-              <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: 2 }}>{preset.description}</div>
+            <button key={preset.name} type="button" className="p2-preset" onClick={() => loadPreset(preset)}>
+              <strong>{preset.name}</strong>
+              <span>{preset.description}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Two Column Layout: Parameters & Upload on Left, Output & Analysis on Right */}
-      <div className="p2-split" style={{ display: 'grid', gridTemplateColumns: 'var(--p2-split, minmax(320px, 380px) 1fr)', gap: 24, alignItems: 'start' }}>
-        
+      <div className="p2-split p2-split--soil">
+
         {/* LEFT COLUMN: Input form & file upload */}
-        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
-          
+        <div className="p2-card p2-card-pad p2-soil-form">
+
           {/* File Upload Zone */}
-          <div style={{ marginBottom: 22 }}>
-            <h3 style={{ margin: '0 0 6px', fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
-              Upload Soil Test File
-            </h3>
-            <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#64748b' }}>
+          <div>
+            <h3 className="p2-card-title">Upload Soil Test File</h3>
+            <p className="p2-card-sub">
               Attach a PDF or photo of your Govt Soil Health Card or lab report, then type its values below.
             </p>
 
@@ -347,46 +304,33 @@ export default function SoilTestReport() {
               ref={fileInputRef}
               onChange={handleFileUpload}
               accept=".pdf,.jpg,.jpeg,.png"
-              style={{ display: 'none' }}
+              hidden
             />
 
-            <div
+            <button
+              type="button"
+              className={`p2-drop${uploadedFile ? ' is-attached' : ''}`}
               onClick={() => fileInputRef.current?.click()}
-              style={{
-                border: '2px dashed #94a3b8',
-                borderRadius: 12,
-                padding: '20px 16px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                background: uploadedFile ? '#f0fdf4' : '#f8fafc',
-                transition: 'all 0.2s ease'
-              }}
             >
-              <Upload size={32} color={uploadedFile ? '#059669' : '#64748b'} style={{ margin: '0 auto 8px' }} />
-              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#1e293b' }}>
-                {uploadedFile ? `Attached: ${uploadedFile.name}` : 'Click to Attach Soil Test Card'}
-              </div>
-              <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: 3 }}>
-                Supports PDF, JPG, PNG (Max 10MB)
-              </div>
-            </div>
+              {uploadedFile ? <CheckCircle2 size={30} /> : <Upload size={30} />}
+              <strong>{uploadedFile ? `Attached: ${uploadedFile.name}` : 'Click to Attach Soil Test Card'}</strong>
+              <span>Supports PDF, JPG, PNG (Max 10MB)</span>
+            </button>
           </div>
 
-          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 18, marginBottom: 18 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+          <div className="p2-divider">
+            <h3 className="p2-card-title" style={{ marginBottom: 14 }}>
               Soil Parameters &amp; Lab Data
             </h3>
 
             <form onSubmit={handleRecalculate}>
               {/* Soil Type */}
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Soil Texture / Type *
-                </label>
+              <div className="p2-field">
+                <label className="p2-label">Soil Texture / Type *</label>
                 <select
+                  className="p2-input"
                   value={soilData.soilType}
                   onChange={e => setSoilData({ ...soilData, soilType: e.target.value })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                 >
                   {SOIL_TYPES.map(type => (
                     <option key={type} value={type}>{type}</option>
@@ -395,40 +339,36 @@ export default function SoilTestReport() {
               </div>
 
               {/* Area */}
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Farm Land Area (Acres) *
-                </label>
+              <div className="p2-field">
+                <label className="p2-label">Farm Land Area (Acres) *</label>
                 <input
                   type="number"
+                  className="p2-input"
                   min="0.5"
                   step="0.5"
                   value={soilData.areaAcres}
                   onChange={e => setSoilData({ ...soilData, areaAcres: e.target.value })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                 />
               </div>
 
               {/* pH Range */}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155' }}>
+              <div className="p2-field">
+                <div className="p2-range-head">
+                  <label className="p2-label">
                     Soil Reaction (pH): <strong>{soilData.ph}</strong>
                   </label>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: result.parameters.ph.color }}>
-                    {result.parameters.ph.status}
-                  </span>
+                  <span style={{ color: result.parameters.ph.color }}>{result.parameters.ph.status}</span>
                 </div>
                 <input
                   type="range"
+                  className="p2-range"
                   min="4.5"
                   max="9.5"
                   step="0.1"
                   value={soilData.ph}
                   onChange={e => setSoilData({ ...soilData, ph: parseFloat(e.target.value) })}
-                  style={{ width: '100%', accentColor: '#059669' }}
                 />
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#94a3b8' }}>
+                <div className="p2-range-scale">
                   <span>4.5 (Acidic)</span>
                   <span>7.0 (Neutral)</span>
                   <span>9.5 (Alkaline)</span>
@@ -436,359 +376,165 @@ export default function SoilTestReport() {
               </div>
 
               {/* EC & Organic Carbon */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    EC Salinity (dS/m)
-                  </label>
+              <div className="p2-grid-2 p2-grid-2--always">
+                <div className="p2-field">
+                  <label className="p2-label">EC Salinity (dS/m)</label>
                   <input
                     type="number"
+                    className="p2-input"
                     step="0.05"
                     value={soilData.ec}
                     onChange={e => setSoilData({ ...soilData, ec: e.target.value })}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                   />
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Target: &lt; 1.0 dS/m</span>
+                  <span className="p2-hint">Target: &lt; 1.0 dS/m</span>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Organic Carbon (%)
-                  </label>
+                <div className="p2-field">
+                  <label className="p2-label">Organic Carbon (%)</label>
                   <input
                     type="number"
+                    className="p2-input"
                     step="0.02"
                     value={soilData.oc}
                     onChange={e => setSoilData({ ...soilData, oc: e.target.value })}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
                   />
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Target: &gt; 0.75 %</span>
+                  <span className="p2-hint">Target: &gt; 0.75 %</span>
                 </div>
               </div>
 
               {/* Available NPK */}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 6 }}>
-                  Primary Macronutrients (kg/ha)
+              <fieldset className="p2-fieldset">
+                <legend className="p2-label">Primary Macronutrients (kg/ha)</legend>
+                <div className="p2-npk">
+                  <label>
+                    <span>Nitrogen (N)</span>
+                    <input type="number" className="p2-input" value={soilData.nitrogen} onChange={e => setSoilData({ ...soilData, nitrogen: e.target.value })} />
+                  </label>
+                  <label>
+                    <span>Phosphate (P)</span>
+                    <input type="number" className="p2-input" value={soilData.phosphorus} onChange={e => setSoilData({ ...soilData, phosphorus: e.target.value })} />
+                  </label>
+                  <label>
+                    <span>Potash (K)</span>
+                    <input type="number" className="p2-input" value={soilData.potassium} onChange={e => setSoilData({ ...soilData, potassium: e.target.value })} />
+                  </label>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                  <div>
-                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Nitrogen (N)</label>
-                    <input
-                      type="number"
-                      value={soilData.nitrogen}
-                      onChange={e => setSoilData({ ...soilData, nitrogen: e.target.value })}
-                      style={{ width: '100%', padding: '7px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Phosphate (P)</label>
-                    <input
-                      type="number"
-                      value={soilData.phosphorus}
-                      onChange={e => setSoilData({ ...soilData, phosphorus: e.target.value })}
-                      style={{ width: '100%', padding: '7px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.7rem', color: '#64748b' }}>Potash (K)</label>
-                    <input
-                      type="number"
-                      value={soilData.potassium}
-                      onChange={e => setSoilData({ ...soilData, potassium: e.target.value })}
-                      style={{ width: '100%', padding: '7px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
-                    />
-                  </div>
-                </div>
-              </div>
+              </fieldset>
 
               {/* Micronutrients toggles */}
-              <div style={{ marginBottom: 18, background: '#f8fafc', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 6 }}>
-                  Micronutrient Status
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: '0.8rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <input
-                      type="checkbox"
-                      checked={soilData.zinc === 'Deficient'}
-                      onChange={e => setSoilData({ ...soilData, zinc: e.target.checked ? 'Deficient' : 'Sufficient' })}
-                    />
-                    Zinc Deficient
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <input
-                      type="checkbox"
-                      checked={soilData.boron === 'Deficient'}
-                      onChange={e => setSoilData({ ...soilData, boron: e.target.checked ? 'Deficient' : 'Sufficient' })}
-                    />
-                    Boron Deficient
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <input
-                      type="checkbox"
-                      checked={soilData.sulphur === 'Deficient'}
-                      onChange={e => setSoilData({ ...soilData, sulphur: e.target.checked ? 'Deficient' : 'Sufficient' })}
-                    />
-                    Sulphur Deficient
-                  </label>
-                </div>
-              </div>
+              <fieldset className="p2-fieldset p2-micro">
+                <legend className="p2-label">Micronutrient Status</legend>
+                <label className="p2-check">
+                  <input
+                    type="checkbox"
+                    checked={soilData.zinc === 'Deficient'}
+                    onChange={e => setSoilData({ ...soilData, zinc: e.target.checked ? 'Deficient' : 'Sufficient' })}
+                  />
+                  Zinc Deficient
+                </label>
+                <label className="p2-check">
+                  <input
+                    type="checkbox"
+                    checked={soilData.boron === 'Deficient'}
+                    onChange={e => setSoilData({ ...soilData, boron: e.target.checked ? 'Deficient' : 'Sufficient' })}
+                  />
+                  Boron Deficient
+                </label>
+                <label className="p2-check">
+                  <input
+                    type="checkbox"
+                    checked={soilData.sulphur === 'Deficient'}
+                    onChange={e => setSoilData({ ...soilData, sulphur: e.target.checked ? 'Deficient' : 'Sufficient' })}
+                  />
+                  Sulphur Deficient
+                </label>
+              </fieldset>
 
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  background: 'linear-gradient(135deg, #059669, #047857)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '11px',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)'
-                }}
-              >
-                Recalculate Crop Suitability
+              <button type="submit" className="p2-btn p2-btn--primary p2-btn--block">
+                <RotateCcw size={16} /> Recalculate Crop Suitability
               </button>
             </form>
           </div>
         </div>
 
         {/* RIGHT COLUMN: Output, Tabs, Crop Suggestions & Pre-measures */}
-        <div>
+        <div className="p2-soil-out">
           {/* Header Scorecard */}
-          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.04)', marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
-              <div>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Laboratory Soil Diagnosis
-                </span>
-                <h2 style={{ margin: '4px 0 2px', fontSize: '1.45rem', fontWeight: 800, color: '#0f172a' }}>
-                  Soil Health Index &amp; Advisory
-                </h2>
-                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                  Texture: <strong>{soilData.soilType}</strong> · pH {soilData.ph} · Area: {soilData.areaAcres} Acre(s)
-                </div>
+          <div className="p2-card p2-card-pad p2-score">
+            <div className="p2-score-copy">
+              <span className="p2-kicker">Laboratory Soil Diagnosis</span>
+              <h2>Soil Health Index &amp; Advisory</h2>
+              <div className="p2-card-sub">
+                Texture: <strong>{soilData.soilType}</strong> · pH {soilData.ph} · Area: {soilData.areaAcres} Acre(s)
               </div>
+            </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 900, color: result.score >= 75 ? '#059669' : result.score >= 60 ? '#d97706' : '#dc2626', lineHeight: 1 }}>
-                    {result.score}<span style={{ fontSize: '1rem', color: '#94a3b8' }}>/100</span>
-                  </div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', marginTop: 2 }}>
-                    {result.grade}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  style={{
-                    background: '#f1f5f9',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: 8,
-                    padding: '8px 12px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                  title="Print Soil Prescription"
-                >
-                  <Printer size={15} /> Print
-                </button>
+            <div className="p2-score-side">
+              <div className={`p2-score-ring is-${tone(result.score)}`} style={{ '--p2-score': result.score }}>
+                <span>{result.score}<small>/100</small></span>
               </div>
+              <div className="p2-score-grade">{result.grade}</div>
+              <button type="button" className="p2-btn p2-btn--ghost p2-btn--sm" onClick={handlePrint} title="Print Soil Prescription">
+                <Printer size={15} /> Print
+              </button>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div style={{ display: 'flex', borderBottom: '2px solid #e2e8f0', marginBottom: 20, gap: 4, flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              onClick={() => setActiveTab('crop-suitability')}
-              style={{
-                padding: '10px 18px',
-                border: 'none',
-                background: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 800,
-                color: activeTab === 'crop-suitability' ? '#059669' : '#64748b',
-                borderBottom: activeTab === 'crop-suitability' ? '3px solid #059669' : '3px solid transparent',
-                cursor: 'pointer',
-                marginBottom: -2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}
-            >
-              <span>🌾</span> Crop Suitability Suggestions ({result.cropSuitability?.length || 0})
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('target-crop')}
-              style={{
-                padding: '10px 18px',
-                border: 'none',
-                background: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 800,
-                color: activeTab === 'target-crop' ? '#059669' : '#64748b',
-                borderBottom: activeTab === 'target-crop' ? '3px solid #059669' : '3px solid transparent',
-                cursor: 'pointer',
-                marginBottom: -2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}
-            >
-              <span>🎯</span> Target Crop Pre-measures &amp; Products
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('analysis')}
-              style={{
-                padding: '10px 18px',
-                border: 'none',
-                background: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 800,
-                color: activeTab === 'analysis' ? '#059669' : '#64748b',
-                borderBottom: activeTab === 'analysis' ? '3px solid #059669' : '3px solid transparent',
-                cursor: 'pointer',
-                marginBottom: -2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}
-            >
-              <span>🧪</span> Soil Chemical Metrics
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('my-submissions')}
-              style={{
-                padding: '10px 18px',
-                border: 'none',
-                background: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 800,
-                color: activeTab === 'my-submissions' ? '#059669' : '#64748b',
-                borderBottom: activeTab === 'my-submissions' ? '3px solid #059669' : '3px solid transparent',
-                cursor: 'pointer',
-                marginBottom: -2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8
-              }}
-            >
-              <span>📋</span> My Submitted Reports ({submittedReports.length})
-            </button>
+          <div className="p2-tabs p2-tabs--wrap" role="tablist">
+            {TABS.map(([key, icon, label]) => (
+              <button key={key} type="button" role="tab" className="p2-tab" aria-selected={activeTab === key} onClick={() => setActiveTab(key)}>
+                <span aria-hidden="true">{icon}</span> {label}
+              </button>
+            ))}
           </div>
 
           {/* TAB 1: CROP SUITABILITY SUGGESTIONS */}
           {activeTab === 'crop-suitability' && (
             <div>
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '14px 18px', marginBottom: 20 }}>
-                <h4 style={{ margin: '0 0 4px', fontSize: '0.92rem', fontWeight: 800, color: '#166534', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <CheckCircle2 size={16} /> Scientifically Ranked Crops for Your Soil
-                </h4>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: '#14532d', lineHeight: 1.5 }}>
+              <div className="p2-note p2-note--stack">
+                <strong><CheckCircle2 size={16} /> Scientifically Ranked Crops for Your Soil</strong>
+                <p>
                   Based on your soil's pH ({soilData.ph}), Salinity ({soilData.ec} dS/m), Organic Carbon ({soilData.oc}%), and {soilData.soilType} texture, here is how different crops will perform naturally. Click any crop to view specific pre-measures.
                 </p>
               </div>
 
               {/* Crop Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+              <div className="p2-crop-grid">
                 {result.cropSuitability?.map(crop => {
-                  const isHighlySuitable = crop.suitability === 'Highly Suitable'
-                  const isConditional = crop.suitability === 'Conditionally Suitable'
                   const isTarget = targetCrop === crop.name
-
                   return (
-                    <div
-                      key={crop.name}
-                      style={{
-                        background: '#fff',
-                        borderRadius: 14,
-                        border: `1.5px solid ${isTarget ? '#059669' : isHighlySuitable ? '#bbf7d0' : isConditional ? '#fed7aa' : '#fecaca'}`,
-                        padding: '16px',
-                        boxShadow: isTarget ? '0 4px 14px rgba(5, 150, 105, 0.2)' : '0 2px 6px rgba(0,0,0,0.03)',
-                        position: 'relative'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: '1.6rem' }}>{crop.icon}</span>
-                          <div>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
-                              {crop.name}
-                            </h4>
-                            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{crop.category}</span>
-                          </div>
+                    <div key={crop.name} className={`p2-crop is-${suitTone(crop.suitability)}${isTarget ? ' is-target' : ''}`}>
+                      <div className="p2-crop-head">
+                        <span className="p2-crop-icon" aria-hidden="true">{crop.icon}</span>
+                        <div className="p2-crop-name">
+                          <h4>{crop.name}</h4>
+                          <span>{crop.category}</span>
                         </div>
-
-                        <span
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            padding: '3px 8px',
-                            borderRadius: 12,
-                            background: isHighlySuitable ? '#dcfce7' : isConditional ? '#ffedd5' : '#fee2e2',
-                            color: isHighlySuitable ? '#166534' : isConditional ? '#9a3412' : '#991b1b'
-                          }}
-                        >
-                          {crop.score}% · {crop.suitability}
-                        </span>
+                        <span className="p2-crop-score">{crop.score}% · {crop.suitability}</span>
                       </div>
+                      <div className="p2-meter" aria-hidden="true"><i style={{ width: `${Math.max(0, Math.min(100, crop.score))}%` }} /></div>
 
-                      <p style={{ margin: '0 0 10px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.45 }}>
-                        {crop.description}
-                      </p>
+                      <p className="p2-crop-desc">{crop.description}</p>
 
                       {/* Suitability Reasons / Limitations */}
-                      <div style={{ fontSize: '0.75rem', marginBottom: 14 }}>
+                      <ul className="p2-crop-notes">
                         {crop.reasons?.slice(0, 2).map((r, i) => (
-                          <div key={i} style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                            <Check size={12} /> {r}
-                          </div>
+                          <li key={`r${i}`} className="is-good"><Check size={12} /> {r}</li>
                         ))}
                         {crop.limitations?.slice(0, 2).map((l, i) => (
-                          <div key={i} style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-                            <AlertCircle size={12} /> {l}
-                          </div>
+                          <li key={`l${i}`} className="is-mid"><AlertCircle size={12} /> {l}</li>
                         ))}
-                      </div>
+                      </ul>
 
                       {/* Action to target this crop */}
                       <button
                         type="button"
+                        className={`p2-btn p2-btn--sm p2-btn--block ${isTarget ? 'p2-btn--primary' : 'p2-btn--ghost'}`}
                         onClick={() => {
                           setTargetCrop(crop.name)
                           setActiveTab('target-crop')
                           toast.success(`Selected ${crop.name} as target crop!`)
-                        }}
-                        style={{
-                          width: '100%',
-                          background: isTarget ? '#059669' : '#f8fafc',
-                          color: isTarget ? '#fff' : '#334155',
-                          border: `1px solid ${isTarget ? '#059669' : '#cbd5e1'}`,
-                          borderRadius: 6,
-                          padding: '7px 10px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 6
                         }}
                       >
                         {isTarget ? '✓ Currently Selected Crop' : 'Target This Crop & See Pre-measures'}
@@ -804,201 +550,108 @@ export default function SoilTestReport() {
           {activeTab === 'target-crop' && (
             <div>
               {/* Target Crop Selector Header */}
-              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '18px 20px', marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+              <div className="p2-card p2-card-pad p2-target">
+                <div className="p2-target-top">
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
-                      Selected Target Crop
-                    </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                      <span style={{ fontSize: '1.5rem' }}>{result.specificEvaluation?.targetCrop?.icon || '🌱'}</span>
-                      <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a' }}>
-                        {targetCrop}
-                      </h3>
+                    <span className="p2-kicker p2-kicker--muted">Selected Target Crop</span>
+                    <div className="p2-target-name">
+                      <span aria-hidden="true">{result.specificEvaluation?.targetCrop?.icon || '🌱'}</span>
+                      <h3>{targetCrop}</h3>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>Change Crop:</span>
-                    <select
-                      value={targetCrop}
-                      onChange={e => setTargetCrop(e.target.value)}
-                      style={{ padding: '8px 12px', borderRadius: 8, border: '1.5px solid #059669', fontSize: '0.88rem', fontWeight: 700, color: '#065f46', background: '#ecfdf5' }}
-                    >
+                  <label className="p2-target-pick">
+                    <span>Change Crop:</span>
+                    <select className="p2-input" value={targetCrop} onChange={e => setTargetCrop(e.target.value)}>
                       {ALL_CROPS.map(c => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>
-                  </div>
+                  </label>
                 </div>
 
                 {/* Gap warnings if any */}
                 {result.specificEvaluation?.gaps?.length > 0 ? (
-                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#b45309', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="p2-gaps">
+                    <div className="p2-gaps-title">
                       <AlertTriangle size={15} /> Identified Soil Limitations for {targetCrop}:
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
+                    <div className="p2-gap-grid">
                       {result.specificEvaluation.gaps.map((g, i) => (
-                        <div key={i} style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '8px 12px' }}>
-                          <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#92400e' }}>{g.parameter}</div>
-                          <div style={{ fontSize: '0.74rem', color: '#78350f', marginTop: 2 }}>
-                            Current: <strong>{g.current}</strong> · Required: {g.required}
-                          </div>
-                          <div style={{ fontSize: '0.72rem', color: '#a16207', marginTop: 3 }}>{g.impact}</div>
+                        <div key={i} className="p2-gap">
+                          <strong>{g.parameter}</strong>
+                          <div>Current: <b>{g.current}</b> · Required: {g.required}</div>
+                          <small>{g.impact}</small>
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <div style={{ marginTop: 12, fontSize: '0.82rem', color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="p2-aligned">
                     <CheckCircle2 size={16} /> Your soil chemistry is fully aligned with {targetCrop}!
                   </div>
                 )}
               </div>
 
               {/* Step-by-Step Pre-measures */}
-              <div style={{ marginBottom: 24 }}>
-                <h3 style={{ margin: '0 0 12px', fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span>📋</span> Required Pre-measures &amp; Land Preparation Protocol
-                </h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {result.specificEvaluation?.premeasures?.map((step, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: '#fff',
-                        borderRadius: 12,
-                        border: '1px solid #e2e8f0',
-                        padding: '16px 20px',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ width: 26, height: 26, borderRadius: '50%', background: '#059669', color: '#fff', fontSize: '0.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {step.step}
-                          </span>
-                          <h4 style={{ margin: 0, fontSize: '0.94rem', fontWeight: 800, color: '#0f172a' }}>
-                            {step.title}
-                          </h4>
+              <h3 className="p2-h3"><span aria-hidden="true">📋</span> Required Pre-measures &amp; Land Preparation Protocol</h3>
+              <ol className="p2-steps">
+                {result.specificEvaluation?.premeasures?.map((step, idx) => {
+                  const prod = step.product ? liveProduct(step.product) : null
+                  return (
+                    <li key={idx} className="p2-step">
+                      <span className="p2-step-num">{step.step}</span>
+                      <div className="p2-step-body">
+                        <div className="p2-step-head">
+                          <h4>{step.title}</h4>
+                          <span className="p2-chip p2-chip--blue">🕒 {step.timing}</span>
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, background: '#eff6ff', color: '#1d4ed8', padding: '3px 8px', borderRadius: 6 }}>
-                          🕒 {step.timing}
-                        </span>
-                      </div>
+                        <p>{step.instruction}</p>
 
-                      <p style={{ margin: '6px 0 10px', fontSize: '0.85rem', color: '#334155', lineHeight: 1.5 }}>
-                        {step.instruction}
-                      </p>
-
-                      {step.product && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: 8 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            {liveProduct(step.product).image && <img src={liveProduct(step.product).image} alt={liveProduct(step.product).name} style={{ width: 32, height: 32, objectFit: 'contain' }} />}
-                            <div>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>{liveProduct(step.product).name}</div>
-                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Dosage: {liveProduct(step.product).dosage || 'as per product label'}</div>
+                        {prod && (
+                          <div className="p2-step-prod">
+                            <div className="p2-step-prod-info">
+                              {prod.image && <img src={prod.image} alt={prod.name} />}
+                              <div>
+                                <strong>{prod.name}</strong>
+                                <span>Dosage: {prod.dosage || 'as per product label'}</span>
+                              </div>
                             </div>
+                            <button type="button" className="p2-btn p2-btn--primary p2-btn--sm" onClick={() => handleViewProduct(step.product)}>
+                              <ShoppingCart size={13} /> View product{prod.price ? ` (from ₹${prod.price})` : ''}
+                            </button>
                           </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleViewProduct(step.product)}
-                            style={{
-                              background: '#059669',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: 6,
-                              padding: '6px 12px',
-                              fontSize: '0.78rem',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4
-                            }}
-                          >
-                            <ShoppingCart size={13} /> View product{liveProduct(step.product).price ? ` (from ₹${liveProduct(step.product).price})` : ''}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
 
               {/* Suggested Products to Buy */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span>🛒</span> Suggested Products to Buy for {targetCrop}
-                    </h3>
-                    <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                      Certified bio-fertilizers and soil amendments matched to correct your soil deficits
-                    </p>
-                  </div>
-                </div>
+              <h3 className="p2-h3"><span aria-hidden="true">🛒</span> Suggested Products to Buy for {targetCrop}</h3>
+              <p className="p2-card-sub" style={{ margin: '-6px 0 14px' }}>
+                Certified bio-fertilizers and soil amendments matched to correct your soil deficits
+              </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
-                  {result.specificEvaluation?.suggestedProducts?.map(liveProduct).map(prod => (
-                    <div
-                      key={prod.id}
-                      style={{
-                        background: '#fff',
-                        borderRadius: 14,
-                        border: '1px solid #e2e8f0',
-                        padding: 16,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
-                      }}
-                    >
-                      <div>
-                        <div style={{ height: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 8, marginBottom: 12 }}>
-                          {prod.image && <img src={prod.image} alt={prod.name} style={{ maxHeight: 90, objectFit: 'contain' }} />}
-                        </div>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase' }}>
-                          {prod.category}
-                        </span>
-                        <h4 style={{ margin: '2px 0 4px', fontSize: '0.9rem', fontWeight: 800, color: '#0f172a' }}>
-                          {prod.name}
-                        </h4>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 8 }}>
-                          Dose: {prod.dosage || 'as per product label'}
-                        </div>
-                        <p style={{ margin: 0, fontSize: '0.78rem', color: '#475569', lineHeight: 1.4, marginBottom: 12 }}>
-                          {prod.benefit}
-                        </p>
+              <div className="p2-prod-grid">
+                {result.specificEvaluation?.suggestedProducts?.map(liveProduct).map(prod => (
+                  <div key={prod.id} className="p2-card p2-prod">
+                    <div>
+                      <div className="p2-prod-img">
+                        {prod.image ? <img src={prod.image} alt={prod.name} /> : <Sprout size={36} />}
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleViewProduct(prod)}
-                        style={{
-                          width: '100%',
-                          background: 'linear-gradient(135deg, #059669, #047857)',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          padding: '9px 14px',
-                          fontSize: '0.82rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 6
-                        }}
-                      >
-                        <ShoppingCart size={15} /> View product{prod.price ? ` (from ₹${prod.price})` : ''}
-                      </button>
+                      <span className="p2-kicker">{prod.category}</span>
+                      <h4>{prod.name}</h4>
+                      <div className="p2-prod-dose">Dose: {prod.dosage || 'as per product label'}</div>
+                      <p>{prod.benefit}</p>
                     </div>
-                  ))}
-                </div>
+
+                    <button type="button" className="p2-btn p2-btn--primary p2-btn--sm p2-btn--block" onClick={() => handleViewProduct(prod)}>
+                      <ShoppingCart size={15} /> View product{prod.price ? ` (from ₹${prod.price})` : ''}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -1006,182 +659,79 @@ export default function SoilTestReport() {
           {/* TAB 3: SOIL CHEMICAL METRICS */}
           {activeTab === 'analysis' && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
-                {/* pH Card */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Soil pH (Reaction)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.ph.color, margin: '4px 0' }}>
-                    {result.parameters.ph.value}
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.ph.color }}>
-                    {result.parameters.ph.status} (Target: {result.parameters.ph.optimalRange})
-                  </span>
-                </div>
-
-                {/* EC Card */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Salinity (EC dS/m)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.ec.color, margin: '4px 0' }}>
-                    {result.parameters.ec.value}
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.ec.color }}>
-                    {result.parameters.ec.status} (Target: {result.parameters.ec.optimalRange})
-                  </span>
-                </div>
-
-                {/* OC Card */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Organic Carbon (%)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.oc.color, margin: '4px 0' }}>
-                    {result.parameters.oc.value}%
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.oc.color }}>
-                    {result.parameters.oc.status} (Target: {result.parameters.oc.optimalRange})
-                  </span>
-                </div>
-
-                {/* Nitrogen */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Available Nitrogen (N)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.nitrogen.color, margin: '4px 0' }}>
-                    {result.parameters.nitrogen.value} <small style={{ fontSize: '0.75rem', color: '#94a3b8' }}>kg/ha</small>
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.nitrogen.color }}>
-                    {result.parameters.nitrogen.status}
-                  </span>
-                </div>
-
-                {/* Phosphorus */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Available Phosphorus (P)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.phosphorus.color, margin: '4px 0' }}>
-                    {result.parameters.phosphorus.value} <small style={{ fontSize: '0.75rem', color: '#94a3b8' }}>kg/ha</small>
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.phosphorus.color }}>
-                    {result.parameters.phosphorus.status}
-                  </span>
-                </div>
-
-                {/* Potassium */}
-                <div style={{ background: '#fff', padding: '14px 16px', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>Available Potash (K)</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: result.parameters.potassium.color, margin: '4px 0' }}>
-                    {result.parameters.potassium.value} <small style={{ fontSize: '0.75rem', color: '#94a3b8' }}>kg/ha</small>
-                  </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: result.parameters.potassium.color }}>
-                    {result.parameters.potassium.status}
-                  </span>
-                </div>
+              <div className="p2-metric-grid">
+                {METRICS.map(([key, label, unit, showRange]) => {
+                  const m = result.parameters[key]
+                  return (
+                    <div key={key} className="p2-card p2-metric" style={{ '--p2-metric': m.color }}>
+                      <div className="p2-metric-label">{label}</div>
+                      <div className="p2-metric-value">
+                        {m.value}{unit === '%' ? '%' : null} {unit === 'kg/ha' && <small>kg/ha</small>}
+                      </div>
+                      <span className="p2-metric-status">
+                        {m.status}{showRange ? ` (Target: ${m.optimalRange})` : ''}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Detailed Expert Diagnostic Notes */}
-              <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: 20 }}>
-                <h4 style={{ margin: '0 0 12px', fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
-                  Laboratory Interpretation Notes
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem', color: '#334155' }}>
-                  <div>• <strong>pH Diagnosis:</strong> {result.parameters.ph.advice}</div>
-                  <div>• <strong>Salinity Diagnosis:</strong> {result.parameters.ec.advice}</div>
-                  <div>• <strong>Organic Matter Diagnosis:</strong> {result.parameters.oc.advice}</div>
-                </div>
+              <div className="p2-card p2-card-pad">
+                <h4 className="p2-card-title" style={{ fontSize: '1rem', marginBottom: 12 }}>Laboratory Interpretation Notes</h4>
+                <ul className="p2-bullets">
+                  <li><strong>pH Diagnosis:</strong> {result.parameters.ph.advice}</li>
+                  <li><strong>Salinity Diagnosis:</strong> {result.parameters.ec.advice}</li>
+                  <li><strong>Organic Matter Diagnosis:</strong> {result.parameters.oc.advice}</li>
+                </ul>
               </div>
             </div>
           )}
 
           {/* TAB 4: MY SUBMITTED REPORTS */}
           {activeTab === 'my-submissions' && (
-            <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <div className="p2-card p2-card-pad">
+              <div className="p2-section-head">
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                    My Submitted Soil Test Reports
-                  </h3>
-                  <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-                    Track your reports reviewed by Super Admin and assigned Agronomists
-                  </p>
+                  <h3 className="p2-card-title">My Submitted Soil Test Reports</h3>
+                  <p className="p2-card-sub">Track your reports reviewed by Super Admin and assigned Agronomists</p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleOpenSubmitModal}
-                  style={{
-                    background: '#059669',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6
-                  }}
-                >
+                <button type="button" className="p2-btn p2-btn--primary p2-btn--sm" onClick={handleOpenSubmitModal}>
                   <Send size={14} /> Submit New Report
                 </button>
               </div>
 
               {submittedReports.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
-                  <FileText size={44} color="#cbd5e1" style={{ margin: '0 auto 12px' }} />
+                <div className="p2-empty">
+                  <div className="p2-empty-icon"><FileText size={28} /></div>
                   <h4>No Soil Reports Submitted Yet</h4>
-                  <p style={{ fontSize: '0.85rem', margin: '4px 0 16px' }}>
-                    Submit your current soil test analysis above to receive certified agronomist feedback.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleOpenSubmitModal}
-                    style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: 6, fontWeight: 700, cursor: 'pointer' }}
-                  >
+                  <p>Submit your current soil test analysis above to receive certified agronomist feedback.</p>
+                  <button type="button" className="p2-btn p2-btn--primary p2-btn--sm" onClick={handleOpenSubmitModal}>
                     Submit Report Now
                   </button>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div className="p2-stack">
                   {submittedReports.map(report => (
-                    <div
-                      key={report.id}
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 12,
-                        padding: '16px 20px'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
+                    <div key={report.id} className="p2-report">
+                      <div className="p2-booking-top">
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a' }}>{report.id}</span>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: 4, border: '1px solid #a7f3d0' }}>
-                              Crop: {report.crop}
-                            </span>
-                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                              · {new Date(report.createdAt).toLocaleDateString('en-IN')}
-                            </span>
+                          <div className="p2-thread-ids">
+                            <span className="p2-list-id">{report.id}</span>
+                            <span className="p2-chip p2-chip--green">Crop: {report.crop}</span>
+                            <span className="p2-hint">· {new Date(report.createdAt).toLocaleDateString('en-IN')}</span>
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 3 }}>
+                          <div className="p2-hint">
                             Farmer: <strong>{report.farmerName}</strong> ({report.phone}) · {report.village}, {report.district}
                           </div>
                         </div>
 
                         {/* Status Badge */}
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            fontWeight: 800,
-                            padding: '4px 10px',
-                            borderRadius: 12,
-                            background: report.status === 'Prescription Issued' ? '#dcfce7' : report.status === 'Under Agronomist Analysis' ? '#dbeafe' : '#fef3c7',
-                            color: report.status === 'Prescription Issued' ? '#166534' : report.status === 'Under Agronomist Analysis' ? '#1e40af' : '#92400e'
-                          }}
-                        >
-                          {report.status}
-                        </span>
+                        <span className={`p2-chip ${reportChip(report.status)}`}>{report.status}</span>
                       </div>
 
                       {/* Soil Metrics Overview */}
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: '0.78rem', background: '#fff', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 10 }}>
+                      <div className="p2-report-metrics">
                         <span>Texture: <strong>{report.soilType}</strong></span>
                         <span>pH: <strong>{report.ph}</strong></span>
                         <span>EC: <strong>{report.ec}</strong></span>
@@ -1191,12 +741,12 @@ export default function SoilTestReport() {
 
                       {/* Assigned Agronomist Banner */}
                       {report.assignedToName && (
-                        <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '10px 14px', marginBottom: 8, fontSize: '0.82rem', color: '#065f46' }}>
-                          <div style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div className="p2-quote p2-quote--green">
+                          <strong className="p2-inline-icon">
                             <ShieldCheck size={16} /> Assigned Agronomist: {report.assignedToName} ({report.assignedDesignation || report.assignedRole})
-                          </div>
+                          </strong>
                           {report.agronomistNotes && (
-                            <div style={{ marginTop: 6, color: '#166534', whiteSpace: 'pre-line', background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid #bbf7d0' }}>
+                            <div className="p2-quote" style={{ marginTop: 8, whiteSpace: 'pre-line' }}>
                               <strong>Expert Recommendation: </strong>
                               {report.agronomistNotes}
                             </div>
@@ -1214,155 +764,97 @@ export default function SoilTestReport() {
 
       {/* MODAL: SUBMIT SOIL REPORT */}
       {showSubmitModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(4px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: 16
-          }}
-          onClick={() => setShowSubmitModal(false)}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: '#fff',
-              borderRadius: 18,
-              maxWidth: 540,
-              width: '100%',
-              padding: '24px 26px',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottom: '1px solid #f1f5f9', paddingBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 34, height: 34, borderRadius: 8, background: '#dcfce7', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Send size={18} />
-                </span>
+        <div className="p2-backdrop" onClick={() => setShowSubmitModal(false)}>
+          <div className="p2-modal" role="dialog" aria-modal="true" aria-labelledby="p2-soil-title" onClick={e => e.stopPropagation()}>
+            <div className="p2-modal-head">
+              <div className="p2-modal-titlerow">
+                <span className="p2-note-icon"><Send size={18} /></span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                    Submit Soil Report for Agronomist Verification
-                  </h3>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                    Super Admin &amp; certified plant pathologists will analyze your field
-                  </div>
+                  <h3 id="p2-soil-title">Submit Soil Report for Agronomist Verification</h3>
+                  <p>Super Admin &amp; certified plant pathologists will analyze your field</p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowSubmitModal(false)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-              >
+              <button type="button" className="p2-close" aria-label="Close" onClick={() => setShowSubmitModal(false)}>
                 <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleSubmitReport}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Farmer Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={submitFormData.farmerName}
-                    onChange={e => setSubmitFormData({ ...submitFormData, farmerName: e.target.value })}
-                    placeholder="e.g. Rameshwar Patel"
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                  />
+              <div className="p2-modal-body">
+                <div className="p2-grid-2">
+                  <div className="p2-field">
+                    <label className="p2-label">Farmer Full Name *</label>
+                    <input
+                      type="text"
+                      className="p2-input"
+                      required
+                      value={submitFormData.farmerName}
+                      onChange={e => setSubmitFormData({ ...submitFormData, farmerName: e.target.value })}
+                      placeholder="e.g. Rameshwar Patel"
+                    />
+                  </div>
+
+                  <div className="p2-field">
+                    <label className="p2-label">Mobile / WhatsApp Number *</label>
+                    <input
+                      type="tel"
+                      className="p2-input"
+                      required
+                      value={submitFormData.phone}
+                      onChange={e => setSubmitFormData({ ...submitFormData, phone: e.target.value })}
+                      placeholder="e.g. 9876543210"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Mobile / WhatsApp Number *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={submitFormData.phone}
-                    onChange={e => setSubmitFormData({ ...submitFormData, phone: e.target.value })}
-                    placeholder="e.g. 9876543210"
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
+                <div className="p2-grid-2">
+                  <div className="p2-field">
+                    <label className="p2-label">Village / Town</label>
+                    <input
+                      type="text"
+                      className="p2-input"
+                      value={submitFormData.village}
+                      onChange={e => setSubmitFormData({ ...submitFormData, village: e.target.value })}
+                      placeholder="e.g. Valavanthankottai"
+                    />
+                  </div>
+
+                  <div className="p2-field">
+                    <label className="p2-label">District &amp; State</label>
+                    <input
+                      type="text"
+                      className="p2-input"
+                      value={submitFormData.district}
+                      onChange={e => setSubmitFormData({ ...submitFormData, district: e.target.value })}
+                      placeholder="e.g. Thanjavur, Tamil Nadu"
+                    />
+                  </div>
+                </div>
+
+                <div className="p2-quote" style={{ marginBottom: 14 }}>
+                  <strong>Submitting Current Soil Snapshot:</strong>
+                  <div className="p2-hint" style={{ marginTop: 2 }}>
+                    Target Crop: <strong>{targetCrop}</strong> · Soil: {soilData.soilType} · pH: {soilData.ph} · EC: {soilData.ec} · Acres: {soilData.areaAcres}
+                  </div>
+                </div>
+
+                <div className="p2-field">
+                  <label className="p2-label">Additional Field Symptoms or Questions (Optional)</label>
+                  <textarea
+                    rows={2}
+                    className="p2-input"
+                    value={submitFormData.remarks}
+                    onChange={e => setSubmitFormData({ ...submitFormData, remarks: e.target.value })}
+                    placeholder="e.g. Noticeable leaf yellowing, irrigation with borewell water..."
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    Village / Town
-                  </label>
-                  <input
-                    type="text"
-                    value={submitFormData.village}
-                    onChange={e => setSubmitFormData({ ...submitFormData, village: e.target.value })}
-                    placeholder="e.g. Valavanthankottai"
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                    District &amp; State
-                  </label>
-                  <input
-                    type="text"
-                    value={submitFormData.district}
-                    onChange={e => setSubmitFormData({ ...submitFormData, district: e.target.value })}
-                    placeholder="e.g. Thanjavur, Tamil Nadu"
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.85rem' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 14, background: '#f8fafc', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '0.8rem' }}>
-                <div style={{ color: '#0f172a', fontWeight: 700 }}>Submitting Current Soil Snapshot:</div>
-                <div style={{ color: '#64748b', marginTop: 2 }}>
-                  Target Crop: <strong>{targetCrop}</strong> · Soil: {soilData.soilType} · pH: {soilData.ph} · EC: {soilData.ec} · Acres: {soilData.areaAcres}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: 4 }}>
-                  Additional Field Symptoms or Questions (Optional)
-                </label>
-                <textarea
-                  rows={2}
-                  value={submitFormData.remarks}
-                  onChange={e => setSubmitFormData({ ...submitFormData, remarks: e.target.value })}
-                  placeholder="e.g. Noticeable leaf yellowing, irrigation with borewell water..."
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem', fontFamily: 'inherit' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowSubmitModal(false)}
-                  style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
-                >
+              <div className="p2-modal-foot">
+                <button type="button" className="p2-btn p2-btn--ghost" onClick={() => setShowSubmitModal(false)}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  style={{
-                    background: 'linear-gradient(135deg, #059669, #047857)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 22px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)'
-                  }}
-                >
+                <button type="submit" className="p2-btn p2-btn--primary" disabled={submitting}>
                   {submitting ? 'Submitting...' : 'Confirm Submission'}
                 </button>
               </div>

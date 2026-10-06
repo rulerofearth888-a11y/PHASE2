@@ -12839,33 +12839,12 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
   .product-buy-bar { transition: none; }
 }
 
-/* ---- Phase 2 page heroes (SoilTestReport.jsx, AgronomyExperts.jsx) ----
-   Sizes come from the inline custom properties, so wider screens look as
-   before. Phones: the title filled the whole first screen (more so in Tamil)
-   and the page's own buttons sat under the bottom nav, so the hero is
-   compact and its buttons come before the long paragraph. */
-.p2-hero { padding: var(--p2-hero-pad, 36px 32px); }
-.p2-hero-title { font-size: var(--p2-title-size, 2.1rem); }
-.p2-hero-text { font-size: var(--p2-text-size, 1rem); }
-@media (max-width: 768px) {
-  .p2-hero { padding: 20px 18px; }
-  .p2-hero-title { font-size: 1.55rem; }
-  .p2-hero-text { font-size: 0.9rem; }
-  .p2-hero-inner { display: flex; flex-direction: column; align-items: flex-start; }
-  .p2-hero-actions { order: 3; margin-top: 14px; }
-  .p2-hero-inner > .p2-hero-text { order: 4; margin-top: 14px; }
-  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .p2-hero-title {
-    font-size: 1.3rem;
-    line-height: 1.35;
-  }
-}
 /* The Add/Checkout buttons now sit above the description: keep them apart. */
 .product-detail-actions + .product-detail-description { margin-top: 20px; }
 
 /* Desktop: the "FACTORY 2 FARMER" tag hangs below the header (to ~158px) and
    sat over the top edge of these page banners. */
 @media (min-width: 1025px) {
-  .p2-hero { margin-top: 40px; }
   .sb-blog-hero { margin-top: 30px; }
 }
 

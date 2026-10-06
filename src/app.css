@@ -4,6 +4,7 @@
    any layer (Font Awesome, Sonner) beat layered rules, so tweaks to them live
    in unlayered files (toast.css) or use their variables (--fa-display). */
 @import './index.css' layer(app);
+@import './phase2.css' layer(app);
 @import './toast.css';
 @import './scrollbars.css';
 @import './dropdowns.css';
