@@ -14353,3 +14353,358 @@ body.poster-open .sb-portal .call-fab {
 @media (prefers-reduced-motion: reduce) {
   :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window { transition: none; }
 }
+
+/* ==========================================================================
+   7s. FACTORY 2 FARMER JOURNEY 2026 (StoreHeader.jsx tag; phones <=767 use
+   .header-slogan--chrome, desktop >=1025 uses .header-slogan--store)
+   One 8s story on one clock, replacing the separate 7s truck / 9s sheen:
+     0-10%  DISPATCH  the factory squashes as it loads, a puff of smoke rises
+    10-56%  DRIVE     the truck bobs along the road; the road fills solid green
+                      behind it and the shine on the words travels with it
+    56-72%  ARRIVE    the wheat sways, glows and throws three seed sparkles
+    72-100% REST      the green road fades back to dashes
+   Transform/opacity only (the truck used to animate `left`, a layout per
+   frame); the text shine is the one paint. The loop pauses while the tag is
+   folded away (body.slogan-tucked). The entry (pill opening from a dot,
+   icons popping) is unchanged.
+   ========================================================================== */
+@media (max-width: 767px), (min-width: 1025px) {
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) {
+    --f2f-cycle: 8s;
+    --f2f-start: 1.9s;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end {
+    position: relative;
+  }
+
+  /* DISPATCH: the factory loads the truck */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--from {
+    animation: sbSloganPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1.1s both,
+               f2fLoad var(--f2f-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--from::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    right: 2px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(139, 94, 26, 0.32);
+    box-shadow: -4px -2px 0 -0.5px rgba(139, 94, 26, 0.22);
+    opacity: 0;
+    pointer-events: none;
+    animation: f2fSmoke var(--f2f-cycle) ease-out var(--f2f-start) infinite;
+  }
+
+  /* DRIVE: the road fills behind the truck */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-road {
+    container-type: inline-size;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-road::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -1px;
+    height: 1px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, rgba(11, 122, 75, 0.25), #0B7A4B);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: f2fRoad var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck {
+    left: 0;
+    animation: f2fDrive var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck::before {
+    display: inline-block;
+    animation: f2fBob 0.32s ease-in-out infinite alternate;
+  }
+  /* The shine on the words rides with the truck: same clock, same window. */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: sloganIn, f2fShine;
+    animation-duration: 900ms, var(--f2f-cycle);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1), cubic-bezier(0.45, 0, 0.25, 1);
+    animation-delay: 0.75s, var(--f2f-start);
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: both, none;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: sloganInPlain, f2fShine;
+  }
+
+  /* ARRIVE: the wheat sways, glows and sparkles */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--to {
+    transform-origin: 50% 90%;
+    animation: sbSloganPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1.25s both,
+               f2fHarvest var(--f2f-cycle) ease-in-out var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--to::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 3px;
+    margin: -1.5px 0 0 -1.5px;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 0 -10px 0 #E0A526, 9px 5px 0 #16A46A, -9px 5px 0 #16A46A;
+    opacity: 0;
+    transform: scale(0.3);
+    pointer-events: none;
+    animation: f2fSparkle var(--f2f-cycle) ease-out var(--f2f-start) infinite;
+  }
+
+  /* Folded away on scroll: stop the loop, nothing to watch. */
+  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-end::after, .slogan-road::before, .slogan-truck, .slogan-truck::before, .header-slogan-text) {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes f2fLoad {
+  0%, 10%, 100% { transform: scale(1); }
+  3% { transform: scale(1.18, 0.82); }
+  6% { transform: scale(0.94, 1.08); }
+}
+@keyframes f2fSmoke {
+  0%, 1% { opacity: 0; transform: translateY(0) scale(0.6); }
+  4% { opacity: 1; }
+  13%, 100% { opacity: 0; transform: translateY(-9px) scale(1.7); }
+}
+@keyframes f2fDrive {
+  0%, 9% { transform: translateX(0); opacity: 0; }
+  12% { opacity: 1; }
+  56% { transform: translateX(calc(100cqw - 9px)); opacity: 1; }
+  61%, 100% { transform: translateX(calc(100cqw - 9px)); opacity: 0; }
+}
+@keyframes f2fBob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1px); }
+}
+@keyframes f2fRoad {
+  0%, 10% { transform: scaleX(0); opacity: 1; }
+  56% { transform: scaleX(1); opacity: 1; }
+  72% { transform: scaleX(1); opacity: 1; }
+  84%, 100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes f2fShine {
+  0%, 10% { background-position: 120% 0; }
+  56%, 100% { background-position: -20% 0; }
+}
+@keyframes f2fHarvest {
+  0%, 55%, 100% { transform: rotate(0); box-shadow: 0 0 0 0 rgba(11, 122, 75, 0); }
+  59% { transform: rotate(-14deg); box-shadow: 0 0 0 5px rgba(11, 122, 75, 0.2); }
+  63% { transform: rotate(10deg); }
+  67% { transform: rotate(-5deg); box-shadow: 0 0 0 2px rgba(11, 122, 75, 0.06); }
+  71% { transform: rotate(0); box-shadow: 0 0 0 0 rgba(11, 122, 75, 0); }
+}
+@keyframes f2fSparkle {
+  0%, 56% { opacity: 0; transform: scale(0.3); }
+  60% { opacity: 1; }
+  72%, 100% { opacity: 0; transform: scale(1.35); }
+}
+/* Containers with no container-query support: the truck stays parked at the
+   start rather than driving off the road. */
+@supports not (width: 1cqw) {
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck {
+    animation: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-end::after, .slogan-road::before, .slogan-truck, .slogan-truck::before) {
+    animation: none;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation: none;
+    background-image: none;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck {
+    display: none;
+  }
+}
+
+/* ---- 7s (cont.) THE OPENING: zoom in, ping, unfold, focus pull ---------
+   When the site opens the pill unfolds from a dot (the existing clip-path
+   open), then gives one camera punch - zooms in to 112%, back out past
+   100% and settles - while a green ring ripples out once and the words pull
+   into focus from large and soft to crisp. After that,
+   each time the truck reaches the farm the whole tag beats once. All of it
+   uses the separate `scale` property, so it never touches the transform that
+   centres the tag and folds it away on phones. No blur on phones. */
+@media (max-width: 767px) {
+  .header-slogan.header-slogan--chrome {
+    animation: sbSloganOpen 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s backwards,
+               f2fArrive 0.75s cubic-bezier(0.34, 1.4, 0.64, 1) 1.15s backwards,
+               f2fBeat var(--f2f-cycle) ease-in-out var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: f2fFocusFlat, f2fShine;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: f2fFocusFlatPlain, f2fShine;
+  }
+}
+@media (min-width: 1025px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
+    animation: sbSloganExpand 1s cubic-bezier(0.65, 0, 0.35, 1) 0.2s backwards,
+               f2fArrive 0.75s cubic-bezier(0.34, 1.4, 0.64, 1) 1.15s backwards,
+               f2fBeat var(--f2f-cycle) ease-in-out var(--f2f-start) infinite;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: f2fFocus, f2fShine;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
+    animation-name: f2fFocusPlain, f2fShine;
+  }
+}
+@media (max-width: 767px), (min-width: 1025px) {
+  /* the ping: one ring rippling out from the dot as it lands */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 rgba(22, 164, 106, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    animation: f2fPing 1.2s cubic-bezier(0.22, 1, 0.36, 1) 1.25s;
+  }
+  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) {
+    animation-play-state: running, running, paused;
+  }
+}
+
+@keyframes f2fArrive {
+  0% { scale: 1; }
+  40% { scale: 1.12; }
+  75% { scale: 0.97; }
+  100% { scale: 1; }
+}
+@keyframes f2fPing {
+  0% { opacity: 1; box-shadow: 0 0 0 0 rgba(11, 122, 75, 0.55); }
+  100% { opacity: 0; box-shadow: 0 0 0 18px rgba(11, 122, 75, 0); }
+}
+@keyframes f2fBeat {
+  0%, 56%, 66%, 100% { scale: 1; }
+  59% { scale: 1.05; }
+  62% { scale: 0.985; }
+}
+/* the words: large and soft, then pulled into focus */
+@keyframes f2fFocus {
+  from { opacity: 0; scale: 1.45; filter: blur(4px); letter-spacing: 0.34em; }
+  60% { opacity: 1; filter: blur(0); }
+  to { opacity: 1; scale: 1; filter: none; letter-spacing: 0.22em; }
+}
+@keyframes f2fFocusPlain {
+  from { opacity: 0; scale: 1.45; filter: blur(4px); }
+  60% { opacity: 1; filter: blur(0); }
+  to { opacity: 1; scale: 1; filter: none; }
+}
+@keyframes f2fFocusFlat {
+  from { opacity: 0; scale: 1.45; letter-spacing: 0.34em; }
+  to { opacity: 1; scale: 1; letter-spacing: 0.22em; }
+}
+@keyframes f2fFocusFlatPlain {
+  from { opacity: 0; scale: 1.45; }
+  to { opacity: 1; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .header-slogan.header-slogan--chrome,
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store,
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::after {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   7t. HOME TRUST + STATS, PHONE COMPACT (<=768px)
+   Pattern used by Flipkart / Meesho / BigHaat app home screens: trust badges
+   become one row of four icon tiles with a short caption (no description),
+   and the counters become one slim band of four numbers with one-line labels
+   (no sub-label). The two blocks went from ~1000px tall to ~260px.
+   ========================================================================== */
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip {
+    padding: 14px 0 12px;
+    margin: 8px 0 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-strip-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-item {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 7px;
+    padding: 0;
+    text-align: center;
+    min-width: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-item i {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #E8F5EE;
+    color: var(--primary);
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-item > div {
+    min-width: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-item strong {
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--primary-dark);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .trust-strip .trust-item span {
+    display: none;
+  }
+
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip {
+    padding: 14px 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    align-items: start;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stats-grid > .stat-item {
+    min-width: 0;
+    padding: 0 2px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-item + .stat-item {
+    border-left: 1px solid rgba(255,255,255,0.16);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-number {
+    font-size: 1.3rem;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-label {
+    font-size: 0.62rem;
+    font-weight: 500;
+    line-height: 1.25;
+    margin-top: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-sublabel {
+    display: none;
+  }
+}
