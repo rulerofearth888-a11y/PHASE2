@@ -13,8 +13,6 @@ const QUICK_CHATS = [
   ['How to test soil health?', '🌱 Soil Test Guide'],
   ['I want to speak with an agronomist', '📞 Call Agronomist'],
 ]
-const SMALL_BUTTON = { padding: '4px 10px', fontSize: '0.75rem', marginTop: '6px' }
-
 // Canned answers to common crop questions. Products are never named here:
 // a remedy button appears only when a live catalogue product is tagged for
 // that problem (findRemedyProduct), and doses come from its label, not us.
@@ -23,13 +21,13 @@ function replyTo(text, addToCart, findRemedyProduct) {
   const remedyButton = keyword => {
     const product = findRemedyProduct(keyword)
     if (!product) return null
-    return <button className="btn btn-primary" style={SMALL_BUTTON} onClick={() => addToCart(product.id)}><i className="fa-solid fa-cart-plus"></i> Add {product.name} to Cart</button>
+    return <button className="chat-action" onClick={() => addToCart(product.id)}><i className="fa-solid fa-cart-plus"></i> Add {product.name} to Cart</button>
   }
   const pageButton = (to, label) => (
-    <Link className="btn btn-primary" style={SMALL_BUTTON} to={to}>{label}</Link>
+    <Link className="chat-action" to={to}>{label} <i className="fa-solid fa-arrow-right"></i></Link>
   )
   const whatsAppButton = label => (
-    <a className="btn btn-gold" style={SMALL_BUTTON} href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-whatsapp"></i> {label}</a>
+    <a className="chat-action chat-action--wa" href={WHATSAPP_EXPERT_URL} target="_blank" rel="noopener noreferrer"><i className="fa-brands fa-whatsapp"></i> {label}</a>
   )
 
   if (lower.includes('blast') || lower.includes('paddy')) {
@@ -92,18 +90,18 @@ export default memo(function Chatbot({ t }) {
     <>
       <div className={`chatbot-window${open ? ' active' : ''}`} id="chatbotWindow">
         <div className="chatbot-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <i className="fa-solid fa-robot"></i>
+          <div className="chatbot-id">
+            <span className="chatbot-avatar" aria-hidden="true"><i className="fa-solid fa-seedling"></i></span>
             <div>
-              <span style={{ fontWeight: 700, display: 'block' }} data-i18n="chatbot_title">{t('chatbot_title')}</span>
-              <span style={{ fontSize: '0.7rem', color: '#DCEFE4' }}>● Online 24/7 (Instant Response)</span>
+              <span className="chatbot-title" data-i18n="chatbot_title">{t('chatbot_title')}</span>
+              <span className="chatbot-status">● Online 24/7 (Instant Response)</span>
             </div>
           </div>
-          <button id="chatbotCloseBtn" onClick={() => setOpen(false)} style={{ background: 'transparent', color: 'white', fontSize: '1.2rem', cursor: 'pointer' }} aria-label="Close chat">&times;</button>
+          <button id="chatbotCloseBtn" className="chatbot-close" onClick={() => setOpen(false)} aria-label="Close chat">&times;</button>
         </div>
         <div className="chatbot-messages" id="chatbotMessages" ref={messagesRef}>
           <div className="chat-msg bot-msg" data-i18n="chat_welcome">{t('chat_welcome')}</div>
-          <div className="chat-chip-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+          <div className="chat-chip-container">
             {QUICK_CHATS.map(([question, label]) => (
               <button key={question} className="chat-quick-chip" onClick={() => { setOpen(true); send(question) }}>{label}</button>
             ))}

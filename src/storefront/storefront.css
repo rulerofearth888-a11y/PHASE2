@@ -4378,11 +4378,6 @@ body.sb-home-active {
   :is(body.sb-home-active .sb-home, .sb-portal) .back-to-top {
     display: none !important;
   }
-  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window {
-    right: 10px !important;
-    left: 10px !important;
-    width: calc(100% - 20px) !important;
-  }
 
   /* Grids and Section Content */
   :is(body.sb-home-active .sb-home, .sb-portal) .category-circles-grid {
@@ -7032,11 +7027,6 @@ body.sb-home-active {
 
   :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-trigger-btn {
     bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window {
-    bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
-    max-height: calc(100vh - 104px) !important;
-    max-height: calc(100dvh - 104px) !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) #welcomePosterModal.modal-overlay,
   :is(body.sb-home-active .sb-home, .sb-portal) #welcomePosterModal.modal-overlay.active {
@@ -14259,4 +14249,107 @@ body.poster-open .sb-portal .call-fab {
 /* Track order truck icon: desktop header only (see the >=1025px block). */
 :is(body.sb-home-active .sb-home, .sb-portal) .action-track-icon {
   display: none;
+}
+
+/* ==========================================================================
+   7r. CHATBOT 2026 (storefront/sections/Chatbot.jsx, home page)
+   Farmer Services look (src/phase2.css): deep-green header with a round
+   avatar, soft chat bubbles, inline pill actions instead of stacked .btn
+   blocks, swipeable quick chips, pill input with a round send button.
+   Phones: a bottom sheet over a scrim, above the bottom nav (10030), so it
+   no longer floats over the header. Desktop: a panel left of the Call/Help
+   stack. The phone !important positions it replaces were removed.
+   ========================================================================== */
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window {
+  font-family: 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
+  border: 1px solid #E3E9E5;
+  background: #fff;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-header {
+  background: linear-gradient(135deg, #053d28 0%, #075437 55%, #0B7A4B 100%);
+  padding: 14px 14px 14px 16px;
+  gap: 12px;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-id { display: flex; align-items: center; gap: 12px; min-width: 0; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-avatar {
+  width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.16); color: #A7F3D0; font-size: 1.05rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-title { display: block; font-family: 'Outfit', var(--script-font, sans-serif), sans-serif; font-weight: 700; font-size: 1rem; line-height: 1.25; color: #fff; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-status { display: block; font-size: 0.72rem; color: #BBF7D0; margin-top: 2px; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-close {
+  width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; cursor: pointer;
+  display: grid; place-items: center; font-size: 1.4rem; line-height: 1;
+  background: rgba(255, 255, 255, 0.12); color: #fff;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-close:hover { background: rgba(255, 255, 255, 0.22); }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-messages { background: #F6F8F6; padding: 16px 14px; gap: 12px; overscroll-behavior: contain; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-msg { font-size: 0.88rem; line-height: 1.55; padding: 11px 14px; border-radius: 16px; max-width: 88%; overflow-wrap: anywhere; }
+:is(body.sb-home-active .sb-home, .sb-portal) .bot-msg { border-color: #E3E9E5; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(19, 34, 27, 0.04); }
+:is(body.sb-home-active .sb-home, .sb-portal) .user-msg { background: #0B7A4B; border-bottom-right-radius: 4px; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-chip-container {
+  display: flex; gap: 8px; margin: 0 -14px; padding: 0 14px 2px;
+  overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-chip-container::-webkit-scrollbar { display: none; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-quick-chip {
+  flex-shrink: 0; white-space: nowrap; cursor: pointer;
+  padding: 8px 12px; border-radius: 999px; min-height: 36px;
+  background: #fff; border: 1px solid #BFE3CF; color: #075437;
+  font-family: inherit; font-size: 0.8rem; font-weight: 700;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-quick-chip:hover { background: #E8F5EE; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-action {
+  display: inline-flex; align-items: center; gap: 6px; margin: 8px 6px 0 0;
+  padding: 7px 12px; min-height: 34px; border-radius: 999px; cursor: pointer;
+  background: #E8F5EE; color: #075437; border: 1px solid #BFE3CF;
+  font-family: inherit; font-size: 0.78rem; font-weight: 700; line-height: 1.2; text-decoration: none;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-action:hover { background: #D7EFE2; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-action--wa { background: #25D366; border-color: #25D366; color: #fff; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chat-action--wa:hover { background: #1EBE5A; }
+:is(body.sb-home-active .sb-home, .sb-portal) :is(.chat-action, .chat-quick-chip, .chatbot-close, #chatbotSendBtn):focus-visible { outline: 3px solid rgba(11, 122, 75, 0.35); outline-offset: 2px; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row { padding: 10px 12px; gap: 8px; align-items: center; border-top-color: #E3E9E5; }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row input {
+  min-height: 44px; border-radius: 999px; padding: 10px 16px;
+  border: 1px solid #CDD7D1; background: #F6F8F6; font-family: inherit; color: #13221B;
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row input:focus { border-color: #0B7A4B; background: #fff; box-shadow: 0 0 0 3px rgba(11, 122, 75, 0.15); }
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row button {
+  width: 44px; height: 44px; flex-shrink: 0; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; background: #0B7A4B; color: #fff; cursor: pointer;
+  box-shadow: 0 6px 16px rgba(11, 122, 75, 0.24);
+}
+:is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row button:hover { background: #075437; }
+
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window {
+    left: 0; right: 0; bottom: 0; top: auto;
+    width: 100%; height: 78vh; height: 78dvh; max-height: none;
+    border-radius: 22px 22px 0 0; border-width: 1px 0 0;
+    z-index: 10040;
+    box-shadow: 0 0 0 100vmax rgba(10, 24, 17, 0), 0 -12px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, box-shadow 0.28s ease;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window.active { transform: translateY(0); box-shadow: 0 0 0 100vmax rgba(10, 24, 17, 0.5), 0 -12px 40px rgba(0, 0, 0, 0.2); }
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-header { padding-top: 18px; position: relative; }
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-header::before {
+    content: ''; position: absolute; top: 7px; left: 50%; width: 40px; height: 4px; margin-left: -20px;
+    border-radius: 4px; background: rgba(255, 255, 255, 0.35);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-input-row { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 769px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window { width: 390px; height: min(600px, calc(100vh - 140px)); border-radius: 20px; box-shadow: 0 24px 56px rgba(20, 35, 28, 0.2); }
+  :is(body.sb-home-active .sb-home, .sb-portal) .chat-chip-container { flex-wrap: wrap; overflow: visible; }
+}
+@media (min-width: 1025px) {
+  /* left of the Call / Help buttons (right 24px, ~64px wide) */
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window { right: 100px; bottom: 24px; max-height: calc(100vh - 160px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .chatbot-window { transition: none; }
 }
