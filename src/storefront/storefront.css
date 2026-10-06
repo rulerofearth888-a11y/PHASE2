@@ -14665,7 +14665,7 @@ body.poster-open .sb-portal .call-fab {
     line-height: 1.25;
     color: var(--primary-dark);
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: anywhere;
@@ -14699,10 +14699,10 @@ body.poster-open .sb-portal .call-fab {
     line-height: 1.25;
     margin-top: 4px;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-sublabel {
     display: none;
