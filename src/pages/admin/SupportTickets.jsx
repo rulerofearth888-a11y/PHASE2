@@ -133,168 +133,158 @@ export default function SupportTickets() {
   }
 
   const stats = [
-    { label: 'Total Tickets', value: tickets.length, icon: '🎫', color: 'blue' },
-    { label: 'Resolved', value: tickets.filter(t => (t.status || '').toLowerCase() === 'resolved').length, icon: '✅', color: 'green' },
-    { label: 'In Progress', value: tickets.filter(t => (t.status || '').toLowerCase() === 'in progress').length, icon: '⏳', color: 'yellow' },
-    { label: 'Unassigned', value: tickets.filter(t => !t.assignedToId || t.assignedToName === 'Unassigned').length, icon: '⚠️', color: 'orange' },
+    { label: 'Total Tickets', value: tickets.length, icon: <MessageSquare size={18} />, tone: '', filter: 'all' },
+    { label: 'Resolved', value: tickets.filter(t => (t.status || '').toLowerCase() === 'resolved').length, icon: <CheckCircle size={18} />, tone: 'is-green', filter: 'resolved' },
+    { label: 'In Progress', value: tickets.filter(t => (t.status || '').toLowerCase() === 'in progress').length, icon: <Hourglass size={18} />, tone: 'is-blue', filter: 'in-progress' },
+    { label: 'Unassigned', value: tickets.filter(t => !t.assignedToId || t.assignedToName === 'Unassigned').length, icon: <AlertCircle size={18} />, tone: 'is-amber', filter: null },
   ]
+  const statusChip = s => {
+    const k = (s || 'pending').toLowerCase()
+    return k === 'resolved' || k === 'closed' ? 'p2-chip--green' : k === 'in progress' ? 'p2-chip--blue' : k === 'rejected' ? 'p2-chip--red' : 'p2-chip--amber'
+  }
+  const priorityChip = p => {
+    const k = (p || 'medium').toLowerCase()
+    return k === 'urgent' || k === 'high' ? 'p2-chip--red' : k === 'medium' ? 'p2-chip--amber' : ''
+  }
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in p2-staff">
       <div className="page-header">
         <div>
           <div className="eyebrow">Support Center</div>
           <h1>🎫 Support Tickets &amp; Order Disputes</h1>
           <p>Monitor grievances raised from customer orders, reassign to agronomists, and track real-time resolution</p>
         </div>
+        <button type="button" className="p2-btn p2-btn--outline p2-btn--sm" onClick={loadTickets}>
+          <RefreshCw size={14} /> Refresh
+        </button>
       </div>
 
-      {/* Stats */}
-      <div className="stat-grid">
+      {/* Stats (tap to filter) */}
+      <div className="p2-stats p2-stats--4">
         {stats.map(stat => (
-          <div key={stat.label} className={`stat-card ${stat.color}`}>
-            <div className={`stat-icon ${stat.color}`}>{stat.icon}</div>
-            <div className="stat-value">{stat.value}</div>
-            <div className="stat-label">{stat.label}</div>
-          </div>
+          <button
+            key={stat.label}
+            type="button"
+            className={`p2-stat ${stat.tone}`}
+            aria-pressed={stat.filter !== null && filterStatus === stat.filter}
+            onClick={() => stat.filter !== null && setFilterStatus(stat.filter)}
+          >
+            <span className="p2-stat-icon">{stat.icon}</span>
+            <span className="p2-stat-value">{stat.value}</span>
+            <span className="p2-stat-label">{stat.label}</span>
+          </button>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="filter-bar">
-        <input
-          type="text"
-          placeholder="Search by ticket ID, order ID, farmer name..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="form-input"
-          style={{ flex: 1, minWidth: '240px' }}
-        />
-
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="filter-select">
-          <option value="all">All Status</option>
-          <option value="resolved">Resolved</option>
-          <option value="in-progress">In Progress</option>
-          <option value="pending">Pending / Open</option>
-          <option value="rejected">Rejected</option>
-        </select>
-
-        <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="filter-select">
-          <option value="all">All Priority</option>
-          <option value="urgent">Urgent</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-      </div>
-
-      {/* Tickets Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: selectedTicket ? '1fr 440px' : '1fr', gap: '20px', alignItems: 'start' }}>
-        <div>
-          {filtered.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-state-icon">🔍</div>
-              <h3>No tickets found</h3>
-              <p>Adjust your filters or search criteria</p>
+      <div className="p2-split">
+        {/* Ticket queue */}
+        <div className="p2-card p2-queue">
+          <div className="p2-queue-head">
+            <div className="p2-search">
+              <MessageSquare size={16} />
+              <input
+                type="text"
+                className="p2-input"
+                placeholder="Search by ticket ID, order ID, farmer name..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {filtered.map(ticket => {
-                const statusInfo = getStatusColor(ticket.status)
-                const isSelected = selectedTicket?.id === ticket.id
-                return (
-                  <div
-                    key={ticket.id}
-                    className="card"
-                    onClick={() => setSelectedTicket(ticket)}
-                    style={{
-                      cursor: 'pointer',
-                      borderLeft: isSelected ? '4px solid var(--brand-500)' : '4px solid transparent',
-                      background: isSelected ? 'rgba(94,99,255,0.05)' : 'rgba(255,255,255,0.8)',
-                      padding: '16px 20px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '6px' }}>
-                          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--brand-600)' }}>
-                            {ticket.id}
-                          </span>
-                          {ticket.orderId && (
-                            <span style={{ fontSize: '0.72rem', background: '#f1f5f9', color: '#475569', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>
-                              Order: {ticket.orderId}
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                          {ticket.subject || ticket.title}
-                        </div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: '1.4' }}>
-                          {ticket.description}
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', fontSize: '0.78rem', alignItems: 'center' }}>
-                          <span style={{ color: 'var(--text-muted)' }}>👤 {ticket.farmerName || ticket.reporter}</span>
-                          <span style={{ color: 'var(--text-muted)' }}>📅 {new Date(ticket.createdAt || ticket.createdDate).toLocaleDateString('en-IN')}</span>
-                          <span style={{ background: statusInfo.bg, color: statusInfo.color, padding: '2px 8px', borderRadius: 'var(--radius-full)', fontWeight: 600 }}>
-                            {(ticket.status || 'PENDING').toUpperCase()}
-                          </span>
-                          <span style={{ background: `${getPriorityColor(ticket.priority)}20`, color: getPriorityColor(ticket.priority), padding: '2px 8px', borderRadius: 'var(--radius-full)', fontWeight: 600 }}>
-                            {(ticket.priority || 'MEDIUM').toUpperCase()}
-                          </span>
-                          {ticket.assignedToName && ticket.assignedToName !== 'Unassigned' && (
-                            <span style={{ color: '#0284c7', fontWeight: 600 }}>
-                              👨‍🌾 Assigned: {ticket.assignedToName}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="p2-grid-2 p2-grid-2--always">
+              <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="p2-input">
+                <option value="all">All Status</option>
+                <option value="resolved">Resolved</option>
+                <option value="in-progress">In Progress</option>
+                <option value="pending">Pending / Open</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="p2-input">
+                <option value="all">All Priority</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
             </div>
-          )}
+          </div>
+
+          <div className="p2-queue-list">
+            {loading && tickets.length === 0 ? (
+              <div className="p2-loading">Loading…</div>
+            ) : filtered.length === 0 ? (
+              <div className="p2-empty">
+                <div className="p2-empty-icon"><MessageSquare size={28} /></div>
+                <h3>No tickets found</h3>
+                <p>Adjust your filters or search criteria</p>
+              </div>
+            ) : (
+              filtered.map(ticket => (
+                <button
+                  key={ticket.id}
+                  type="button"
+                  className="p2-list-item"
+                  aria-current={selectedTicket?.id === ticket.id}
+                  onClick={() => setSelectedTicket(ticket)}
+                >
+                  <span className="p2-list-top">
+                    <span className="p2-list-id">{ticket.id}</span>
+                    <span className="p2-list-chips">
+                      <span className={`p2-chip ${priorityChip(ticket.priority)}`}>{(ticket.priority || 'MEDIUM').toUpperCase()}</span>
+                      <span className={`p2-chip ${statusChip(ticket.status)}`}>{(ticket.status || 'PENDING').toUpperCase()}</span>
+                    </span>
+                  </span>
+                  <span className="p2-list-title">{ticket.subject || ticket.title}</span>
+                  <span className="p2-list-desc">{ticket.description}</span>
+                  <span className="p2-list-meta">
+                    <span><User size={13} /> {ticket.farmerName || ticket.reporter}</span>
+                    <span><Clock size={13} /> {new Date(ticket.createdAt || ticket.createdDate).toLocaleDateString('en-IN')}</span>
+                  </span>
+                  {ticket.orderId && (
+                    <span className="p2-list-assigned p2-list-order">Order: {ticket.orderId}</span>
+                  )}
+                  {ticket.assignedToName && ticket.assignedToName !== 'Unassigned' && (
+                    <span className="p2-list-assigned">
+                      <UserCheck size={12} /> Assigned: {ticket.assignedToName}
+                    </span>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Ticket Details Panel */}
-        {selectedTicket && (
-          <div className="card" style={{ position: 'sticky', top: '100px', maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
-            <div className="card-header" style={{ flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--brand-600)' }}>
-                  {selectedTicket.id}
-                </span>
-                {selectedTicket.orderId && (
-                  <span style={{ fontSize: '0.75rem', background: '#f1f5f9', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                    Order: {selectedTicket.orderId}
-                  </span>
-                )}
+        {selectedTicket ? (
+          <div className="p2-card p2-thread">
+            <div className="p2-thread-head">
+              <div className="p2-thread-ids">
+                <span className="p2-thread-id">{selectedTicket.id}</span>
+                {selectedTicket.orderId && <span className="p2-chip p2-chip--line">Order: {selectedTicket.orderId}</span>}
+                <span className={`p2-chip ${statusChip(selectedTicket.status)}`}>{(selectedTicket.status || 'PENDING').toUpperCase()}</span>
               </div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 700, marginTop: 4 }}>
-                {selectedTicket.subject || selectedTicket.title}
-              </div>
+              <h2>{selectedTicket.subject || selectedTicket.title}</h2>
+
+              <dl className="p2-meta-grid">
+                <div>
+                  <dt>Reporter</dt>
+                  <dd>{selectedTicket.farmerName || selectedTicket.reporter}</dd>
+                  <a href={`tel:+91${selectedTicket.phone || selectedTicket.reporterMobile}`} className="p2-link" style={{ fontSize: '0.8rem' }}>📱 {selectedTicket.phone || selectedTicket.reporterMobile}</a>
+                </div>
+                <div>
+                  <dt>Category</dt>
+                  <dd>{selectedTicket.category}</dd>
+                </div>
+              </dl>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {/* Category & Reporter */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '0.85rem' }}>
-                <div>
-                  <span className="muted" style={{ display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>Reporter</span>
-                  <strong>{selectedTicket.farmerName || selectedTicket.reporter}</strong>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>📱 {selectedTicket.phone || selectedTicket.reporterMobile}</div>
-                </div>
-                <div>
-                  <span className="muted" style={{ display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>Category</span>
-                  <strong>{selectedTicket.category}</strong>
-                </div>
-              </div>
-
+            <div className="p2-detail-pad p2-stack">
               {/* ASSIGN TO EMPLOYEE (Admin Action) */}
-              <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div className="p2-form-box">
+                <div className="p2-label p2-inline-icon" style={{ textTransform: 'uppercase', fontSize: '0.72rem' }}>
                   <UserCheck size={14} /> Hand to your store's staff
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 8 }}>
+                <div className="p2-hint" style={{ margin: '4px 0 10px' }}>
                   Store: <strong>{selectedTicket.storeName || 'Not assigned to a store yet'}</strong> · Currently assigned: <strong>{selectedTicket.assignedToName || 'Unassigned'}</strong>
                 </div>
                 {/* Own store's staff only; tickets reach a store from the Super Admin. */}
@@ -303,71 +293,58 @@ export default function SupportTickets() {
 
               {/* Status Update Buttons */}
               <div>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <div className="p2-label" style={{ textTransform: 'uppercase', fontSize: '0.72rem', marginBottom: 8 }}>
                   Update Status
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                  {['Pending', 'In Progress', 'Resolved', 'Rejected'].map(status => {
-                    const isCur = (selectedTicket.status || '').toLowerCase() === status.toLowerCase()
-                    return (
-                      <button
-                        key={status}
-                        onClick={() => handleStatusUpdate(selectedTicket.id, status)}
-                        style={{
-                          background: isCur ? 'var(--brand-500)' : '#fff',
-                          border: `1.5px solid ${isCur ? 'var(--brand-500)' : '#e2e8f0'}`,
-                          color: isCur ? '#fff' : '#64748b',
-                          padding: '6px 4px',
-                          borderRadius: '6px',
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {status}
-                      </button>
-                    )
-                  })}
+                <div className="p2-tabs p2-tabs--fill" role="group">
+                  {['Pending', 'In Progress', 'Resolved', 'Rejected'].map(status => (
+                    <button
+                      key={status}
+                      type="button"
+                      className="p2-tab"
+                      aria-selected={(selectedTicket.status || '').toLowerCase() === status.toLowerCase()}
+                      onClick={() => handleStatusUpdate(selectedTicket.id, status)}
+                    >
+                      {status}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Discussion Thread */}
               <div>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <div className="p2-label" style={{ textTransform: 'uppercase', fontSize: '0.72rem', marginBottom: 8 }}>
                   Message Thread
                 </div>
-                <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8, background: '#fafafa', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div className="p2-messages p2-messages--compact">
                   {selectedTicket.replies?.map((rep, idx) => (
-                    <div key={rep.id || idx} style={{ fontSize: '0.8rem', background: '#fff', padding: '8px 10px', borderRadius: 6, border: '1px solid #f1f5f9' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#94a3b8', marginBottom: 2 }}>
-                        <strong>{rep.senderName}</strong>
-                        <span>{rep.time}</span>
+                    rep.senderRole === 'system' ? (
+                      <div key={rep.id || idx} className="p2-sys">{rep.text} · {rep.time}</div>
+                    ) : (
+                      <div key={rep.id || idx} className={`p2-msg${rep.senderRole === 'farmer' ? '' : ' p2-msg--me'}`}>
+                        <div className="p2-msg-who"><strong>{rep.senderName}</strong><span>· {rep.time}</span></div>
+                        <div className="p2-bubble">{rep.text}</div>
                       </div>
-                      <div style={{ color: '#1e293b' }}>{rep.text}</div>
-                    </div>
+                    )
                   ))}
                 </div>
 
-                <form onSubmit={handleAddReply} style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                <form onSubmit={handleAddReply} className="p2-reply p2-reply--flat">
                   <input
                     type="text"
+                    className="p2-input"
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
                     placeholder="Reply as Admin..."
-                    style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
                   />
-                  <button
-                    type="submit"
-                    disabled={submittingReply || !replyText.trim()}
-                    style={{ background: 'var(--brand-600)', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', cursor: 'pointer', fontWeight: 700 }}
-                  >
-                    Send
+                  <button type="submit" className="p2-btn p2-btn--primary" disabled={submittingReply || !replyText.trim()}>
+                    <Send size={15} /> Send
                   </button>
                 </form>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )
