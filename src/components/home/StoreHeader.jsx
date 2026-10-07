@@ -45,6 +45,8 @@ export default function StoreHeader() {
       if (next !== tucked) {
         tucked = next
         setBodyFlag('slogan-tucked', 'store-header', next)
+        // Back at the top the page's own search row is in view again.
+        if (!next) setBodyFlag('sb-search-open', 'store-header', false)
       }
     }
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
@@ -54,8 +56,27 @@ export default function StoreHeader() {
       window.removeEventListener('scroll', onScroll)
       cancelAnimationFrame(frame)
       setBodyFlag('slogan-tucked', 'store-header', false)
+      setBodyFlag('sb-search-open', 'store-header', false)
     }
   }, [])
+
+  // Phones, scrolled: the page's sticky search row (home .header-main,
+  // /products .mobile-shop-header) folds away and this button brings it back
+  // focused (storefront.css 7x). It folds again once focus leaves it.
+  const openSearch = () => {
+    // The one actually on screen (/products also renders a hidden .header-main).
+    const row = [...document.querySelectorAll('.header-main, .mobile-shop-header')].find(el => el.getClientRects().length)
+    const input = row?.querySelector('input')
+    if (!row || !input) return
+    setBodyFlag('sb-search-open', 'store-header', true)
+    input.focus({ preventScroll: true })
+    const onLeave = event => {
+      if (row.contains(event.relatedTarget)) return
+      row.removeEventListener('focusout', onLeave)
+      setBodyFlag('sb-search-open', 'store-header', false)
+    }
+    row.addEventListener('focusout', onLeave)
+  }
 
   useEffect(() => {
     if (!menuOpen) return undefined
@@ -96,6 +117,10 @@ export default function StoreHeader() {
         </HomeLogoLink>
 
         <div className="sb-store-head-actions">
+          <button type="button" className="sb-store-action sb-store-search" aria-label="Search" onClick={openSearch}>
+            <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          </button>
+
           <button
             ref={langButton}
             type="button"

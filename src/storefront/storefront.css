@@ -14958,3 +14958,44 @@ body.poster-open .sb-portal .call-fab {
     display: none;
   }
 }
+
+/* ==========================================================================
+   7x. PHONE HEADER, ONE ROW WHILE SCROLLED (StoreHeader.jsx, <=767px)
+   At the top nothing changes. Once the page scrolls (body.slogan-tucked) the
+   page's sticky search row - home .header-main, /products
+   .mobile-shop-header - folds up behind the header row, and a search button
+   appears in that row; tapping it (body.sb-search-open) brings the row back
+   below the header with the field focused. Only transform / opacity move;
+   the folded row keeps its place in the flow, so nothing below shifts.
+   ========================================================================== */
+.sb-store-search {
+  display: none;
+}
+@media (max-width: 767px) {
+  body.slogan-tucked:has(.header-main, .mobile-shop-header) .sb-store-search {
+    display: flex;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-main,
+  .mobile-shop-header {
+    transition: transform 0.22s ease, opacity 0.18s ease, visibility 0s linear 0s;
+  }
+  body.slogan-tucked:not(.sb-search-open) :is(body.sb-home-active .sb-home, .sb-portal) .header-main,
+  body.slogan-tucked:not(.sb-search-open) .mobile-shop-header {
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 0.22s ease, opacity 0.18s ease, visibility 0s linear 0.22s;
+  }
+  body.slogan-tucked.sb-search-open .mobile-shop-header {
+    top: var(--sb-head-h, 57px);
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-main,
+  .mobile-shop-header,
+  body.slogan-tucked:not(.sb-search-open) :is(body.sb-home-active .sb-home, .sb-portal) .header-main,
+  body.slogan-tucked:not(.sb-search-open) .mobile-shop-header {
+    transition: none;
+  }
+}
