@@ -14358,7 +14358,7 @@ body.poster-open .sb-portal .call-fab {
    7s. FACTORY 2 FARMER LIFE CYCLE 2026 (StoreHeader.jsx tag; phones <=767 use
    .header-slogan--chrome, desktop >=1025 uses .header-slogan--store)
    One 12s clock, looping:
-     0-7%    a white circle with a green seed zooms in; a ring ripples out
+     0-7%    a white circle with a green seed zooms in; a green ripple spreads
      7-14%   the circle expands sideways into the tag; words focus, icons pop
     16-60%   the journey: factory squash + smoke, the truck drives as the road
              fills green and the shine rides with it, the wheat sways, glows
@@ -14382,32 +14382,24 @@ body.poster-open .sb-portal .call-fab {
   :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
     animation: f2fLife var(--f2f-cycle) cubic-bezier(0.65, 0, 0.35, 1) var(--f2f-start) infinite both;
   }
-  /* the seed shown while it is a circle */
+  /* the circle: its own white disc with a green seed, edge and shadow (the
+     pill's body fades out while it is a circle, see f2fLife) */
   :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 8px;
-    height: 8px;
-    margin: -4px 0 0 -4px;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #34D399, #0B7A4B);
+    background: radial-gradient(circle, #16A46A 0 4px, rgba(22, 164, 106, 0.18) 4.5px 7px, transparent 7.5px), #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16);
     opacity: 0;
     pointer-events: none;
     animation: f2fSeed var(--f2f-cycle) ease-in-out var(--f2f-start) infinite both;
   }
-  /* the ripple as the circle lands */
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    opacity: 0;
-    pointer-events: none;
-    animation: f2fPing var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both;
-  }
-
   /* the contents appear once it has opened and leave before it closes */
   :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
     animation: f2fWords var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both,
@@ -14493,47 +14485,53 @@ body.poster-open .sb-portal .call-fab {
   }
 }
 
-/* circle (28px: the pill's height) <-> full tag */
+/* circle <-> full tag. While it is a circle the pill's own body is see-through
+   and the ::before disc is the circle, nothing clipped. Only the unfold and
+   the fold clip the pill, to a window that grows from a circle of the pill's
+   height to the whole pill (and back); outside those the window is wide open
+   so the shadows show. */
 @keyframes f2fLife {
-  0% { opacity: 0; scale: 0; clip-path: inset(0 calc(50% - 14px) round 999px); }
-  4% { opacity: 1; scale: 1.18; clip-path: inset(0 calc(50% - 14px) round 999px); }
-  7% { opacity: 1; scale: 1; clip-path: inset(0 calc(50% - 14px) round 999px); }
-  13% { scale: 1; clip-path: inset(0 0 round 999px); }
+  0% { opacity: 0; scale: 0; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  4% { opacity: 1; scale: 1.18; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  7% { opacity: 1; scale: 1; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  7.01% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  9% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
+  13% { scale: 1; clip-path: inset(0 0 round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
+  13.01% { clip-path: inset(-30px -40px round 999px); }
   52% { scale: 1; }
   54% { scale: 1.05; }
   56% { scale: 0.985; }
   58% { scale: 1; }
-  70% { opacity: 1; scale: 1; clip-path: inset(0 0 round 999px); }
-  76% { opacity: 1; scale: 1; clip-path: inset(0 calc(50% - 14px) round 999px); }
-  79% { opacity: 1; scale: 1.14; clip-path: inset(0 calc(50% - 14px) round 999px); }
-  84%, 100% { opacity: 0; scale: 0; clip-path: inset(0 calc(50% - 14px) round 999px); }
+  70% { opacity: 1; scale: 1; clip-path: inset(-30px -40px round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
+  70.01% { clip-path: inset(0 0 round 999px); }
+  75% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
+  77% { opacity: 1; scale: 1; clip-path: inset(0 calc(50% - 16px) round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  77.01% { clip-path: inset(-30px -40px round 999px); }
+  80% { opacity: 1; scale: 1.14; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  84%, 100% { opacity: 0; scale: 0; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
 }
+/* the disc: shown as a circle, with a green ripple as it lands */
 @keyframes f2fSeed {
-  0%, 1% { opacity: 0; transform: scale(0.4); }
-  4%, 8% { opacity: 1; transform: scale(1); }
-  11%, 71% { opacity: 0; transform: scale(0.4); }
-  75%, 80% { opacity: 1; transform: scale(1); }
-  84%, 100% { opacity: 0; transform: scale(0.4); }
-}
-@keyframes f2fPing {
-  0%, 3% { opacity: 0; box-shadow: 0 0 0 0 rgba(11, 122, 75, 0.55); }
-  4% { opacity: 1; box-shadow: 0 0 0 0 rgba(11, 122, 75, 0.55); }
-  13%, 100% { opacity: 0; box-shadow: 0 0 0 18px rgba(11, 122, 75, 0); }
+  0% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0.5); }
+  3% { box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0.5); }
+  9% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 16px rgba(11, 122, 75, 0); }
+  11%, 74% { opacity: 0; transform: scale(0.9); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0); }
+  77%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0); }
 }
 @keyframes f2fWords {
-  0%, 9% { opacity: 0; scale: 1.35; }
-  15%, 69% { opacity: 1; scale: 1; }
-  73%, 100% { opacity: 0; scale: 0.9; }
+  0%, 12% { opacity: 0; scale: 1.35; }
+  17%, 67% { opacity: 1; scale: 1; }
+  69.5%, 100% { opacity: 0; scale: 0.9; }
 }
 @keyframes f2fPop {
-  0%, 11% { opacity: 0; scale: 0.4; }
-  15%, 69% { opacity: 1; scale: 1; }
-  72%, 100% { opacity: 0; scale: 0.4; }
+  0%, 12.5% { opacity: 0; scale: 0.4; }
+  16%, 67% { opacity: 1; scale: 1; }
+  69.5%, 100% { opacity: 0; scale: 0.4; }
 }
 @keyframes f2fInner {
-  0%, 11% { opacity: 0; }
-  15%, 69% { opacity: 1; }
-  72%, 100% { opacity: 0; }
+  0%, 12.5% { opacity: 0; }
+  16%, 67% { opacity: 1; }
+  69.5%, 100% { opacity: 0; }
 }
 @keyframes f2fLoad {
   0%, 16%, 21%, 100% { transform: scale(1); }
