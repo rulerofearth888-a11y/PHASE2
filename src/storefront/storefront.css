@@ -3925,22 +3925,22 @@ body.sb-home-active {
     display: none !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) {
-    grid-column: span 2 !important;
-    min-height: 120px !important;
+    grid-column: span 1 !important;
+    min-height: 96px !important;
     height: auto !important;
     border-radius: 20px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-overlay {
-    padding: 14px 60px 14px 16px !important;
+    padding: 12px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-tag {
-    font-size: 0.56rem !important;
-    padding: 4px 9px !important;
-    margin-bottom: 8px !important;
+    font-size: 0.5rem !important;
+    padding: 3px 7px !important;
+    margin-bottom: 6px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-title {
-    font-size: 1.05rem !important;
-    margin-bottom: 3px !important;
+    font-size: 0.88rem !important;
+    margin-bottom: 2px !important;
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-desc {
     display: -webkit-box !important;
@@ -14706,5 +14706,112 @@ body.poster-open .sb-portal .call-fab {
   }
   :is(body.sb-home-active .sb-home, .sb-portal) .stats-strip .stat-sublabel {
     display: none;
+  }
+}
+
+/* ==========================================================================
+   7u. HOME SECTIONS, PHONE COMPACT (<=768px)
+   Same idea as 7t, for the rest of the home page:
+   - hero: the two side cards (Leaf Scanner, WhatsApp AI) sit side by side
+     (sizes edited in place in the phone hero block above)
+   - categories / crops: frameless tiles, short header, no subtitle
+   - newsletter: no photo header
+   - certifications: one swipeable row of icon chips, no caption
+   ========================================================================== */
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) section.hero-bento > .container {
+    margin-top: -12px;
+    margin-bottom: -28px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) :is(.bento-desc.bento-desc, .bento-tag.bento-tag) {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2)::after {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-overlay {
+    justify-content: flex-end;
+  }
+  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-desc {
+    /* Indian-script titles take 2-3 lines here; the description goes
+       (an older forced display rule keeps it shown, so collapse it). */
+    height: 0;
+    overflow: hidden;
+  }
+
+  :is(body.sb-home-active .sb-home, .sb-portal) section#categoriesSection > .container {
+    margin-block: -16px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .section-header-flex {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#categoriesSection, #cropSection) .section-subtitle {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) section#cropSection > .container {
+    margin-block: -16px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .section-header-flex .btn-outline {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-grid-3 {
+    gap: 6px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .bento-card.cat-card.cat-card {
+    padding: 4px 2px 6px;
+    border-color: transparent;
+    box-shadow: none;
+    min-height: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #categoriesSection .cat-card .bento-title {
+    font-size: 0.74rem;
+  }
+
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-left {
+    display: none;
+  }
+
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logos-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    margin-inline: -12px;
+    padding: 2px 12px 4px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logos-row::-webkit-scrollbar {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logo-card.cert-logo-card {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 8px;
+    border-radius: 999px;
+    scroll-snap-align: start;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logo-card.is-stock .cert-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.85rem;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logo-card .cert-caption {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .cert-strip .cert-logo-card .cert-text > span {
+    font-size: 0.78rem;
+    white-space: nowrap;
   }
 }

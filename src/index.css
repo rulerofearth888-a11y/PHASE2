@@ -12953,21 +12953,25 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
   .farmer-services-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 768px) {
-  .farmer-services { margin-top: 28px; padding: 18px 14px; border-radius: 16px; }
-  .farmer-services-head h2 { font-size: 1.1rem; }
-  .farmer-services-head p { margin-bottom: 14px; font-size: 0.84rem; }
-  .farmer-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .farmer-service { padding: 14px 12px; }
-  .farmer-service:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .farmer-service-icon { width: 40px; height: 40px; border-radius: 12px; }
-  .farmer-service-title { font-size: 0.95rem; }
-  .farmer-service-desc { font-size: 0.8rem; }
+  /* Phone: one row of icon tiles (app-style quick links), no description
+     or "Open page" line; the whole tile is the link. */
+  .farmer-services { margin-top: 20px; padding: 14px 10px 12px; border-radius: 16px; }
+  .farmer-services-head h2 { font-size: 1rem; }
+  .farmer-services-head p { display: none; }
+  .farmer-services-head { margin-bottom: 12px; }
+  .farmer-services-grid,
+  .farmer-services--n4 .farmer-services-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+  .farmer-service { min-width: 0; align-items: center; gap: 6px; padding: 6px 2px; border-color: transparent; text-align: center; }
+  .farmer-service-icon { width: 44px; height: 44px; margin-bottom: 0; border-radius: 50%; }
+  .farmer-service-title { max-width: 100%; font-size: 0.7rem; font-weight: 700; overflow-wrap: anywhere; }
+  .farmer-service-desc,
+  .farmer-service-cta { display: none; }
 }
 /* Four cards (home page, no All Products): 4 across, 2 x 2 below desktop. */
 .farmer-services--n4 .farmer-services-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-@media (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   .farmer-services--n4 .farmer-services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-title {
