@@ -431,10 +431,12 @@ export const StoreChrome = memo(function StoreChrome({ t, appliedLang, user, car
             goods to the wheat) and tucks it away once the page scrolls
             (storefront.css "FACTORY 2 FARMER on desktop"). */}
         <div className="header-slogan header-slogan--store" aria-hidden="true">
+          {/* decorative layers of the tag's animation; real elements, not ::before/::after, so it stays on the GPU (storefront.css 7s) */}
+          <span className="slogan-shell"><span className="slogan-shadow"></span><span className="slogan-disc-shadow"></span><span className="slogan-cap slogan-cap--l"></span><span className="slogan-bar"></span><span className="slogan-cap slogan-cap--r"></span><span className="slogan-seed"></span><span className="slogan-ripple"></span><span className="slogan-smoke"></span><span className="slogan-spark"></span></span>
           <i className="fa-solid fa-cubes-stacked slogan-end slogan-end--from"></i>
           <span className="header-slogan-text" data-i18n="logo_sub">{(t || (key => EN_KEYS[key] || key))('logo_sub')}</span>
           <i className="fa-solid fa-wheat-awn slogan-end slogan-end--to"></i>
-          <span className="slogan-road"><i className="fa-solid fa-truck-fast slogan-truck"></i></span>
+          <span className="slogan-road"><span className="slogan-fill"></span><i className="fa-solid fa-truck-fast slogan-truck"></i></span>
         </div>
       </div>
     </>

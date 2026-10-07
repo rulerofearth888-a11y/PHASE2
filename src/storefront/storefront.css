@@ -14359,51 +14359,131 @@ body.poster-open .sb-portal .call-fab {
    .header-slogan--chrome, desktop >=1025 uses .header-slogan--store)
    One 12s clock, looping:
      0-7%    a white circle with a green seed zooms in; a green ripple spreads
-     7-14%   the circle expands sideways into the tag; words focus, icons pop
+     7-13%   the circle opens sideways into the tag; words focus, icons pop
     16-60%   the journey: factory squash + smoke, the truck drives as the road
-             fills green and the shine rides with it, the wheat sways, glows
-             and sparkles, the whole tag beats once
-    70-76%   the tag folds back into the circle (the seed returns)
+             fills green, the wheat sways and sparkles, the whole tag beats once
+    70-76%   the tag closes back into the circle (the seed returns)
     76-84%   the circle breathes in and zooms out to nothing
     84-100%  empty pause
-   The tag's shape is a clip-path on the pill; size changes use the separate
-   `scale` property, so the transform that centres the tag (and folds it away
-   on phones, body.slogan-tucked) is never touched. Everything else is
-   transform/opacity; the text shine is the one paint. Paused while folded,
-   off for reduced motion.
+   GPU ONLY. It hangs in the pinned header, so anything that repaints per
+   frame competes with scrolling (measured: 48 fps scrolling on a 4x-slowed
+   phone with the old clip-path/shadow/colour version, 59 with it off). So
+   every animated property here is transform, scale or opacity:
+   - the body is two round caps and a bar (.slogan-shell, markup in
+     StoreHeader.jsx and Header.jsx): closed, the caps sit on each other and
+     are the circle; opening slides them apart while the bar stretches
+     (container units give the distance). The ends stay perfectly round.
+   - shadows are fixed and only fade; the ripple is a ring that scales.
+   - every animated layer is a real (empty, aria-hidden) element: animations
+     on ::before/::after were ticked on the main thread every frame.
+   - the text shine (background-position, a repaint) is desktop only.
+   Paused while the tag is folded away, off for reduced motion.
    ========================================================================== */
+.slogan-shell { display: none; }
 @media (max-width: 767px), (min-width: 1025px) {
   :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) {
     --f2f-cycle: 12s;
     --f2f-start: 0.3s;
+    --f2f-ease: cubic-bezier(0.65, 0, 0.35, 1);
   }
-  /* the pill: circle -> tag -> circle -> gone */
+  /* the pill itself only appears, zooms and fades; its body is the shell */
   .header-slogan.header-slogan--chrome,
   :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
-    animation: f2fLife var(--f2f-cycle) cubic-bezier(0.65, 0, 0.35, 1) var(--f2f-start) infinite both;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    animation: f2fLife var(--f2f-cycle) var(--f2f-ease) var(--f2f-start) infinite both;
   }
-  /* the circle: its own white disc with a green seed, edge and shadow (the
-     pill's body fades out while it is a circle, see f2fLife) */
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::before {
-    content: '';
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-shell {
+    display: block;
     position: absolute;
+    inset: -1px;
+    z-index: -1;
+    container-type: inline-size;
+    pointer-events: none;
+  }
+  /* every animated layer is a real element: animations on ::before and
+     ::after were ticked on the main thread (~18 style recalcs a second) */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-shadow, .slogan-disc-shadow, .slogan-seed, .slogan-ripple, .slogan-smoke, .slogan-spark, .slogan-fill) {
+    position: absolute;
+    display: block;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-seed, .slogan-ripple, .slogan-smoke, .slogan-spark) { z-index: 2; }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-shadow {
+    inset: 0;
+    box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14);
+    animation: f2fBodyShadow var(--f2f-cycle) linear var(--f2f-start) infinite both;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-disc-shadow {
+    top: 0;
+    left: calc(50% - 16px);
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16);
+    animation: f2fDiscShadow var(--f2f-cycle) linear var(--f2f-start) infinite both;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-cap, .slogan-bar) {
+    position: absolute;
+    top: 0;
+    height: 32px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-cap {
+    width: 32px;
+    border-radius: 50%;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-cap--l {
+    left: 0;
+    animation: f2fCapL var(--f2f-cycle) var(--f2f-ease) var(--f2f-start) infinite both;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-cap--r {
+    right: 0;
+    animation: f2fCapR var(--f2f-cycle) var(--f2f-ease) var(--f2f-start) infinite both;
+  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-bar {
+    left: 16px;
+    right: 16px;
+    z-index: 1; /* over both caps: only their outer halves show */
+    border-left: 0;
+    border-right: 0;
+    animation: f2fBar var(--f2f-cycle) var(--f2f-ease) var(--f2f-start) infinite both;
+  }
+  /* the seed in the circle */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-seed {
     top: 50%;
     left: 50%;
-    width: 34px;
-    height: 34px;
-    margin: -17px 0 0 -17px;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
     border-radius: 50%;
-    background: radial-gradient(circle, #16A46A 0 4px, rgba(22, 164, 106, 0.18) 4.5px 7px, transparent 7.5px), #ffffff;
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16);
+    background: radial-gradient(circle, #16A46A 0 4px, rgba(22, 164, 106, 0.18) 4.5px 7px, transparent 7.5px);
     opacity: 0;
     pointer-events: none;
     animation: f2fSeed var(--f2f-cycle) ease-in-out var(--f2f-start) infinite both;
   }
+  /* the ripple: a ring that grows and fades */
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-ripple {
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border-radius: 50%;
+    border: 2px solid rgba(11, 122, 75, 0.5);
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    animation: f2fRipple var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both;
+  }
+
   /* the contents appear once it has opened and leave before it closes */
   :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
-    animation: f2fWords var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both,
-               f2fShine var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
+    animation: f2fWords var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both;
   }
   :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end {
     position: relative;
@@ -14412,11 +14492,9 @@ body.poster-open .sb-portal .call-fab {
     animation: f2fPop var(--f2f-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) var(--f2f-start) infinite both,
                f2fLoad var(--f2f-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) var(--f2f-start) infinite;
   }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--from::after {
-    content: '';
-    position: absolute;
-    top: -1px;
-    right: 2px;
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-smoke {
+    top: 4px;
+    left: 25px;
     width: 4px;
     height: 4px;
     border-radius: 50%;
@@ -14431,16 +14509,13 @@ body.poster-open .sb-portal .call-fab {
     animation: f2fPop var(--f2f-cycle) cubic-bezier(0.34, 1.56, 0.64, 1) var(--f2f-start) infinite both,
                f2fHarvest var(--f2f-cycle) ease-in-out var(--f2f-start) infinite;
   }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-end--to::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-spark {
+    top: 12.5px;
+    right: 20.5px;
     width: 3px;
     height: 3px;
-    margin: -1.5px 0 0 -1.5px;
     border-radius: 50%;
-    box-shadow: 0 -10px 0 #E0A526, 9px 5px 0 #16A46A, -9px 5px 0 #16A46A;
+    box-shadow: 0 -13px 0 #E0A526, 13px 6px 0 #16A46A, -13px 6px 0 #16A46A; /* clear of the 18px icon */
     opacity: 0;
     transform: scale(0.3);
     pointer-events: none;
@@ -14452,9 +14527,7 @@ body.poster-open .sb-portal .call-fab {
     container-type: inline-size;
     animation: f2fInner var(--f2f-cycle) linear var(--f2f-start) infinite both;
   }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-road::before {
-    content: '';
-    position: absolute;
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-fill {
     left: 0;
     right: 0;
     top: -1px;
@@ -14469,54 +14542,70 @@ body.poster-open .sb-portal .call-fab {
     left: 0;
     animation: f2fDrive var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
   }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck::before {
-    display: inline-block;
-    animation: f2fBob 0.32s ease-in-out infinite alternate;
-  }
 
   /* folded away on scroll: hold the cycle where it is */
   body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome),
-  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) *,
-  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-road, .slogan-truck)::before,
-  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-road)::after,
-  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::before,
-  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::after {
+  body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) * {
     animation-play-state: paused;
   }
 }
+/* desktop keeps the shine that rides with the truck (a repaint, but desktop
+   has the headroom; phones skip it) */
+@media (min-width: 1025px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store .header-slogan-text {
+    animation: f2fWords var(--f2f-cycle) cubic-bezier(0.22, 1, 0.36, 1) var(--f2f-start) infinite both,
+               f2fShine var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
+  }
+}
+@media (max-width: 767px) {
+  .header-slogan--chrome .header-slogan-text { background-image: none; }
+}
 
-/* circle <-> full tag. While it is a circle the pill's own body is see-through
-   and the ::before disc is the circle, nothing clipped. Only the unfold and
-   the fold clip the pill, to a window that grows from a circle of the pill's
-   height to the whole pill (and back); outside those the window is wide open
-   so the shadows show. */
 @keyframes f2fLife {
-  0% { opacity: 0; scale: 0; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  4% { opacity: 1; scale: 1.18; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  7% { opacity: 1; scale: 1; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  7.01% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  9% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
-  13% { scale: 1; clip-path: inset(0 0 round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
-  13.01% { clip-path: inset(-30px -40px round 999px); }
+  0% { opacity: 0; scale: 0; }
+  4% { opacity: 1; scale: 1.18; }
+  7% { opacity: 1; scale: 1; }
   52% { scale: 1; }
   54% { scale: 1.05; }
   56% { scale: 0.985; }
-  58% { scale: 1; }
-  70% { opacity: 1; scale: 1; clip-path: inset(-30px -40px round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
-  70.01% { clip-path: inset(0 0 round 999px); }
-  75% { clip-path: inset(0 calc(50% - 16px) round 999px); background-color: #ffffff; border-color: rgba(15, 23, 42, 0.07); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.14); }
-  77% { opacity: 1; scale: 1; clip-path: inset(0 calc(50% - 16px) round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  77.01% { clip-path: inset(-30px -40px round 999px); }
-  80% { opacity: 1; scale: 1.14; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
-  84%, 100% { opacity: 0; scale: 0; clip-path: inset(-30px -40px round 999px); background-color: rgba(255, 255, 255, 0); border-color: rgba(15, 23, 42, 0); box-shadow: 0 6px 18px rgba(11, 61, 32, 0); }
+  58%, 77% { opacity: 1; scale: 1; }
+  80% { opacity: 1; scale: 1.14; }
+  84%, 100% { opacity: 0; scale: 0; }
 }
-/* the disc: shown as a circle, with a green ripple as it lands */
+@keyframes f2fCapL {
+  0%, 7% { transform: translateX(calc(50cqw - 16px)); }
+  13%, 70% { transform: translateX(0); }
+  76%, 100% { transform: translateX(calc(50cqw - 16px)); }
+}
+@keyframes f2fCapR {
+  0%, 7% { transform: translateX(calc(16px - 50cqw)); }
+  13%, 70% { transform: translateX(0); }
+  76%, 100% { transform: translateX(calc(16px - 50cqw)); }
+}
+@keyframes f2fBar {
+  0%, 7% { transform: scaleX(0); }
+  13%, 70% { transform: scaleX(1); }
+  76%, 100% { transform: scaleX(0); }
+}
+@keyframes f2fBodyShadow {
+  0%, 11% { opacity: 0; }
+  14%, 69% { opacity: 1; }
+  72%, 100% { opacity: 0; }
+}
+@keyframes f2fDiscShadow {
+  0%, 8% { opacity: 1; }
+  11%, 73% { opacity: 0; }
+  76%, 100% { opacity: 1; }
+}
 @keyframes f2fSeed {
-  0% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0.5); }
-  3% { box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0.5); }
-  9% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 16px rgba(11, 122, 75, 0); }
-  11%, 74% { opacity: 0; transform: scale(0.9); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0); }
-  77%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 6px 18px rgba(11, 61, 32, 0.16), 0 0 0 0 rgba(11, 122, 75, 0); }
+  0%, 7% { opacity: 1; transform: scale(1); }
+  10%, 74% { opacity: 0; transform: scale(0.6); }
+  77%, 100% { opacity: 1; transform: scale(1); }
+}
+@keyframes f2fRipple {
+  0%, 3% { opacity: 0; transform: scale(1); }
+  4% { opacity: 1; transform: scale(1); }
+  12%, 100% { opacity: 0; transform: scale(2.1); }
 }
 @keyframes f2fWords {
   0%, 12% { opacity: 0; scale: 1.35; }
@@ -14549,10 +14638,6 @@ body.poster-open .sb-portal .call-fab {
   50% { transform: translateX(calc(100cqw - 9px)); opacity: 1; }
   53%, 100% { transform: translateX(calc(100cqw - 9px)); opacity: 0; }
 }
-@keyframes f2fBob {
-  from { transform: translateY(0); }
-  to { transform: translateY(-1px); }
-}
 @keyframes f2fRoad {
   0%, 21% { transform: scaleX(0); opacity: 1; }
   50%, 60% { transform: scaleX(1); opacity: 1; }
@@ -14562,41 +14647,34 @@ body.poster-open .sb-portal .call-fab {
   0%, 21% { background-position: 120% 0; }
   50%, 100% { background-position: -20% 0; }
 }
+/* sway + a little swell instead of an animated glow (a shadow repaints) */
 @keyframes f2fHarvest {
-  0%, 50%, 100% { transform: rotate(0); box-shadow: 0 0 0 0 rgba(11, 122, 75, 0); }
-  52.5% { transform: rotate(-14deg); box-shadow: 0 0 0 5px rgba(11, 122, 75, 0.2); }
-  55% { transform: rotate(10deg); }
-  57.5% { transform: rotate(-5deg); box-shadow: 0 0 0 2px rgba(11, 122, 75, 0.06); }
-  60% { transform: rotate(0); box-shadow: 0 0 0 0 rgba(11, 122, 75, 0); }
+  0%, 50%, 100% { transform: rotate(0) scale(1); }
+  52.5% { transform: rotate(-14deg) scale(1.15); }
+  55% { transform: rotate(10deg) scale(1.08); }
+  57.5% { transform: rotate(-5deg) scale(1.02); }
+  60% { transform: rotate(0) scale(1); }
 }
 @keyframes f2fSparkle {
   0%, 50% { opacity: 0; transform: scale(0.3); }
   53% { opacity: 1; }
   60%, 100% { opacity: 0; transform: scale(1.35); }
 }
-/* no container-query support: the truck stays parked at the start */
+/* no container-query support: show the tag open and still */
 @supports not (width: 1cqw) {
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-truck {
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-cap, .slogan-bar, .slogan-truck) {
     animation: none;
-    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .header-slogan.header-slogan--chrome,
   :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store,
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) *,
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-road, .slogan-truck)::before,
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-end, .slogan-road)::after,
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::before,
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome)::after {
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) * {
     animation: none;
   }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text {
-    background-image: none;
-  }
-  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-truck, .slogan-road::before) {
-    display: none;
-  }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .slogan-shadow { opacity: 1; }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) .header-slogan-text { background-image: none; }
+  :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) :is(.slogan-truck, .slogan-fill) { display: none; }
 }
 
 /* ==========================================================================

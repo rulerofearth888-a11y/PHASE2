@@ -148,10 +148,12 @@ export default function StoreHeader() {
       {/* A second, smaller header: hangs below this one and stays pinned with
           it while the page scrolls. */}
       <div className="header-slogan header-slogan--chrome" aria-hidden="true">
+        {/* decorative layers of the tag's animation; real elements, not ::before/::after, so it stays on the GPU (storefront.css 7s) */}
+        <span className="slogan-shell"><span className="slogan-shadow"></span><span className="slogan-disc-shadow"></span><span className="slogan-cap slogan-cap--l"></span><span className="slogan-bar"></span><span className="slogan-cap slogan-cap--r"></span><span className="slogan-seed"></span><span className="slogan-ripple"></span><span className="slogan-smoke"></span><span className="slogan-spark"></span></span>
         <i className="fa-solid fa-cubes-stacked slogan-end slogan-end--from"></i>
         <span className="header-slogan-text">FACTORY 2 FARMER</span>
         <i className="fa-solid fa-wheat-awn slogan-end slogan-end--to"></i>
-        <span className="slogan-road"><i className="fa-solid fa-truck-fast slogan-truck"></i></span>
+        <span className="slogan-road"><span className="slogan-fill"></span><i className="fa-solid fa-truck-fast slogan-truck"></i></span>
       </div>
 
 
