@@ -14691,8 +14691,7 @@ body.poster-open .sb-portal .call-fab {
 /* ==========================================================================
    7u. HOME SECTIONS, PHONE COMPACT (<=768px)
    Same idea as 7t, for the rest of the home page:
-   - hero: the two side cards (Leaf Scanner, WhatsApp AI) sit side by side
-     (sizes edited in place in the phone hero block above)
+   - hero: banner only; the two side cards repeat other links
    - categories / crops: frameless tiles, short header, no subtitle
    - newsletter: no photo header
    - certifications: five round stamp seals in one row, all visible, no caption
@@ -14702,22 +14701,6 @@ body.poster-open .sb-portal .call-fab {
     margin-top: -12px;
     margin-bottom: -28px;
   }
-  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) :is(.bento-desc.bento-desc, .bento-tag.bento-tag) {
-    display: none;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2)::after {
-    display: none;
-  }
-  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-overlay {
-    justify-content: flex-end;
-  }
-  html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card.bento-span-2:not(.bento-row-2) .bento-desc {
-    /* Indian-script titles take 2-3 lines here; the description goes
-       (an older forced display rule keeps it shown, so collapse it). */
-    height: 0;
-    overflow: hidden;
-  }
-
   :is(body.sb-home-active .sb-home, .sb-portal) section#categoriesSection > .container {
     margin-block: -16px;
   }
@@ -14800,6 +14783,15 @@ body.poster-open .sb-portal .call-fab {
     font-weight: 700;
     line-height: 1.2;
     overflow-wrap: anywhere;
+  }
+}
+
+/* The Leaf Scanner and WhatsApp AI cards repeat the bottom bar's AI Doctor
+   tab and the hero's own "Talk to an Expert" button: where that bar exists
+   (<=767px) the hero is the banner only. */
+@media (max-width: 767px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) .hero-bento .bento-grid-4 > .bento-card:not(.bento-row-2) {
+    display: none;
   }
 }
 

@@ -56,7 +56,7 @@ export default function MobileBottomNav() {
   // sheet is closed. Read from storage as the sheet opened, the new name
   // re-laid out and repainted the whole sheet on the frame its slide started.
   const { user } = useAuth()
-  const { openBasket, showAccount } = useCheckoutActions()
+  const { showAccount } = useCheckoutActions()
   const sheetRef = useRef(null)
 
   const path = location.pathname
@@ -375,26 +375,16 @@ export default function MobileBottomNav() {
           </button>
         </div>
 
+        {/* Only what the bottom bar (Home, Shop, AI Doctor, Blogs) and the
+            header cart do not already reach. */}
         <h3 className="mms-title">Quick actions</h3>
         <div className="mms-grid">
-          <TransitionLink to={homeOr('catalog', '/products')} className="mms-tile" onClick={closeMenu}>
-            <span className="mms-tile-icon" style={{ '--tile': '#059669' }}><i className="fa-solid fa-store"></i></span>All Products
-          </TransitionLink>
           <TransitionLink to={homeOr('categoriesSection', '/categories')} className="mms-tile" onClick={closeMenu}>
             <span className="mms-tile-icon" style={{ '--tile': '#0891b2' }}><i className="fa-solid fa-layer-group"></i></span>Categories
           </TransitionLink>
           <TransitionLink to={homeOr('cropSection', '/crops')} className="mms-tile" onClick={closeMenu}>
             <span className="mms-tile-icon" style={{ '--tile': '#65a30d' }}><i className="fa-solid fa-wheat-awn"></i></span>Shop by Crop
           </TransitionLink>
-          <button type="button" className="mms-tile" onClick={openScanner}>
-            <span className="mms-tile-icon" style={{ '--tile': '#d97706' }}><i className="fa-solid fa-camera-retro"></i></span>AI Leaf Doctor
-          </button>
-          <TransitionLink to="/blog" className="mms-tile" onClick={closeMenu}>
-            <span className="mms-tile-icon" style={{ '--tile': '#7c3aed' }}><i className="fa-solid fa-book-open"></i></span>Blog
-          </TransitionLink>
-          <a href="#basket" className="mms-tile" data-checkout-open onClick={event => { closeMenu(); openBasket(event) }}>
-            <span className="mms-tile-icon" style={{ '--tile': '#dc2626' }}><i className="fa-solid fa-bag-shopping"></i></span>My Cart
-          </a>
           <TransitionLink to="/orders" className="mms-tile" onClick={closeMenu}>
             <span className="mms-tile-icon" style={{ '--tile': '#2563eb' }}><i className="fa-solid fa-truck-fast"></i></span>Track Order
           </TransitionLink>
