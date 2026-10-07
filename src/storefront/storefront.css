@@ -14887,7 +14887,7 @@ body.poster-open .sb-portal .call-fab {
    Same idea as 7t, for the rest of the home page:
    - hero: banner only; the two side cards repeat other links
    - categories / crops: frameless tiles, short header, no subtitle
-   - newsletter: no photo header
+   - newsletter: a short WhatsApp sign-up card
    - certifications: five round stamp seals in one row, all visible, no caption
    ========================================================================== */
 @media (max-width: 768px) {
@@ -14930,8 +14930,50 @@ body.poster-open .sb-portal .call-fab {
     font-size: 0.74rem;
   }
 
-  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-left {
+  /* Weekly advisory, phones: a short WhatsApp sign-up card - title, the
+     number, the crop, Subscribe, one small privacy line. The
+     tag, description and perk list go; labels stay for screen readers. */
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section {
+    padding: 20px 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-left,
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-tag,
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-desc,
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-perks {
     display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-inner {
+    border-radius: 18px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-right {
+    padding: 18px 16px 14px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-title {
+    margin: 0 0 12px;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-field {
+    min-width: 0;
+    margin: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-btn {
+    min-height: 46px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .newsletter-section .newsletter-note {
+    margin: 10px 0 0;
+    font-size: 0.7rem;
+    line-height: 1.4;
   }
 
   /* Certifications: all five as a row of round "stamp" seals - dashed ring,
