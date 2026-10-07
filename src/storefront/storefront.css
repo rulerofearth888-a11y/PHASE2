@@ -4351,9 +4351,7 @@ body.sb-home-active {
      phone Menu (MobileBottomNav.jsx); it lives here, not in index.css, whose
      rules sit in a cascade layer and lose to these whatever their specificity. */
   body.sb-home-active.overlay-open .sb-home .ticker-track,
-  body.sb-home-active.overlay-open .sb-home .chatbot-trigger-btn::after,
-  body.sb-home-active.menu-open .sb-home .ticker-track,
-  body.sb-home-active.menu-open .sb-home .chatbot-trigger-btn::after {
+  body.sb-home-active.overlay-open .sb-home .chatbot-trigger-btn::after {
     animation-play-state: paused;
   }
   /* The header slogan's sheen animates background-position, which only the
@@ -4361,8 +4359,7 @@ body.sb-home-active {
      and when a Menu tap landed in its 1.8s sweep the whole page was repainted
      on each frame of the slide (traced: twice the paint and style work of a
      slide outside the sweep). It holds still while the sheet or popup is up. */
-  body.overlay-open :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan-text,
-  body.menu-open :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan-text {
+  body.overlay-open :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan-text {
     animation-play-state: paused;
   }
 
@@ -7306,8 +7303,7 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
   :is(body.sb-home-active .sb-home, .sb-portal) .deal-fire {
     will-change: transform;
   }
-  body.sb-home-active.overlay-open .sb-home .deal-fire,
-  body.sb-home-active.menu-open .sb-home .deal-fire {
+  body.sb-home-active.overlay-open .sb-home .deal-fire {
     animation-play-state: paused;
   }
 
@@ -12502,8 +12498,11 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) :is(body.sb-home-act
     bottom: calc(160px + env(safe-area-inset-bottom, 0px));
   }
 }
+/* Not hidden under the phone Menu (body.menu-open): its backdrop (z 9980)
+   and sheet already cover these buttons (z 1450), and hiding them on the
+   frame the sheet starts sliding cost ~6 dropped frames per open/close on
+   a 4x slower phone (traced 2026-10-07; 0.3 with them left alone). */
 body.overlay-open .sb-portal .help-fab,
-body.menu-open .sb-portal .help-fab,
 body.poster-open .sb-portal .help-fab {
   opacity: 0;
   visibility: hidden;
@@ -12596,7 +12595,6 @@ body.poster-open .sb-portal .help-fab {
   display: none;
 }
 body.overlay-open .sb-portal .call-fab,
-body.menu-open .sb-portal .call-fab,
 body.poster-open .sb-portal .call-fab {
   opacity: 0;
   visibility: hidden;

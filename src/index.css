@@ -7287,14 +7287,12 @@ button.mobile-nav-link {
   .mobile-menu-sheet[data-warm="1"] {
     border-color: rgba(15, 23, 42, 0.061);
   }
-  /* Open, the header ticker behind it pauses (body.menu-open, set by
-     MobileBottomNav.jsx), as it does behind the storefront's popups: it kept
-     running through the slide on every store page, signed in or not. The
-     home page's own pulses pause in storefront.css - rules here sit in a
-     cascade layer and cannot override that file. */
-  body.menu-open .sb-chrome-ticker-track {
-    animation-play-state: paused;
-  }
+  /* Nothing behind the sheet is paused or hidden while it is open: the loops
+     (ticker, sale bolt, chat pulse) run on the GPU and cost the slide
+     nothing, and switching them or the floating buttons off on the frame the
+     slide starts is what made it stutter (traced 2026-10-07, 4x slower
+     phone: ~7.6 dropped frames per slide before, ~1 after; the floating
+     buttons' hide was most of it, see storefront.css). */
   .mms-handle {
     width: 40px;
     height: 4px;
@@ -12809,8 +12807,9 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .header-slogan-text 
     visibility: visible;
     transform: none;
   }
-  body.overlay-open .product-buy-bar,
-  body.menu-open .product-buy-bar {
+  /* not under the phone Menu: its backdrop (z 9980) covers the bar (z 1400),
+     and hiding it as the sheet slides cost dropped frames (2026-10-07) */
+  body.overlay-open .product-buy-bar {
     opacity: 0;
     visibility: hidden;
   }
