@@ -13146,3 +13146,30 @@ html:is([lang="ta"], [lang="kn"], [lang="te"], [lang="hi"]) .farmer-service-titl
 .tkt-assign-note.is-ok { color: #15803d; }
 .tkt-assign-note.is-warn { color: #b45309; }
 .tkt-assign-btn:hover:not(:disabled) { background: #075437; }
+
+/* ==========================================================================
+   PRODUCT DETAIL, PHONE COMPACT (<=768px) - ProductDetail.jsx
+   - "No verified reviews yet" hidden (real ratings still show)
+   - pack sizes: three across, slimmer
+   - quantity on one slim line; Add to cart + Checkout side by side
+   - facts: 2 x 2 mini tiles instead of four full-width boxes
+   The sticky buy bar (storefront.css) is unchanged.
+   ========================================================================== */
+@media (max-width: 768px) {
+  .product-detail-review-summary:not(:has(svg)) { display: none; }
+  .product-detail-summary h1 { margin-bottom: 4px; }
+  .product-detail-tagline { margin: 0 0 6px; font-size: 0.9rem; }
+  .product-pack-selector { margin-top: 12px; }
+  .product-pack-selector [role="group"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .product-pack-selector button { min-width: 0; padding: 8px 10px; }
+  .product-qty-row { gap: 8px 12px; margin: 12px 0 0; }
+  .product-qty-row > strong { font-size: 0.72rem; }
+  .product-detail-actions { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; margin-top: 12px; }
+  .product-detail-actions .btn-lg,
+  .product-detail-summary .product-detail-actions .btn-lg { min-height: 46px; padding: 8px 10px; font-size: 0.88rem; line-height: 1.2; white-space: normal; }
+  .product-detail-actions + .product-detail-description { margin-top: 14px; font-size: 0.92rem; line-height: 1.6; }
+  .product-detail-facts { grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 0; }
+  .product-detail-facts div { min-width: 0; padding: 10px 12px; border-radius: 12px; }
+  .product-detail-facts strong { font-size: 0.66rem; letter-spacing: 0.04em; }
+  .product-detail-facts span { margin-top: 2px; font-size: 0.82rem; line-height: 1.35; overflow-wrap: anywhere; }
+}
