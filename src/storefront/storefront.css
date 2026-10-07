@@ -15090,6 +15090,149 @@ body.poster-open .sb-portal .call-fab {
   }
 }
 
+/* 7v (cont.) Card look, phones: flat white card with a hairline border, the
+   photo on a soft inset tile, a small discount badge, outlined pack chips
+   and an outlined "+ cart" pill - the quick-commerce look. Also: tapping a
+   pack size no longer flashes the whole card (the card is a link, so Android
+   painted its tap highlight over all of it) and a tap no longer leaves the
+   card lifted (hover sticks on touch screens). */
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card,
+  .all-products-page .agro-product-card.agro-product-card {
+    border: 1px solid #E5ECE7;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card:is(:hover, :active, :focus),
+  .all-products-page .agro-product-card:is(:hover, :active, :focus) {
+    transform: none;
+    box-shadow: none;
+    outline: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card:focus-visible,
+  .all-products-page .agro-product-card:focus-visible {
+    outline: 2px solid var(--primary, #0B7A4B);
+    outline-offset: 2px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card :is(.pack-chip, .btn),
+  .all-products-page .agro-product-card :is(select, button, a) {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* photo on an inset tile */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .product-img-box,
+  .all-products-page .agro-product-card .card-image-box {
+    margin: 6px 6px 0;
+    border-radius: 12px;
+    background: #F3F7F4;
+    overflow: hidden;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card:hover .product-img-box img,
+  .all-products-page .agro-product-card:hover .card-image-box img {
+    transform: none;
+  }
+
+  /* small badge */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .discount-tag,
+  .all-products-page .agro-product-card .discount-tag {
+    top: 12px;
+    left: 12px;
+    padding: 3px 7px;
+    border-radius: 6px;
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* name and eyebrow */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .product-category-tag {
+    margin-bottom: 2px;
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .product-name,
+  .all-products-page .agro-product-card .card-product-title {
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* pack sizes: small outlined chips, the chosen one filled */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .pack-sizes-row {
+    gap: 4px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .pack-sizes-row .pack-chip {
+    min-height: 26px;
+    padding: 2px 8px;
+    border: 1px solid #DCE5DF;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #3F4D45;
+    font-size: 0.68rem;
+    box-shadow: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .pack-sizes-row .pack-chip.active {
+    border-color: var(--primary, #0B7A4B);
+    background: #E9F6EF;
+    color: var(--primary-dark, #075437);
+  }
+  .all-products-page .agro-product-card .card-size-dropdown {
+    border: 1px solid #DCE5DF;
+    border-radius: 8px;
+    background-color: #ffffff;
+  }
+
+  /* price */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .current-price,
+  .all-products-page .agro-product-card .card-current-price {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  /* "+ cart": an outlined pill instead of the solid circle */
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn,
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg) {
+    width: 56px;
+    height: 40px;
+    min-height: 40px;
+    border: 1.5px solid var(--primary, #0B7A4B);
+    border-radius: 999px;
+    background: #F0FAF4;
+    color: transparent;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn i {
+    color: var(--primary, #0B7A4B);
+    font-size: 0.85rem;
+  }
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg) {
+    color: var(--primary, #0B7A4B);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn::after,
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg)::after {
+    content: "+";
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: var(--primary, #0B7A4B);
+    font: 800 0.8rem/1 'Plus Jakarta Sans', sans-serif;
+  }
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg) {
+    position: relative;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn:active,
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg):active {
+    background: var(--primary, #0B7A4B);
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn:active :is(i, svg),
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg):active {
+    color: #ffffff;
+  }
+}
+
 /* ==========================================================================
    7w. HOME CATALOG, PHONE: FIRST SIX + "SHOW ALL" (Catalog.jsx)
    .is-capped is set while more than six products match and the shopper has
