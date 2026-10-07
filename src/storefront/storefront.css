@@ -14802,3 +14802,126 @@ body.poster-open .sb-portal .call-fab {
     overflow-wrap: anywhere;
   }
 }
+
+/* ==========================================================================
+   7v. PRODUCT CARDS, PHONE QUICK-COMMERCE ROW (<=768px)
+   Blinkit / Zepto style: the price and a round cart button share the last
+   row; secondary lines (tagline, brand, "Size" label, savings pill) go.
+   Same markup; the card body becomes a 2-column grid where everything spans
+   both columns except the price (left) and the button (right).
+   Home/related: .product-card. /products: .agro-product-card.
+   ========================================================================== */
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-content.card-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 6px;
+    padding: 10px 10px 12px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-content > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .product-tagline.product-tagline {
+    /* display is forced on by the shared card rule; collapse it instead */
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .pack-sizes-row {
+    order: 1;
+    margin: 4px 0 8px;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .pack-sizes-row .pack-chip {
+    min-height: 28px;
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-content > .price-row {
+    order: 2;
+    grid-column: 1;
+    flex-wrap: wrap;
+    row-gap: 0;
+    margin: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-content > .card-btn-row:has(.fa-cart-shopping) {
+    order: 2;
+    grid-column: 2;
+    margin: 0;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn {
+    position: relative;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--primary, #0B7A4B);
+    color: transparent;
+    white-space: nowrap;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) :is(#catalog, #relatedProductsSection) .product-card .card-btn-row:has(.fa-cart-shopping) .btn i {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+
+  .all-products-page .agro-product-card.agro-product-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    align-content: start;
+    column-gap: 6px;
+    padding-bottom: 12px;
+  }
+  .all-products-page .agro-product-card > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .all-products-page .agro-product-card > :not(.card-top-bar, .card-image-box) {
+    margin-inline: 10px;
+  }
+  .all-products-page .agro-product-card :is(.card-brand-name, .card-savings-pill, .card-high-demand-placeholder, .card-size-selector-row > label) {
+    display: none;
+  }
+  .all-products-page .agro-product-card .card-size-selector-row {
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .all-products-page .agro-product-card .card-size-dropdown {
+    height: 34px;
+    min-height: 34px;
+    padding-block: 0;
+    font-size: 0.8rem;
+  }
+  .all-products-page .agro-product-card .card-size-selector-row,
+  .all-products-page .agro-product-card .card-size-selector-row ~ * {
+    order: 1;
+  }
+  .all-products-page .agro-product-card > .card-pricing-row {
+    order: 2;
+    grid-column: 1;
+    flex-wrap: wrap;
+    row-gap: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg) {
+    order: 2;
+    grid-column: 2;
+    width: 40px;
+    height: 40px;
+    margin-left: 0;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--primary, #0B7A4B);
+    color: #ffffff;
+  }
+  .all-products-page .agro-product-card > .card-add-to-cart-btn:has(svg) span {
+    display: none;
+  }
+}
