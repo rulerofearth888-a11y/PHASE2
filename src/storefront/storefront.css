@@ -14637,6 +14637,30 @@ body.poster-open .sb-portal .call-fab {
     animation: f2fDrive var(--f2f-cycle) cubic-bezier(0.45, 0, 0.25, 1) var(--f2f-start) infinite;
   }
 
+  /* Folding away on scroll must win over the running cycle. f2fLife owns the
+     pill's opacity and scale, and an animation's value beats the fold's own
+     opacity: 0 (index.css / 'FACTORY 2 FARMER on desktop'), so once the loop
+     paused the tag froze on screen, often fully visible. The fold therefore
+     fades with filter: opacity() and ends in visibility: hidden - neither is
+     touched by the animation; the slide-up transform still comes from the
+     fold rules. */
+  .header-slogan.header-slogan--chrome {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.22s ease, visibility 0s linear 0s;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease, visibility 0s linear 0s;
+  }
+  body.slogan-tucked .header-slogan.header-slogan--chrome,
+  body.slogan-tucked :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
+    filter: opacity(0);
+    visibility: hidden;
+  }
+  body.slogan-tucked .header-slogan.header-slogan--chrome {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.22s ease, visibility 0s linear 0.22s;
+  }
+  body.slogan-tucked :is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease, visibility 0s linear 0.3s;
+  }
   /* folded away on scroll: hold the cycle where it is */
   body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome),
   body.slogan-tucked :is(:is(body.sb-home-active .sb-home, .sb-portal) .header-slogan--store, .header-slogan--chrome) * {
