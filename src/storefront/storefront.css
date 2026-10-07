@@ -14917,3 +14917,44 @@ body.poster-open .sb-portal .call-fab {
     display: none;
   }
 }
+
+/* ==========================================================================
+   7w. HOME CATALOG, PHONE: FIRST SIX + "SHOW ALL" (Catalog.jsx)
+   .is-capped is set while more than six products match and the shopper has
+   not asked for all; the cap and the button exist on phones only. Trending
+   keeps one row of two there (its products are in the catalog above).
+   ========================================================================== */
+:is(body.sb-home-active .sb-home, .sb-portal) .catalog-show-all {
+  display: none;
+}
+@media (max-width: 768px) {
+  :is(body.sb-home-active .sb-home, .sb-portal) #productsGrid.is-capped > .product-card:nth-child(n + 7) {
+    display: none;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #catalog .catalog-show-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 46px;
+    margin-top: 14px;
+    border: 1.5px solid rgba(11, 122, 75, 0.25);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--primary-dark, #075437);
+    font: 700 0.9rem/1 'Plus Jakarta Sans', var(--script-font, sans-serif), sans-serif;
+    cursor: pointer;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #catalog .catalog-show-all:active {
+    background: #E7F3EC;
+  }
+  :is(body.sb-home-active .sb-home, .sb-portal) #trendingProductsGrid > .product-card:nth-child(n + 3) {
+    display: none;
+  }
+  /* The filter bar already says "9 Products"; the sentence repeated it. */
+  :is(body.sb-home-active .sb-home, .sb-portal) #catalog #productsCount,
+  :is(body.sb-home-active .sb-home, .sb-portal) #catalog .section-header .section-subtitle {
+    display: none;
+  }
+}

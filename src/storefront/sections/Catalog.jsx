@@ -157,6 +157,8 @@ const ProductCard = memo(function ProductCard({ product: p, user, t, variant }) 
   )
 })
 
+const PHONE_CATALOG_CAP = 6
+
 export const Catalog = memo(function Catalog({ t, filters, products, catalogOptions, user, filterDrawerOpen, loading = false }) {
   const { setFilter, resetFilters, filterByCategory, toggleFilterDrawer } = useStore()
   const searchQuery = filters.search.toLowerCase().trim()
@@ -189,6 +191,12 @@ export const Catalog = memo(function Catalog({ t, filters, products, catalogOpti
     return list
   }, [liveCats, products.length, filters.category])
   const diseaseOptions = catalogOptions?.diseases || DISEASES
+
+  // Phones show the first six results, then "Show all" (storefront.css 7w);
+  // desktop ignores the cap. A new filter or search collapses it again.
+  const filterKey = [filters.crop, filters.disease, filters.category, filters.form, searchQuery].join('|')
+  const [expandedFor, setExpandedFor] = useState(null)
+  const capped = expandedFor !== filterKey && filtered.length > PHONE_CATALOG_CAP
 
   return (
     <section className="section" id="catalog">
@@ -272,7 +280,7 @@ export const Catalog = memo(function Catalog({ t, filters, products, catalogOpti
                   : `${t('showing_products')} ${filtered.length} ${t('of_products')} ${products.length} ${t('products_label')}`}
               </span>
             </div>
-            <div className="products-grid" id="productsGrid">
+            <div className={`products-grid${capped ? ' is-capped' : ''}`} id="productsGrid">
               {loading && products.length === 0 ? (
                 <>
                   <ProductSkeleton />
@@ -291,6 +299,11 @@ export const Catalog = memo(function Catalog({ t, filters, products, catalogOpti
                 filtered.map(product => <ProductCard key={product.id} product={product} user={user} t={t} variant="catalog" />)
               )}
             </div>
+            {capped && (
+              <button type="button" className="catalog-show-all" onClick={() => setExpandedFor(filterKey)}>
+                Show all {filtered.length} products <i className="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+            )}
           </div>
         </div>
       </div>
