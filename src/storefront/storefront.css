@@ -9592,51 +9592,88 @@ html.sb-loc-lock {
    cards stacked. The bottom bar's room (--bottom-bar-room, the body's
    padding) is drawn inside the footer so no light strip shows under it. */
 @media (max-width: 768px) {
+  /* Phones: an app-style footer, about half the old height.
+     promises   one row of four icon tiles, titles only
+     brand      small logo + social icons on one line, one-line blurb
+     links      tap-to-open rows (FooterColumn), slimmer
+     support    three action tiles - Call (number shown), Email, Map
+     bottom     payment chips and one small copyright line */
   .public-site-footer {
     --ft-width: calc(100% - 32px);
     padding-bottom: var(--bottom-bar-room, 0px);
     margin-bottom: calc(-1 * var(--bottom-bar-room, 0px));
   }
   .public-footer-promises {
-    padding: 28px 0 24px;
-    gap: 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 20px 0 16px;
+    gap: 6px;
   }
   .public-footer-promises > li {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 14px;
-    border-radius: 14px;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    text-align: center;
   }
   .public-footer-promise-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
   }
   .public-footer-promise-icon svg {
-    width: 19px;
-    height: 19px;
+    width: 20px;
+    height: 20px;
   }
   .public-footer-promises strong {
-    font-size: 0.9rem;
+    font-size: 0.68rem;
+    line-height: 1.25;
+    overflow-wrap: break-word;
   }
   .public-footer-promises li > span:last-child > span {
-    font-size: 0.75rem;
+    display: none;
   }
 
   .public-footer-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    padding: 28px 0 24px;
+    padding: 18px 0 8px;
+    border-top: 1px solid var(--ft-line);
   }
   .public-footer-brand {
-    padding-bottom: 22px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px 12px;
+    padding-bottom: 16px;
   }
-  .public-footer-brand .public-footer-brand-more {
-    display: none;
+  .public-footer-brand .public-footer-logo {
+    grid-column: 1;
+    transform: scale(0.82);
+    transform-origin: left center;
   }
+  .public-footer-brand .public-social-links {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    margin: 0;
+  }
+  .public-footer-brand p {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .public-footer-brand .public-footer-brand-more,
   .public-footer-brand .public-footer-follow {
-    margin-top: 18px;
+    display: none;
   }
 
   .public-footer-col {
@@ -9647,9 +9684,10 @@ html.sb-loc-lock {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    min-height: 52px;
+    min-height: 46px;
     margin: 0;
-    padding: 12px 2px;
+    padding: 8px 2px;
+    font-size: 0.92rem;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
@@ -9666,13 +9704,13 @@ html.sb-loc-lock {
     flex: none;
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     background: var(--ft-glass);
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     color: var(--ft-gold);
     transition: transform 0.25s ease;
   }
@@ -9683,7 +9721,7 @@ html.sb-loc-lock {
     display: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0 16px;
-    padding: 0 2px 14px;
+    padding: 0 2px 12px;
   }
   .public-footer-col.open .public-footer-col-body {
     display: grid;
@@ -9698,32 +9736,80 @@ html.sb-loc-lock {
   }
 
   .public-footer-support {
-    padding-top: 22px;
+    padding-top: 16px;
     border-top: 1px solid var(--ft-line);
   }
   .public-footer-support-title {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+    font-size: 0.92rem;
   }
   .public-footer-contact {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .public-footer-contact-card {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    height: 100%;
+    padding: 12px 6px;
+    text-align: center;
+  }
+  .public-footer-contact-text {
+    align-items: center;
+    min-width: 0;
+  }
+  .public-footer-contact-go {
+    display: none;
+  }
+  .public-footer-contact-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: inherit;
+  }
+  .public-footer-contact-value {
+    display: none;
+  }
+  /* The number is worth reading before you tap. */
+  .public-footer-contact > li:first-child .public-footer-contact-value {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0.85;
   }
 
   /* Kept clear of the floating call and chat buttons on the right. */
   .public-footer-bottom {
     flex-direction: column;
     justify-content: center;
-    gap: 12px;
-    padding: 20px 64px 24px;
+    gap: 8px;
+    padding: 16px 64px 20px;
     text-align: center;
   }
   .public-footer-pay {
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+  }
+  .public-footer-pay-label {
+    font-size: 0.66rem;
   }
   .public-footer-pay ul {
     justify-content: center;
+    gap: 4px;
+  }
+  .public-footer-pay li {
+    padding: 3px 9px;
+    font-size: 0.68rem;
+  }
+  .public-footer-copy,
+  .public-footer-credit {
+    margin: 0;
+    font-size: 0.68rem;
   }
 }
+
 
 /* ==========================================================================
    DESKTOP 2026 — THE AUTHORITATIVE LAYER (>=769px / >=1025px)
@@ -12434,7 +12520,7 @@ body.poster-open .sb-portal .help-fab {
   }
   .sb-portal .help-fab .help-fab-button {
     width: auto;
-    height: 48px;
+    height: 52px;
     padding: 0 20px 0 16px;
   }
   .sb-portal .help-fab .help-fab-label {
@@ -12472,8 +12558,8 @@ body.poster-open .sb-portal .help-fab {
   right: 12px;
   bottom: calc(150px + env(safe-area-inset-bottom, 0px));
   z-index: 1450;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -12519,13 +12605,21 @@ body.poster-open .sb-portal .call-fab {
 @media (min-width: 769px) {
   .sb-portal .call-fab {
     right: 24px;
-    bottom: 84px;
+    bottom: 88px;
     width: 52px;
     height: 52px;
     font-size: 1.2rem;
   }
-  body.sb-home-active .sb-home .back-to-top {
+  /* One column on the right, the same 24px edge on every store page:
+     Help (24-76px), Call (88-140px), back-to-top (152-204px), 12px apart
+     and all 52px tall. The back-to-top rule elsewhere put it at ~100px on
+     pages other than home, on top of the call button. */
+  :is(body.sb-home-active .sb-home, .sb-portal) .back-to-top {
+    right: 24px;
     bottom: 152px;
+    width: 52px;
+    height: 52px;
+    font-size: 1rem;
   }
 }
 @media (min-width: 1025px) {
